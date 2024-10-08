@@ -6,12 +6,19 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "filament/filament": "^3.2",
         "laravel/framework": "^11.9",
-        "laravel/tinker": "^2.9"
+        "laravel/horizon": "^5.29",
+        "laravel/pulse": "^1.2",
+        "laravel/telescope": "^5.2",
+        "laravel/tinker": "^2.9",
+        "spatie/laravel-data": "^4.10",
+        "spatie/laravel-route-attributes": "^1.23"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.1",
         "fakerphp/faker": "^1.23",
-        "laravel/pint": "^1.13",
+        "laravel/pint": "^1.18",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
@@ -33,7 +40,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
@@ -45,6 +53,33 @@
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
+        ],
+        "optimize:clear": [
+            "@php artisan optimize:clear",
+            "@php artisan filament:optimize-clear"
+        ],
+        "optimize": [
+            "@php artisan optimize",
+            "@php artisan filament:optimize",
+            "@php artisan data:cache-structures"
+        ],
+        "pint": [
+            "./vendor/bin/pint --dirty --test"
+        ],
+        "pint:fix": [
+            "./vendor/bin/pint --dirty"
+        ],
+        "pint:all": [
+            "./vendor/bin/pint --test"
+        ],
+        "pint:fix-all": [
+            "./vendor/bin/pint"
+        ],
+        "phpstan": [
+            "./vendor/bin/phpstan analyse"
+        ],
+        "ide-helper:model": [
+            "@php artisan ide-helper:models -R"
         ]
     },
     "extra": {

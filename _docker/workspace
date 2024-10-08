@@ -1,0 +1,36 @@
+#!/bin/bash
+
+__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "${__dir}" || { echo "Error: Unable to change directory." >&2; exit 1; }
+
+if ! command -v docker-compose &> /dev/null; then
+    echo "Error: docker-compose is not installed or not in the PATH."
+    exit 1
+fi
+
+if [ $# -gt 0 ]; then
+    CMD=""
+
+    case "$1" in
+        art | artisan)
+            shift
+            CMD="php artisan $*"
+            ;;
+        composer)
+            shift
+            CMD="composer $*"
+            ;;
+        test)
+            shift
+            CMD="composer test -- $*"
+            ;;
+        *)
+            CMD="$*"
+            ;;
+    esac
+
+    docker-compose exec php-cli bash -c "$CMD"
+else
+    docker-compose ps
+fi

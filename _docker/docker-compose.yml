@@ -1,0 +1,143 @@
+services:
+    php-base:
+        container_name: ${COMPOSE_PROJECT_NAME}-php-base
+        image: ${COMPOSE_PROJECT_NAME}-php-base
+        build:
+            context: php/base
+            dockerfile: Dockerfile
+            args:
+                PHP_VERSION: ${PHP_VERSION}
+                TIME_ZONE: ${TIME_ZONE}
+        environment:
+            TIME_ZONE: ${TIME_ZONE}
+        profiles:
+            - php
+            - application
+    
+    php-queue:
+        container_name: ${COMPOSE_PROJECT_NAME}-php-queue
+        image: ${COMPOSE_PROJECT_NAME}-php-queue
+        build:
+            context: php/queue
+            dockerfile: Dockerfile
+            args:
+                WORK_DIR: ${WORK_DIR}
+                BASE_IMAGE: ${COMPOSE_PROJECT_NAME}-php-base
+        environment:
+            BASE_IMAGE: ${COMPOSE_PROJECT_NAME}-php-base
+        profiles:
+            - php
+            - application
+            - queue
+        depends_on:
+            - php-base
+        networks:
+            - application
+    
+    frankenphp:
+        container_name: ${COMPOSE_PROJECT_NAME}-frankenphp
+        image: ${COMPOSE_PROJECT_NAME}-frankenphp
+        build:
+            context: php/franken
+            dockerfile: Dockerfile
+            args:
+                PHP_VERSION: ${PHP_VERSION}
+                TIME_ZONE: ${TIME_ZONE}
+                WORK_DIR: ${WORK_DIR}
+        environment:
+            TIME_ZONE: ${TIME_ZONE}
+            WORK_DIR: ${WORK_DIR}
+        restart: unless-stopped
+        #entrypoint: php artisan octane:frankenphp --host=localhost --port=443 --admin-port=2019 --workers=1 --max-requests=1 --https --http-redirect
+        ports:
+            - "80:80"
+            - "443:443"
+            - "443:443/udp"
+        volumes:
+            - ${DATA_DIR}:/data
+            - ${CONFIGS_DIR}:/config
+            - ${CODE_DIR}:${WORK_DIR}
+        profiles:
+            - php
+            - application
+        depends_on:
+            - php-base
+        tty: true
+        networks:
+            - application
+    
+    mysql:
+        container_name: ${COMPOSE_PROJECT_NAME}-mysql
+        image: ${COMPOSE_PROJECT_NAME}-mysql
+        build:
+            context: mysql
+            dockerfile: Dockerfile
+            args:
+                MYSQL_VERSION: ${MYSQL_VERSION}
+                TIME_ZONE: ${TIME_ZONE}
+        environment:
+            TIME_ZONE: ${TIME_ZONE}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        volumes:
+            - ${LOGS_DIR}/mysql:/var/log/mysql
+            - ${DATA_DIR}/mysql:/var/lib/mysql
+        restart: unless-stopped
+        ports:
+            - "3306:3306"
+        profiles:
+            - mysql
+            - application
+        networks:
+            - application
+    
+    redis-cache:
+        container_name: ${COMPOSE_PROJECT_NAME}-redis-cache
+        image: ${COMPOSE_PROJECT_NAME}-redis-cache
+        build:
+            context: redis
+            dockerfile: Dockerfile
+            args:
+                TIME_ZONE: ${TIME_ZONE}
+        environment:
+            TIME_ZONE: ${TIME_ZONE}
+        volumes:
+            - ./redis/configs:/usr/local/etc/redis
+        command: [ redis-server, /usr/local/etc/redis/redis-cache.conf ]
+        restart: unless-stopped
+        ports:
+            - "6380:6379"
+        profiles:
+            - redis-cache
+            - application
+        networks:
+            - application
+    
+    redis-default:
+        container_name: ${COMPOSE_PROJECT_NAME}-redis-default
+        image: ${COMPOSE_PROJECT_NAME}-redis-default
+        build:
+            context: redis
+            dockerfile: Dockerfile
+            args:
+                TIME_ZONE: ${TIME_ZONE}
+        environment:
+            TIME_ZONE: ${TIME_ZONE}
+        volumes:
+            - ./redis/configs:/usr/local/etc/redis
+        command: [ redis-server, /usr/local/etc/redis/redis-default.conf ]
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        profiles:
+            - redis-queue
+            - application
+        networks:
+            - application
+
+networks:
+    application:
+        driver: bridge
+        name: ${NETWORK_NAME}

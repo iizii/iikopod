@@ -1,0 +1,12 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "declare_strict_types": true,
+        "final_class": true,
+        "php_unit_strict": true,
+        "simplified_null_return": true,
+        "new_with_braces": true,
+        "single_trait_insert_per_statement": true,
+        "static_lambda": true
+    }
+}
