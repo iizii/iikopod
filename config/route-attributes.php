@@ -23,7 +23,7 @@ return [
             'namespace' => 'Presentation\Api\Controllers\\',
             'prefix' => 'api/v1',
             'as' => 'api.v1.',
-            'middleware' => ['api'],
+            'middleware' => ['api', \Presentation\Api\Middleware\AddAcceptJsonHeaderMiddleware::class],
         ],
     ],
 

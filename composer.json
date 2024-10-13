@@ -83,7 +83,7 @@
             "./vendor/bin/phpstan analyse"
         ],
         "ide-helper:model": [
-            "@php artisan ide-helper:models -R"
+            "@php artisan ide-helper:models --write -R"
         ]
     },
     "extra": {

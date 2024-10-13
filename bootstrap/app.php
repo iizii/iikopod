@@ -5,8 +5,10 @@ declare(strict_types=1);
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Infrastructure\Laravel\Application;
+use Infrastructure\Laravel\Scheduler;
 
 return Application::configure(basePath: dirname(__DIR__))
+    ->withSchedule(new Scheduler())
     ->withRouting(
         health: '/up',
     )
@@ -16,4 +18,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(static function (Exceptions $exceptions) {
         //
     })
-    ->create();
+    ->create()
+    ->useAppPath('src/Application');
