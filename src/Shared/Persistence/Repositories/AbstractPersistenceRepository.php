@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shared\Persistence\Repository;
+namespace Shared\Persistence\Repositories;
 
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\Users\Repository;
+namespace Domain\Users\Repositories;
 
 use Domain\Users\Models\User;
 

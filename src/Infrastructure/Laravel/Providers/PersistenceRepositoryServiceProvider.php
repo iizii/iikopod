@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Infrastructure\Laravel\Providers;
 
 use Domain\Users\Models\User;
-use Domain\Users\Repository\UserRepositoryInterface;
+use Domain\Users\Repositories\UserRepositoryInterface;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\ServiceProvider;
-use Infrastructure\Persistence\Repository\UserRepository;
+use Infrastructure\Persistence\Repositories\UserRepository;
 
 final class PersistenceRepositoryServiceProvider extends ServiceProvider
 {

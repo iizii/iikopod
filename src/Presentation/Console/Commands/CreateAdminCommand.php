@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Presentation\Console\Commands;
 
-use Domain\Users\Enum\UserRole;
+use Domain\Users\Enums\UserRole;
 use Domain\Users\Models\User;
-use Domain\Users\Repository\UserRepositoryInterface;
+use Domain\Users\Repositories\UserRepositoryInterface;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 

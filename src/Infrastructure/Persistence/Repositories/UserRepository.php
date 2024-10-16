@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Persistence\Repository;
+namespace Infrastructure\Persistence\Repositories;
 
 use Domain\Users\Models\User;
-use Domain\Users\Repository\UserRepositoryInterface;
-use Shared\Persistence\Repository\AbstractPersistenceRepository;
+use Domain\Users\Repositories\UserRepositoryInterface;
+use Shared\Persistence\Repositories\AbstractPersistenceRepository;
 
 final class UserRepository extends AbstractPersistenceRepository implements UserRepositoryInterface
 {

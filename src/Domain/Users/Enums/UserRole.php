@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\Users\Enum;
+namespace Domain\Users\Enums;
 
 enum UserRole: string
 {

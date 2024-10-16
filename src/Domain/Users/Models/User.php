@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Users\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Domain\Users\Enum\UserRole;
+use Domain\Users\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
@@ -77,22 +77,6 @@ final class User extends Authenticatable implements FilamentUser, HasName
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'role' => UserRole::class,
-            'password' => 'hashed',
-            'email_verified_at' => 'immutable_datetime',
-            'created_at' => 'immutable_datetime',
-            'updated_at' => 'immutable_datetime',
-        ];
-    }
-
     public static function new(
         UserRole $role,
         string $userName,
@@ -126,5 +110,21 @@ final class User extends Authenticatable implements FilamentUser, HasName
     public function getFilamentName(): string
     {
         return $this->email;
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'role' => UserRole::class,
+            'password' => 'hashed',
+            'email_verified_at' => 'immutable_datetime',
+            'created_at' => 'immutable_datetime',
+            'updated_at' => 'immutable_datetime',
+        ];
     }
 }

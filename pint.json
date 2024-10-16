@@ -7,6 +7,7 @@
         "simplified_null_return": true,
         "new_with_braces": true,
         "single_trait_insert_per_statement": true,
-        "static_lambda": true
+        "static_lambda": true,
+        "ordered_class_elements": true
     }
 }

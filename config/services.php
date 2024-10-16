@@ -37,4 +37,8 @@ return [
         ],
     ],
 
+    'iiko' => [
+        'baseUrl' => env('IIKO_BASE_URL'),
+        'timeout' => env('IIKO_TIMEOUT', 5),
+    ],
 ];
