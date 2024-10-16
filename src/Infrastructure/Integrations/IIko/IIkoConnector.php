@@ -28,9 +28,7 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
      */
     protected function getRequestSuccessEvents(): iterable
     {
-        return [
-            IIkoRequestSuccessesEvent::class,
-        ];
+        yield IIkoRequestSuccessesEvent::class;
     }
 
     /**
@@ -38,8 +36,6 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
      */
     protected function getRequestErrorEvents(): iterable
     {
-        return [
-            IIkoRequestFailedEvent::class,
-        ];
+        yield IIkoRequestFailedEvent::class;
     }
 }
