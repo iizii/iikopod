@@ -19,4 +19,4 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->create()
-    ->useAppPath('src/Application');
+    ->useAppPath('src');
