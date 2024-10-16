@@ -10,6 +10,7 @@ use Illuminate\Foundation\Console\Kernel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use ReflectionClass;
+use ReflectionException;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 
@@ -18,7 +19,9 @@ final class ConsoleKernel extends Kernel
     private const NAMESPACE = 'Presentation\\';
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
+     *
+     * @phpstan-ignore-next-line
      */
     protected function load($paths): void
     {

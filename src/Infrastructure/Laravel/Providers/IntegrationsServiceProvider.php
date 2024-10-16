@@ -21,6 +21,8 @@ final class IntegrationsServiceProvider extends ServiceProvider
     {
         $this->app->scoped(IikoConnectorInterface::class, static function (Application $application): IIkoConnector {
             $pendingRequest = $application->make(Factory::class);
+
+            /** @var array{baseUrl: string, timeout: int} $config */
             $config = $application->make(Repository::class)->get('services.iiko');
 
             return new IIkoConnector(

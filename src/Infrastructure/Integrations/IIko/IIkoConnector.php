@@ -23,6 +23,9 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
         );
     }
 
+    /**
+     * @return iterable<class-string>
+     */
     protected function getRequestSuccessEvents(): iterable
     {
         return [
@@ -30,6 +33,9 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
         ];
     }
 
+    /**
+     * @return iterable<class-string>
+     */
     protected function getRequestErrorEvents(): iterable
     {
         return [

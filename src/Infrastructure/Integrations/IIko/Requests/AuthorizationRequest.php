@@ -9,8 +9,9 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseDa
 use Shared\Integrations\RequestInterface;
 use Shared\Integrations\RequestMethod;
 use Shared\Integrations\ResponseData;
+use Shared\Integrations\ResponseDataInterface;
 
-final class AuthorizationRequest implements RequestInterface
+final class AuthorizationRequest implements RequestInterface, ResponseDataInterface
 {
     public function getMethod(): RequestMethod
     {
@@ -24,6 +25,6 @@ final class AuthorizationRequest implements RequestInterface
 
     public function createDtoFromResponse(Response $response): ResponseData
     {
-        return new AuthorizationResponseData($response->json('apiLogin'));
+        return AuthorizationResponseData::from((array) $response->json());
     }
 }

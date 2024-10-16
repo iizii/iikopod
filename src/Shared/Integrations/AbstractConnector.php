@@ -22,7 +22,7 @@ abstract readonly class AbstractConnector
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function execute(RequestInterface $request): ResponseData
+    public function execute(RequestInterface $request): Response|ResponseData
     {
         $response = $this
             ->pendingRequest
@@ -30,7 +30,7 @@ abstract readonly class AbstractConnector
                 $request->getMethod()->value,
                 $request->getEndpoint(),
             )
-            ->throwIf(fn (Response $response): bool => $this->hasRequestFailed($response))
+            ->throwIf(fn (Response $response): ?bool => $this->hasRequestFailed($response))
             ->throw(function (Response $response, RequestException $exception) {
                 $this->dispatchEvents($this->getRequestErrorEvents(), $response);
 
@@ -39,7 +39,11 @@ abstract readonly class AbstractConnector
 
         $this->dispatchEvents($this->getRequestSuccessEvents(), $response);
 
-        return $request->createDtoFromResponse($response);
+        if ($request instanceof ResponseDataInterface) {
+            return $request->createDtoFromResponse($response);
+        }
+
+        return $response;
     }
 
     protected function hasRequestFailed(Response $response): ?bool
@@ -56,18 +60,24 @@ abstract readonly class AbstractConnector
         );
     }
 
+    /**
+     * @return iterable<class-string>
+     */
     protected function getRequestSuccessEvents(): iterable
     {
         return [];
     }
 
+    /**
+     * @return iterable<class-string>
+     */
     protected function getRequestErrorEvents(): iterable
     {
         return [];
     }
 
     /**
-     * @param  iterable<RequestEventInterface>  $events
+     * @param  iterable<class-string>  $events
      */
     protected function dispatchEvents(iterable $events, Response $response): void
     {

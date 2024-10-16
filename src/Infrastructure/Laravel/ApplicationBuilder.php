@@ -11,6 +11,10 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 final class ApplicationBuilder extends LaravelApplicationBuilder
 {
+    /**
+     * @param  array<class-string>  $commands
+     * @return $this
+     */
     public function withCommands(array $commands = []): self
     {
         if (empty($commands)) {

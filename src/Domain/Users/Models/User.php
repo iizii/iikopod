@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Domain\Users\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Domain\Users\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
@@ -47,7 +48,9 @@ use Illuminate\Notifications\Notifiable;
  */
 final class User extends Authenticatable implements FilamentUser, HasName
 {
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use Notifiable;
 
     /**
