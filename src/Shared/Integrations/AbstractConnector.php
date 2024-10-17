@@ -39,11 +39,7 @@ abstract readonly class AbstractConnector
 
         $this->dispatchEvents($this->getRequestSuccessEvents(), $response);
 
-        if ($request instanceof ResponseDataInterface) {
-            return $request->createDtoFromResponse($response);
-        }
-
-        return $response;
+        return $this->createResponse($response, $request);
     }
 
     protected function hasRequestFailed(Response $response): ?bool
@@ -84,5 +80,14 @@ abstract readonly class AbstractConnector
         foreach ($events as $eventClass) {
             $this->eventDispatcher->dispatch(new $eventClass($response));
         }
+    }
+
+    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData
+    {
+        if (! $request instanceof ResponseDataInterface) {
+            return $response;
+        }
+
+        return $request->createDtoFromResponse($response);
     }
 }

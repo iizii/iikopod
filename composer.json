@@ -24,7 +24,8 @@
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
         "pestphp/pest": "^3.3",
-        "pestphp/pest-plugin-laravel": "^3.0"
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "qossmic/deptrac": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -66,7 +67,7 @@
         "optimize": [
             "@php artisan optimize",
             "@php artisan filament:optimize",
-            "@php artisan data:cache-structures"
+            "@php artisan data:cache-structures --show-classes"
         ],
         "pint": [
             "./vendor/bin/pint --dirty --test"
