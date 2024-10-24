@@ -39,6 +39,9 @@ abstract readonly class AbstractConnector
         return $this->createResponse($response, $request);
     }
 
+    /**
+     * @return iterable<Response|ResponseData>
+     */
     public function sendAsync(RequestInterface ...$requests): iterable
     {
         $responses = $this

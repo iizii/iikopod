@@ -86,6 +86,10 @@
         "phpstan": [
             "./vendor/bin/phpstan analyse --memory-limit=2G"
         ],
+        "pre-commit": [
+            "composer pint:fix-all",
+            "composer phpstan"
+        ],
         "ide-helper:model": [
             "@php artisan ide-helper:models --write -R"
         ]

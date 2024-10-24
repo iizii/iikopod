@@ -8,7 +8,7 @@ return [
      * is an array, it will try to convert from the first format that works,
      * and will serialize dates using the first format from the array.
      */
-    'date_format' => DATE_ATOM,
+    'date_format' => [DATE_ATOM, 'Y-m-d H:i:s', 'Y-m-d H:i:s.v'],
 
     /**
      * When transforming or casting dates, the following timezone will be used to
@@ -23,7 +23,7 @@ return [
      * version of the package, these features will be enabled by default.
      */
     'features' => [
-        'cast_and_transform_iterables' => false,
+        'cast_and_transform_iterables' => true,
 
         /**
          * When trying to set a computed property value, the package will throw an exception.

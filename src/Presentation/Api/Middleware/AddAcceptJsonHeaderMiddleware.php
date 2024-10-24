@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 final class AddAcceptJsonHeaderMiddleware
 {
-    public function handle(Request $request, Closure $next): Closure
+    public function handle(Request $request, Closure $next): mixed
     {
         $request->headers->set('Accept', 'application/json');
 
