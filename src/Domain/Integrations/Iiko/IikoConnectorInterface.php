@@ -10,5 +10,7 @@ use Shared\Integrations\ResponseData;
 
 interface IikoConnectorInterface
 {
-    public function execute(RequestInterface $request): Response|ResponseData;
+    public function send(RequestInterface $request): Response|ResponseData;
+
+    public function sendAsync(RequestInterface ...$requests): iterable;
 }

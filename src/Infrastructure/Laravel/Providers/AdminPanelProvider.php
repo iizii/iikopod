@@ -7,6 +7,7 @@ namespace Infrastructure\Laravel\Providers;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -51,6 +52,11 @@ final class AdminPanelProvider extends PanelProvider
             )
             ->widgets([
                 //
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Настройки')
+                    ->icon('heroicon-c-cog'),
             ])
             ->middleware([
                 EncryptCookies::class,
