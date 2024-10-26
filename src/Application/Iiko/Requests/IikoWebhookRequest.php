@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Application\Requests;
+namespace Application\Iiko\Requests;
 
 use Carbon\CarbonImmutable;
 use Domain\Iiko\Enums\WebhookEventType;

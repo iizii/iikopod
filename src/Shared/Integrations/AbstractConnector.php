@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shared\Integrations;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Pool;
@@ -28,8 +29,9 @@ abstract readonly class AbstractConnector
         $response = $this
             ->pendingRequest
             ->send(
-                $request->getMethod()->value,
-                $request->getEndpoint(),
+                $request->method()->value,
+                $request->endpoint(),
+                $this->buildParams($request),
             );
 
         $response = $this->handleResponse($response);
@@ -49,8 +51,8 @@ abstract readonly class AbstractConnector
             ->pool(static function (Pool $pool) use ($requests) {
                 foreach ($requests as $request) {
                     $pool->send(
-                        $request->getMethod()->value,
-                        $request->getEndpoint(),
+                        $request->method()->value,
+                        $request->endpoint(),
                     );
                 }
             });
@@ -63,6 +65,14 @@ abstract readonly class AbstractConnector
     protected function hasRequestFailed(Response $response): ?bool
     {
         return false;
+    }
+
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    protected function headers(): array
+    {
+        return [];
     }
 
     protected function getRequestException(Response $response, Throwable $clientException): Throwable
@@ -121,5 +131,31 @@ abstract readonly class AbstractConnector
         }
 
         return $request->createDtoFromResponse($response);
+    }
+
+    /**
+     * @return array<non-empty-string, mixed>
+     */
+    private function buildParams(RequestInterface $request): array
+    {
+        $data = $request->data() instanceof Arrayable
+            ? $request->data()->toArray()
+            : $request->data();
+
+        $params = [];
+
+        if ($request->method() === RequestMethod::POST) {
+            $params['json'] = $data;
+        }
+
+        if ($request->method() === RequestMethod::GET) {
+            $params['query'] = $data;
+        }
+
+        if ($this->headers()) {
+            $params['headers'] = $this->headers();
+        }
+
+        return $params;
     }
 }

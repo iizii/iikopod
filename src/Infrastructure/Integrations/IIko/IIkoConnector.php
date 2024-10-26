@@ -38,4 +38,11 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
     {
         yield IIkoRequestFailedEvent::class;
     }
+
+    protected function headers(): array
+    {
+        return [
+            'Content-Type' => 'application/json',
+        ];
+    }
 }

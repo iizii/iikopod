@@ -10,6 +10,9 @@ final class Scheduler
 {
     public function __invoke(Schedule $schedule): void
     {
-        //
+        $schedule
+            ->command('app:iiko:request-organization')
+            ->everyFiveMinutes()
+            ->withoutOverlapping();
     }
 }

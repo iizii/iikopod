@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Domain\Iiko\Events;
 
-final class DeliveryOrderError
+use Domain\Iiko\Interfacrs\WebhookEventInterface;
+
+final class DeliveryOrderError implements WebhookEventInterface
 {
     public function __construct() {}
 }
