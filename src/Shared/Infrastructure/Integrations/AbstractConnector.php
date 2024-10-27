@@ -70,6 +70,16 @@ abstract readonly class AbstractConnector
         }
     }
 
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
+    }
+
+    public function getLoggerContext(): LogContext
+    {
+        return $this->logContext;
+    }
+
     protected function hasRequestFailed(Response $response): ?bool
     {
         return false;

@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace Shared\Domain;
 
-abstract class ValueObject {}
+use Spatie\LaravelData\Data;
+
+abstract class ValueObject extends Data {}
