@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Domain\WelcomeGroup\Entities;
 
-use Domain\WelcomeGroup\ValueObjects\FoodModifierCollection;
-use Domain\WelcomeGroup\ValueObjects\FoodModifierIdCollection;
+use Domain\WelcomeGroup\ValueObjects\Order\FoodModifierCollection;
+use Domain\WelcomeGroup\ValueObjects\Order\FoodModifierIdCollection;
 use Shared\Domain\DomainEntity;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -25,7 +25,7 @@ final class OrderItem extends DomainEntity
         public readonly bool $isInternetPayment,
         public readonly FoodModifierIdCollection $foodModifiers,
         public readonly FoodModifierCollection $foodModifiersArray,
-        public readonly \DateTimeImmutable $created,
-        public readonly \DateTimeImmutable $updated,
+        public readonly \DateTimeInterface $createdAt,
+        public readonly \DateTimeInterface $updatedAt,
     ) {}
 }

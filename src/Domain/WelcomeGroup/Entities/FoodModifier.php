@@ -20,7 +20,7 @@ final class FoodModifier extends DomainEntity
         public readonly float $price,
         public readonly int $duration,
         public readonly Modifier $modifier,
-        public readonly \DateTimeImmutable $created,
-        public readonly \DateTimeImmutable $updated,
+        public readonly \DateTimeInterface $createdAt,
+        public readonly \DateTimeInterface $updatedAt,
     ) {}
 }

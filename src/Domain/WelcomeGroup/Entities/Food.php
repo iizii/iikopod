@@ -22,7 +22,7 @@ final class Food extends DomainEntity
         public readonly int $caloricity,
         public readonly float $price,
         public readonly int $duration,
-        public readonly \DateTimeImmutable $createdAt,
-        public readonly \DateTimeImmutable $updatedAt,
+        public readonly \DateTimeInterface $createdAt,
+        public readonly \DateTimeInterface $updatedAt,
     ) {}
 }

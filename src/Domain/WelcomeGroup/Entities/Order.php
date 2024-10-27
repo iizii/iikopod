@@ -6,9 +6,9 @@ namespace Domain\WelcomeGroup\Entities;
 
 use Domain\WelcomeGroup\Enums\OrderStatus;
 use Domain\WelcomeGroup\Enums\OrderStatusProcessRouting;
-use Domain\WelcomeGroup\ValueObjects\OrderItemCollection;
-use Domain\WelcomeGroup\ValueObjects\OrderPrices;
-use Domain\WelcomeGroup\ValueObjects\PromotionIdCollection;
+use Domain\WelcomeGroup\ValueObjects\Order\OrderItemCollection;
+use Domain\WelcomeGroup\ValueObjects\Order\OrderPrices;
+use Domain\WelcomeGroup\ValueObjects\Order\PromotionIdCollection;
 use Shared\Domain\DomainEntity;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -40,8 +40,8 @@ final class Order extends DomainEntity
         public readonly string $commentWhyDriver,
         public readonly int $km,
         public readonly int $durations,
-        public readonly \DateTimeImmutable $awaitingCooking,
-        public readonly \DateTimeImmutable $awaitingDelivery,
+        public readonly \DateTimeInterface $awaitingCooking,
+        public readonly \DateTimeInterface $awaitingDelivery,
         public readonly int $timeProduction,
         public readonly bool $lateness,
         public readonly CouponLateness $couponLateness,
@@ -73,7 +73,7 @@ final class Order extends DomainEntity
         public readonly string $statusApprove,
         public readonly string $approveFailReason,
         public readonly string $approveBy,
-        public readonly \DateTimeImmutable $createdAt,
-        public readonly \DateTimeImmutable $updatedAt,
+        public readonly \DateTimeInterface $createdAt,
+        public readonly \DateTimeInterface $updatedAt,
     ) {}
 }

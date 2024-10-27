@@ -7,6 +7,7 @@ namespace Application\Settings\Services\SaveSettingsValidation\Pipes;
 use Closure;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Settings\OrganizationSetting;
+use Infrastructure\Integrations\WelcomeGroup\Requests\GetRestaurantsRequest;
 
 final class VerifyWelcomeGroupRestaurant
 {
@@ -14,6 +15,8 @@ final class VerifyWelcomeGroupRestaurant
 
     public function handle(OrganizationSetting $settings, Closure $next): OrganizationSetting
     {
+        $this->welcomeGroupConnector->send(new GetRestaurantsRequest());
+
         return $next($settings);
     }
 }

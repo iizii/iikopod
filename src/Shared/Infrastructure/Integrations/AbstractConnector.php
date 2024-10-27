@@ -18,10 +18,10 @@ use Throwable;
 abstract readonly class AbstractConnector
 {
     public function __construct(
-        private PendingRequest $pendingRequest,
-        private Dispatcher $eventDispatcher,
-        private LogContext $logContext,
-        private LoggerInterface $logger,
+        public PendingRequest $pendingRequest,
+        public Dispatcher $eventDispatcher,
+        public LogContext $logContext,
+        public LoggerInterface $logger,
     ) {}
 
     /**
@@ -70,16 +70,6 @@ abstract readonly class AbstractConnector
         }
     }
 
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger;
-    }
-
-    public function getLoggerContext(): LogContext
-    {
-        return $this->logContext;
-    }
-
     protected function hasRequestFailed(Response $response): ?bool
     {
         return false;
@@ -88,7 +78,7 @@ abstract readonly class AbstractConnector
     /**
      * @return array<non-empty-string, non-empty-string>
      */
-    protected function headers(): array
+    protected function headers(RequestInterface $request): array
     {
         return [];
     }
@@ -176,8 +166,8 @@ abstract readonly class AbstractConnector
             $params['query'] = $data;
         }
 
-        if ($this->headers()) {
-            $params['headers'] = $this->headers();
+        if ($headers = $this->headers($request)) {
+            $params['headers'] = $headers;
         }
 
         return $params;

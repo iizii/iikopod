@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\WelcomeGroup\ValueObjects;
+namespace Domain\WelcomeGroup\ValueObjects\Order;
 
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\ValueObjectCollection;
@@ -10,4 +10,4 @@ use Shared\Domain\ValueObjects\ValueObjectCollection;
 /**
  * @extends ValueObjectCollection<array-key, IntegerId>
  */
-final class FoodModifierIdCollection extends ValueObjectCollection {}
+final class PromotionIdCollection extends ValueObjectCollection {}
