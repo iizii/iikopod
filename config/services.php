@@ -38,7 +38,12 @@ return [
     ],
 
     'iiko' => [
-        'baseUrl' => env('IIKO_BASE_URL'),
-        'timeout' => env('IIKO_TIMEOUT', 5),
+        'base_url' => env('IIKO_BASE_URL'),
+        'timeout_seconds' => env('IIKO_TIMEOUT_SECONDS', 5),
+    ],
+
+    'welcome_group' => [
+        'base_url' => env('WELCOME_GROUP_BASE_URL'),
+        'timeout_seconds' => env('WELCOME_GROUP_TIMEOUT_SECONDS', 5),
     ],
 ];

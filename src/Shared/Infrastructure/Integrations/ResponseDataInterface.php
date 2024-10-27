@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shared\Integrations;
+namespace Shared\Infrastructure\Integrations;
 
 use Illuminate\Http\Client\Response;
 

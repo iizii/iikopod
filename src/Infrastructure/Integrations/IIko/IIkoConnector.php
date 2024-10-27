@@ -9,7 +9,7 @@ use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestFailedEvent;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestSuccessesEvent;
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
-use Shared\Integrations\AbstractConnector;
+use Shared\Infrastructure\Integrations\AbstractConnector;
 use Throwable;
 
 final readonly class IIkoConnector extends AbstractConnector implements IikoConnectorInterface

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\DataTransferObjects;
 
-use Shared\Integrations\ResponseData;
+use Shared\Infrastructure\Integrations\ResponseData;
 
 final class AuthorizationResponseData extends ResponseData
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Iiko\Events;
 
-use Domain\Iiko\Interfacrs\WebhookEventInterface;
+use Domain\Iiko\Interfaces\WebhookEventInterface;
 
 final class DeliveryOrderUpdate implements WebhookEventInterface
 {

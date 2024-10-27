@@ -7,8 +7,8 @@ namespace Domain\Integrations\Iiko;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
-use Shared\Integrations\RequestInterface;
-use Shared\Integrations\ResponseData;
+use Shared\Infrastructure\Integrations\RequestInterface;
+use Shared\Infrastructure\Integrations\ResponseData;
 
 interface IikoConnectorInterface
 {

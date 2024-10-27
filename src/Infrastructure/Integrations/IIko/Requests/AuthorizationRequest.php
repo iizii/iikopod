@@ -7,10 +7,10 @@ namespace Infrastructure\Integrations\IIko\Requests;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseData;
-use Shared\Integrations\RequestInterface;
-use Shared\Integrations\RequestMethod;
-use Shared\Integrations\ResponseData;
-use Shared\Integrations\ResponseDataInterface;
+use Shared\Infrastructure\Integrations\RequestInterface;
+use Shared\Infrastructure\Integrations\RequestMethod;
+use Shared\Infrastructure\Integrations\ResponseData;
+use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final class AuthorizationRequest implements RequestInterface, ResponseDataInterface
 {

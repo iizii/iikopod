@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\Interfacrs;
+namespace Domain\Iiko\Interfaces;
 
 interface WebhookEventInterface {}

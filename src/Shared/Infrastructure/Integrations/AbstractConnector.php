@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shared\Integrations;
+namespace Shared\Infrastructure\Integrations;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Support\Arrayable;
@@ -11,6 +11,8 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Log\Context\Repository as LogContext;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 abstract readonly class AbstractConnector
@@ -18,6 +20,8 @@ abstract readonly class AbstractConnector
     public function __construct(
         private PendingRequest $pendingRequest,
         private Dispatcher $eventDispatcher,
+        private LogContext $logContext,
+        private LoggerInterface $logger,
     ) {}
 
     /**
@@ -34,9 +38,13 @@ abstract readonly class AbstractConnector
                 $this->buildParams($request),
             );
 
-        $response = $this->handleResponse($response);
+        $response = $this->handleResponse($request, $response);
 
-        $this->dispatchEvents($this->getRequestSuccessEvents(), $response);
+        $this->dispatchEvents(
+            $this->getRequestSuccessEvents(),
+            $request,
+            $response,
+        );
 
         return $this->createResponse($response, $request);
     }
@@ -103,22 +111,31 @@ abstract readonly class AbstractConnector
     /**
      * @param  iterable<class-string>  $events
      */
-    protected function dispatchEvents(iterable $events, Response $response): void
+    protected function dispatchEvents(iterable $events, RequestInterface $request, Response $response): void
     {
         foreach ($events as $eventClass) {
-            $this->eventDispatcher->dispatch(new $eventClass($response));
+            $this->eventDispatcher->dispatch(new $eventClass($request, $response));
         }
+    }
+
+    protected function logContextCompiler(): void
+    {
+        $this->logContext->add();
     }
 
     /**
      * @throws RequestException
      */
-    private function handleResponse(Response $response): Response
+    private function handleResponse(RequestInterface $request, Response $response): Response
     {
         return $response
             ->throwIf(fn (Response $response): ?bool => $this->hasRequestFailed($response))
-            ->throw(function (Response $response, RequestException $exception) {
-                $this->dispatchEvents($this->getRequestErrorEvents(), $response);
+            ->throw(function (Response $response, RequestException $exception) use ($request) {
+                $this->dispatchEvents(
+                    $this->getRequestErrorEvents(),
+                    $request,
+                    $response,
+                );
 
                 throw $this->getRequestException($response, $exception);
             });
