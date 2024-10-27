@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantsResponse;
+namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantResponse;
 
 use Carbon\CarbonImmutable;
 use Domain\WelcomeGroup\Entities\Restaurant;
@@ -17,7 +17,7 @@ use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
-final class GetRestaurantsResponseData extends ResponseData
+final class GetRestaurantResponseData extends ResponseData
 {
     /**
      * @param  array<array-key, int>  $workshops
@@ -30,20 +30,20 @@ final class GetRestaurantsResponseData extends ResponseData
         public readonly array $drivers,
         public readonly string $name,
         #[MapInputName(SnakeCaseMapper::class)]
-        public readonly string $statusComment,
-        public readonly string $supplierName,
-        public readonly string $supplierINN,
-        public readonly string $supplierPhone,
+        public readonly ?string $statusComment,
+        public readonly ?string $supplierName,
+        public readonly ?string $supplierINN,
+        public readonly ?string $supplierPhone,
         public readonly string $description,
         public readonly int $latitude,
         public readonly int $longitude,
         #[MapInputName(SnakeCaseMapper::class)]
-        public readonly string $externalId,
-        public readonly GetRestaurantsResponsePrinterData $printer,
+        public readonly ?string $externalId,
+        public readonly GetRestaurantResponsePrinterData $printer,
         public readonly array $area,
-        public readonly int $legalPerson,
-        public readonly int $brand,
-        public readonly GetRestaurantsResponsePrinterPosData $printerPos,
+        public readonly ?int $legalPerson,
+        public readonly ?int $brand,
+        public readonly GetRestaurantResponsePrinterPosData $printerPos,
         public readonly int $timeWaitingWeekday,
         public readonly int $timeWaitingWeekend,
         public readonly int $timeCookingWeekday,
@@ -53,12 +53,12 @@ final class GetRestaurantsResponseData extends ResponseData
         public readonly int $timeCooking,
         public readonly int $timeDelivering,
         public readonly int $timezone,
-        public readonly bool $isCoupon,
-        public readonly int $couponType,
-        public readonly string $address,
+        public readonly ?bool $isCoupon,
+        public readonly ?int $couponType,
+        public readonly ?string $address,
         public readonly bool $isAnv,
-        public readonly int $typeRouting,
-        public readonly string $coefficientRouting,
+        public readonly ?string $typeRouting,
+        public readonly ?string $coefficientRouting,
         public readonly int $typeProduction,
         public readonly int $timeCouponAvailability,
         public readonly int $id,
@@ -67,7 +67,7 @@ final class GetRestaurantsResponseData extends ResponseData
         public readonly RestaurantStatus $status,
         #[MapInputName(SnakeCaseMapper::class)]
         public readonly int $activeOrderCount,
-        public readonly GetRestaurantsResponseEmergencyData $emergency,
+        public readonly ?GetRestaurantResponseEmergencyData $emergency,
     ) {}
 
     public function toDomainEntity(): Restaurant
@@ -125,7 +125,7 @@ final class GetRestaurantsResponseData extends ResponseData
             $this->typeProduction,
             $this->timeCouponAvailability,
             $this->activeOrderCount,
-            $this->emergency->toDomainEntity(),
+            $this->emergency?->toDomainEntity(),
             $this->created,
             $this->updated,
         );

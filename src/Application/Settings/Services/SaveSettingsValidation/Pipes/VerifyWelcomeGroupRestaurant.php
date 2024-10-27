@@ -15,7 +15,7 @@ final class VerifyWelcomeGroupRestaurant
 
     public function handle(OrganizationSetting $settings, Closure $next): OrganizationSetting
     {
-        $this->welcomeGroupConnector->send(new GetRestaurantsRequest());
+        $response = $this->welcomeGroupConnector->send(new GetRestaurantsRequest());
 
         return $next($settings);
     }

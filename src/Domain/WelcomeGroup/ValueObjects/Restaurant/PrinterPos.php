@@ -8,5 +8,5 @@ use Shared\Domain\ValueObject;
 
 final class PrinterPos extends ValueObject
 {
-    public function __construct(public readonly string $host, public readonly string $uri) {}
+    public function __construct(public readonly ?string $host, public readonly ?string $uri) {}
 }

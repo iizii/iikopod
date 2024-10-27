@@ -8,5 +8,5 @@ use Shared\Domain\ValueObject;
 
 final class Area extends ValueObject
 {
-    public function __construct(public readonly int $firstValue, public readonly int $secondValue) {}
+    public function __construct(public readonly float $firstValue, public readonly float $secondValue) {}
 }

@@ -12,7 +12,6 @@ use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Log\Context\Repository as LogContext;
-use Illuminate\Support\Collection;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -26,10 +25,12 @@ abstract readonly class AbstractConnector
     ) {}
 
     /**
+     * @return Response|ResponseData|iterable<array-key, ResponseData>
+     *
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function send(RequestInterface $request): Response|ResponseData|Collection
+    public function send(RequestInterface $request): Response|ResponseData|iterable
     {
         $response = $this
             ->pendingRequest
@@ -51,7 +52,7 @@ abstract readonly class AbstractConnector
     }
 
     /**
-     * @return iterable<Response|ResponseData>
+     * @return iterable<Response|ResponseData|iterable<ResponseData>>
      */
     public function sendAsync(RequestInterface ...$requests): iterable
     {
@@ -139,7 +140,10 @@ abstract readonly class AbstractConnector
             });
     }
 
-    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData|Collection
+    /**
+     * @return Response|ResponseData|iterable<array-key, ResponseData>
+     */
+    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData|iterable
     {
         if (! $request instanceof ResponseDataInterface) {
             return $response;

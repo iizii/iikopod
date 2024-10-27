@@ -6,14 +6,16 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Collection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantResponse\GetRestaurantResponseData;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class GetRestaurantsRequest implements RequestInterface, ResponseDataInterface
+final readonly class GetRestaurantRequest implements RequestInterface, ResponseDataInterface
 {
+    public function __construct(public IntegerId $integerId) {}
+
     public function method(): RequestMethod
     {
         return RequestMethod::GET;
@@ -21,7 +23,7 @@ final readonly class GetRestaurantsRequest implements RequestInterface, Response
 
     public function endpoint(): string
     {
-        return '/api/restaurant';
+        return sprintf('/api/restaurant/%s', $this->integerId->id);
     }
 
     public function data(): array|Arrayable
@@ -29,12 +31,8 @@ final readonly class GetRestaurantsRequest implements RequestInterface, Response
         return [];
     }
 
-    /**
-     * @return Collection<array-key, GetRestaurantResponseData>
-     */
-    public function createDtoFromResponse(Response $response): Collection
+    public function createDtoFromResponse(Response $response): GetRestaurantResponseData
     {
-        /**  @phpstan-ignore argument.type */
-        return new Collection(GetRestaurantResponseData::collect($response->json('items')));
+        return GetRestaurantResponseData::from($response->json());
     }
 }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantsResponse;
+namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantResponse;
 
 use Carbon\CarbonImmutable;
 use Domain\WelcomeGroup\ValueObjects\Restaurant\Emergency;
 use Shared\Infrastructure\Integrations\ResponseData;
 
-final class GetRestaurantsResponseEmergencyData extends ResponseData
+final class GetRestaurantResponseEmergencyData extends ResponseData
 {
     public function __construct(
         public readonly CarbonImmutable $emergencyStart,
