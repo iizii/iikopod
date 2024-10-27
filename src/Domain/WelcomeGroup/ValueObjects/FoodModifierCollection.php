@@ -8,6 +8,6 @@ use Domain\WelcomeGroup\Entities\FoodModifier;
 use Shared\Domain\ValueObjects\ValueObjectCollection;
 
 /**
- * @extends ValueObjectCollection<int, FoodModifier>
+ * @extends ValueObjectCollection<array-key, FoodModifier>
  */
 final class FoodModifierCollection extends ValueObjectCollection {}

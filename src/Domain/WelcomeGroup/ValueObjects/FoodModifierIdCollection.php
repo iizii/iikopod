@@ -8,6 +8,6 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\ValueObjectCollection;
 
 /**
- * @extends ValueObjectCollection<int, IntegerId>
+ * @extends ValueObjectCollection<array-key, IntegerId>
  */
 final class FoodModifierIdCollection extends ValueObjectCollection {}

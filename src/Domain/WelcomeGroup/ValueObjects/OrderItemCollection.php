@@ -8,6 +8,6 @@ use Domain\WelcomeGroup\Entities\OrderItem;
 use Shared\Domain\ValueObjects\ValueObjectCollection;
 
 /**
- * @extends ValueObjectCollection<int, OrderItem>
+ * @extends ValueObjectCollection<array-key, OrderItem>
  */
 final class OrderItemCollection extends ValueObjectCollection {}

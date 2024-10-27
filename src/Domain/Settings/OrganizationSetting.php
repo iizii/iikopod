@@ -26,6 +26,9 @@ final class OrganizationSetting extends Settings
         return 'organization';
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function casts(): array
     {
         return [

@@ -6,4 +6,7 @@ namespace Domain\Settings\ValueObjects;
 
 use Shared\Domain\ValueObjects\ValueObjectCollection;
 
+/**
+ * @extends ValueObjectCollection<array-key, PaymentType>
+ */
 final class PaymentTypeCollection extends ValueObjectCollection {}

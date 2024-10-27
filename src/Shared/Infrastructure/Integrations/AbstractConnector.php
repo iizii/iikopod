@@ -128,10 +128,7 @@ abstract readonly class AbstractConnector
         }
     }
 
-    protected function logContextCompiler(): void
-    {
-        $this->logContext->add();
-    }
+    protected function logContextCompiler(): void {}
 
     /**
      * @throws RequestException

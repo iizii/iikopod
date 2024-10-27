@@ -26,7 +26,7 @@ final class IntegrationsServiceProvider extends ServiceProvider
         $this->app->scoped(IikoConnectorInterface::class, static function (Application $application): IIkoConnector {
             $pendingRequest = $application->make(HttpClientFactory::class);
 
-            /** @var array{baseUrl: string, timeout: int} $config */
+            /** @var array{base_url: string, timeout_seconds: int} $config */
             $config = $application->make(ConfigRepository::class)->get('services.iiko');
 
             return new IIkoConnector(
@@ -44,7 +44,7 @@ final class IntegrationsServiceProvider extends ServiceProvider
             static function (Application $application): WelcomeGroupConnector {
                 $pendingRequest = $application->make(HttpClientFactory::class);
 
-                /** @var array{baseUrl: string, timeout: int} $config */
+                /** @var array{base_url: string, timeout_seconds: int} $config */
                 $config = $application->make(ConfigRepository::class)->get('services.welcome_group');
 
                 return new WelcomeGroupConnector(

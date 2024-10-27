@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace Presentation\Admin\Pages;
 
+use Application\Settings\Services\SaveSettingsValidation\SaveSettingsValidationPipeline;
 use Domain\Settings\OrganizationSetting;
 use Domain\Settings\ValueObjects\PaymentType;
 use Domain\Settings\ValueObjects\PaymentTypeCollection;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
+use Filament\Support\Exceptions\Halt;
+use Filament\Support\Facades\FilamentView;
+use Throwable;
+
+use function Filament\Support\is_app_url;
 
 final class ManageOrganization extends SettingsPage
 {
@@ -60,10 +66,66 @@ final class ManageOrganization extends SettingsPage
             ]);
     }
 
+    /**
+     * @throws Throwable
+     */
+    public function save(): void
+    {
+        $validationPipeline = app()->make(SaveSettingsValidationPipeline::class);
+
+        $this->callHook('beforeValidate');
+
+        $data = $this->form->getState();
+
+        $this->callHook('afterValidate');
+
+        $data = $this->mutateFormDataBeforeSave($data);
+
+        $this->callHook('beforeSave');
+
+        $settings = app(self::getSettings());
+
+        $settings->fill($data);
+
+        $validationPipeline->handle($settings);
+
+        try {
+            $this->beginDatabaseTransaction();
+
+            $settings->save();
+
+            $this->callHook('afterSave');
+
+            $this->commitDatabaseTransaction();
+        } catch (Halt $exception) {
+            $exception->shouldRollbackDatabaseTransaction() ?
+                $this->rollBackDatabaseTransaction() :
+                $this->commitDatabaseTransaction();
+
+            return;
+        } catch (Throwable $exception) {
+            $this->rollBackDatabaseTransaction();
+
+            throw $exception;
+        }
+
+        $this->rememberData();
+
+        $this->getSavedNotification()?->send();
+
+        if ($redirectUrl = $this->getRedirectUrl()) {
+            $this->redirect($redirectUrl, navigate: FilamentView::hasSpaMode() && is_app_url($redirectUrl));
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $paymentTypesCollection = new PaymentTypeCollection();
-        $paymentTypes = $data['payment_types'];
+        $paymentTypes = is_array($data['payment_types']) ? $data['payment_types'] : [];
 
         foreach ($paymentTypes as $paymentType) {
             $paymentTypesCollection->add(PaymentType::from($paymentType));
