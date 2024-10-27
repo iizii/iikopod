@@ -14,6 +14,8 @@ use Domain\WelcomeGroup\ValueObjects\Restaurant\WorkshopIdCollection;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\ResponseData;
+use Spatie\LaravelData\Attributes\MapInputName;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 final class GetRestaurantsResponseData extends ResponseData
 {
@@ -27,13 +29,15 @@ final class GetRestaurantsResponseData extends ResponseData
         public readonly array $workshops,
         public readonly array $drivers,
         public readonly string $name,
+        #[MapInputName(SnakeCaseMapper::class)]
         public readonly string $statusComment,
         public readonly string $supplierName,
-        public readonly string $supplierInn,
+        public readonly string $supplierINN,
         public readonly string $supplierPhone,
         public readonly string $description,
         public readonly int $latitude,
         public readonly int $longitude,
+        #[MapInputName(SnakeCaseMapper::class)]
         public readonly string $externalId,
         public readonly GetRestaurantsResponsePrinterData $printer,
         public readonly array $area,
@@ -61,6 +65,7 @@ final class GetRestaurantsResponseData extends ResponseData
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
         public readonly RestaurantStatus $status,
+        #[MapInputName(SnakeCaseMapper::class)]
         public readonly int $activeOrderCount,
         public readonly GetRestaurantsResponseEmergencyData $emergency,
     ) {}
@@ -87,7 +92,7 @@ final class GetRestaurantsResponseData extends ResponseData
             $this->name,
             $this->statusComment,
             $this->supplierName,
-            $this->supplierInn,
+            $this->supplierINN,
             $this->supplierPhone,
             $this->description,
             $this->latitude,

@@ -8,7 +8,7 @@ return [
      * is an array, it will try to convert from the first format that works,
      * and will serialize dates using the first format from the array.
      */
-    'date_format' => [DATE_ATOM, 'Y-m-d H:i:s', 'Y-m-d H:i:s.v'],
+    'date_format' => [DATE_ATOM, 'Y-m-d H:i:s', 'Y-m-d H:i:s.v', 'D, d M Y H:i:s O'],
 
     /**
      * When transforming or casting dates, the following timezone will be used to

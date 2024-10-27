@@ -12,6 +12,7 @@ use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Log\Context\Repository as LogContext;
+use Illuminate\Support\Collection;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -28,7 +29,7 @@ abstract readonly class AbstractConnector
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function send(RequestInterface $request): Response|ResponseData
+    public function send(RequestInterface $request): Response|ResponseData|Collection
     {
         $response = $this
             ->pendingRequest
@@ -138,7 +139,7 @@ abstract readonly class AbstractConnector
             });
     }
 
-    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData
+    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData|Collection
     {
         if (! $request instanceof ResponseDataInterface) {
             return $response;

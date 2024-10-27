@@ -9,8 +9,8 @@ use Shared\Domain\ValueObject;
 final class Emergency extends ValueObject
 {
     public function __construct(
-        public readonly string $emergencyStart,
-        public readonly string $emergencyEnd,
+        public readonly \DateTimeInterface $emergencyStart,
+        public readonly \DateTimeInterface $emergencyEnd,
         public readonly int $productionTimeEmergency,
     ) {}
 }

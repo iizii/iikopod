@@ -6,10 +6,10 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantsResponse\GetRestaurantsResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
-use Shared\Infrastructure\Integrations\ResponseData;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final class GetRestaurantsRequest implements RequestInterface, ResponseDataInterface
@@ -21,7 +21,7 @@ final class GetRestaurantsRequest implements RequestInterface, ResponseDataInter
 
     public function endpoint(): string
     {
-        return '/restaurant';
+        return '/84472714-b690-47df-9de3-f8308c957d54';
     }
 
     public function data(): array|Arrayable
@@ -29,8 +29,8 @@ final class GetRestaurantsRequest implements RequestInterface, ResponseDataInter
         return [];
     }
 
-    public function createDtoFromResponse(Response $response): ResponseData
+    public function createDtoFromResponse(Response $response): Collection
     {
-        return GetRestaurantsResponseData::from($response);
+        return new Collection(GetRestaurantsResponseData::collect($response->json('items')));
     }
 }
