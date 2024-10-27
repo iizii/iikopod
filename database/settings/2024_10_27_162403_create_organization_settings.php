@@ -12,6 +12,6 @@ return new class() extends SettingsMigration
         $this->migrator->add('organization.iiko_restaurant_id');
         $this->migrator->add('organization.welcome_group_restaurant_id');
         $this->migrator->add('organization.default_workshop_id');
-        $this->migrator->add('organization.payment_types');
+        $this->migrator->add('organization.payment_types', []);
     }
 };
