@@ -59,7 +59,7 @@ final class GetRestaurantResponseData extends ResponseData
         public readonly bool $isAnv,
         public readonly ?string $typeRouting,
         public readonly ?string $coefficientRouting,
-        public readonly int $typeProduction,
+        public readonly ?int $typeProduction,
         public readonly int $timeCouponAvailability,
         public readonly int $id,
         public readonly CarbonImmutable $created,

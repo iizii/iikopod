@@ -13,11 +13,11 @@ final class OrganizationSetting extends Settings
 {
     public ?string $iiko_api_key;
 
-    public ?string $iiko_restaurant_id;
+    public ?int $iiko_restaurant_id;
 
-    public ?string $welcome_group_restaurant_id;
+    public ?int $welcome_group_restaurant_id;
 
-    public ?string $default_workshop_id;
+    public ?int $default_workshop_id;
 
     public PaymentTypeCollection $payment_types;
 

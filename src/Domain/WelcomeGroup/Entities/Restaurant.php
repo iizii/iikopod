@@ -52,7 +52,7 @@ final class Restaurant extends DomainEntity
         public readonly bool $isAnv,
         public readonly ?string $typeRouting,
         public readonly ?string $coefficientRouting,
-        public readonly int $typeProduction,
+        public readonly ?int $typeProduction,
         public readonly int $timeCouponAvailability,
         public readonly int $activeOrderCount,
         public readonly ?Emergency $emergency,

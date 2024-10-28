@@ -10,6 +10,7 @@ use Domain\Settings\ValueObjects\PaymentType;
 use Domain\Settings\ValueObjects\PaymentTypeCollection;
 use Filament\Forms\Components;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Pages\SettingsPage;
 use Filament\Support\Exceptions\Halt;
 use Filament\Support\Facades\FilamentView;
@@ -37,24 +38,30 @@ final class ManageOrganization extends SettingsPage
                     ->schema([
                         Components\TextInput::make('iiko_api_key')
                             ->label('Iiko API Key')
+                            ->string()
                             ->required(),
                         Components\TextInput::make('iiko_restaurant_id')
                             ->label('ID ресторана Iiko')
+                            ->integer()
                             ->required(),
                         Components\TextInput::make('welcome_group_restaurant_id')
                             ->label('ID ресторана Welcome Group')
+                            ->integer()
                             ->required(),
                         Components\TextInput::make('default_workshop_id')
                             ->label('ID цеха применяемого по умолчанию')
+                            ->integer()
                             ->required(),
                         Components\Repeater::make('payment_types')
                             ->label('Типы оплат')
                             ->schema([
                                 Components\TextInput::make('iiko_payment_code')
                                     ->label('Код типа оплаты Iiko')
+                                    ->string()
                                     ->required(),
                                 Components\TextInput::make('welcome_group_payment_code')
                                     ->label('Код типа оплаты Welcome Group')
+                                    ->string()
                                     ->required(),
                             ])
                             ->columns()
@@ -87,7 +94,19 @@ final class ManageOrganization extends SettingsPage
 
         $settings->fill($data);
 
-        $validationPipeline->handle($settings);
+        try {
+            $validationPipeline->handle($settings);
+        } catch (Throwable $exception) {
+            $notification = Notification::make('validationException')
+                ->danger()
+                ->title('Ошибка сохранения');
+
+            $notification->body($exception->getMessage());
+
+            $notification->send();
+
+            return;
+        }
 
         try {
             $this->beginDatabaseTransaction();
