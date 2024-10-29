@@ -11,7 +11,6 @@ use Domain\WelcomeGroup\Exceptions\WorkshopNotFoundException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Infrastructure\Integrations\WelcomeGroup\Requests\GetWorkshopRequest;
-use Shared\Domain\ValueObjects\IntegerId;
 use Symfony\Component\HttpFoundation\Response;
 
 final readonly class VerifyWelcomeGroupWorkshop
@@ -28,7 +27,7 @@ final readonly class VerifyWelcomeGroupWorkshop
     {
         try {
             $this->welcomeGroupConnector->send(
-                new GetWorkshopRequest(new IntegerId($settings->default_workshop_id)),
+                new GetWorkshopRequest($settings->welcomeGroupDefaultWorkshopId),
             );
         } catch (\Throwable $exception) {
             if ($exception->getCode() === Response::HTTP_NOT_FOUND) {

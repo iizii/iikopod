@@ -11,7 +11,6 @@ use Domain\WelcomeGroup\Exceptions\RestaurantNotFoundException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Infrastructure\Integrations\WelcomeGroup\Requests\GetRestaurantRequest;
-use Shared\Domain\ValueObjects\IntegerId;
 use Symfony\Component\HttpFoundation\Response;
 
 final readonly class VerifyWelcomeGroupRestaurant
@@ -28,7 +27,7 @@ final readonly class VerifyWelcomeGroupRestaurant
     {
         try {
             $this->welcomeGroupConnector->send(
-                new GetRestaurantRequest(new IntegerId($settings->welcome_group_restaurant_id)),
+                new GetRestaurantRequest($settings->welcomeGroupRestaurantId),
             );
         } catch (\Throwable $exception) {
             if ($exception->getCode() === Response::HTTP_NOT_FOUND) {
