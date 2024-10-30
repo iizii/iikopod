@@ -11,6 +11,7 @@ use Domain\Settings\ValueObjects\PriceCategory;
 use Domain\Settings\ValueObjects\PriceCategoryCollection;
 use Infrastructure\Persistence\Eloquent\Settings\OrganizationSetting as EloquentOrganizationSetting;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 final class OrganizationSettingMapper
 {
@@ -19,11 +20,11 @@ final class OrganizationSettingMapper
         return new OrganizationSetting(
             new IntegerId($organizationSetting->id),
             $organizationSetting->iiko_api_key,
-            new IntegerId($organizationSetting->iiko_restaurant_id),
+            new StringId($organizationSetting->iiko_restaurant_id),
             new IntegerId($organizationSetting->welcome_group_restaurant_id),
             new IntegerId($organizationSetting->welcome_group_default_workshop_id),
-            new IntegerId($organizationSetting->order_delivery_type_id),
-            new IntegerId($organizationSetting->order_pickup_type_id),
+            new StringId($organizationSetting->order_delivery_type_id),
+            new StringId($organizationSetting->order_pickup_type_id),
             new PaymentTypeCollection(
                 array_map(
                     static fn (array $paymentType): PaymentType => new PaymentType(

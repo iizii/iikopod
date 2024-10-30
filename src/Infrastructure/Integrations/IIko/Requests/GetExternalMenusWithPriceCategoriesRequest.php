@@ -4,29 +4,22 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\Requests;
 
-use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Pagination\AbstractCursorPaginator;
-use Illuminate\Pagination\AbstractPaginator;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Enumerable;
-use Illuminate\Support\LazyCollection;
-use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
-use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
-use Shared\Infrastructure\Integrations\ResponseData;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
-use Spatie\LaravelData\CursorPaginatedDataCollection;
-use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\PaginatedDataCollection;
 
-final class GetExternalMenusWithPriceCategoriesRequest implements RequestInterface, ResponseDataInterface
+final readonly class GetExternalMenusWithPriceCategoriesRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private GetExternalMenusWithPriceCategoriesRequestData $getExternalMenusWithPriceCategoriesRequestData, private array $headers = []) {}
+    /**
+     * @param  array<string, string>  $headers
+     */
+    public function __construct(
+        private GetExternalMenusWithPriceCategoriesRequestData $getExternalMenusWithPriceCategoriesRequestData,
+        private array $headers = [],
+    ) {}
 
     public function method(): RequestMethod
     {
@@ -38,21 +31,20 @@ final class GetExternalMenusWithPriceCategoriesRequest implements RequestInterfa
         return '/api/2/menu';
     }
 
-    public function data(): array|Arrayable
+    public function data(): GetExternalMenusWithPriceCategoriesRequestData
     {
         return $this->getExternalMenusWithPriceCategoriesRequestData;
     }
 
-    /**
-     * @param Response $response
-     * @return array|AbstractCursorPaginator|AbstractPaginator|Collection|CursorPaginatedDataCollection|CursorPaginator|DataCollection|Enumerable|LazyCollection|PaginatedDataCollection|Paginator|Response|ResponseData
-     */
-    public function createDtoFromResponse(Response $response): array|CursorPaginator|Paginator|Response|AbstractCursorPaginator|AbstractPaginator|Collection|Enumerable|LazyCollection|ResponseData|CursorPaginatedDataCollection|DataCollection|PaginatedDataCollection
+    public function createDtoFromResponse(Response $response): GetExternalMenusWithPriceCategoriesResponseData
     {
-        return GetExternalMenusWithPriceCategoriesResponseData::from((array) $response->json());
+        return GetExternalMenusWithPriceCategoriesResponseData::from($response->json());
     }
 
-    public function headers(): array|Arrayable
+    /**
+     * @return array<string, string>
+     */
+    public function headers(): array
     {
         return $this->headers;
     }

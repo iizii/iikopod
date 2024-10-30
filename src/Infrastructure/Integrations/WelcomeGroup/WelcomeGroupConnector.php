@@ -24,7 +24,7 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
         Dispatcher $eventDispatcher,
         LogContext $logContext,
         LoggerInterface $logger,
-        public SignatureCompiler $signatureCompiler,
+        private SignatureCompiler $signatureCompiler,
     ) {
         parent::__construct($pendingRequest, $eventDispatcher, $logContext, $logger);
     }

@@ -30,6 +30,5 @@ final class RequestOrganizationsCommand extends Command
                 ),
             ),
         );
-        dd($response);
     }
 }

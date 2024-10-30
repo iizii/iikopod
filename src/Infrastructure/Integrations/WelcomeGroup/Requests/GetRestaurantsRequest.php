@@ -6,7 +6,7 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantResponse\GetRestaurantResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
@@ -30,14 +30,16 @@ final readonly class GetRestaurantsRequest implements RequestInterface, Response
     }
 
     /**
-     * @return Collection<array-key, GetRestaurantResponseData>
+     * @return LazyCollection<array-key, GetRestaurantResponseData>
      */
-    public function createDtoFromResponse(Response $response): Collection
+    public function createDtoFromResponse(Response $response): LazyCollection
     {
-        /**  @phpstan-ignore argument.type */
-        return new Collection(GetRestaurantResponseData::collect($response->json('items')));
+        return GetRestaurantResponseData::collect($response->json('items'), LazyCollection::class);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function headers(): array
     {
         return [];

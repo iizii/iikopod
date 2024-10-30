@@ -5,14 +5,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class() extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::table('organization_settings', function (Blueprint $table) {
+        Schema::table('organization_settings', static function (Blueprint $table) {
             $table
                 ->string('iiko_restaurant_id')
                 ->change();
@@ -22,12 +22,5 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
-        Schema::table('organization_settings', function (Blueprint $table) {
-            $table
-                ->integer('iiko_restaurant_id')
-                ->change();
-        });
-    }
+    public function down(): void {}
 };

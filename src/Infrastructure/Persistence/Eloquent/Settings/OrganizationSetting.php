@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\Settings;
 
-use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
- *
  * @property int $id
  * @property string $iiko_api_key
  * @property string $iiko_restaurant_id
@@ -21,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property array $price_categories
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting query()
@@ -35,6 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereWelcomeGroupDefaultWorkshopId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereWelcomeGroupRestaurantId($value)
+ *
  * @mixin \Eloquent
  */
 final class OrganizationSetting extends Model

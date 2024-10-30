@@ -4,32 +4,15 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\Requests;
 
-use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Pagination\AbstractCursorPaginator;
-use Illuminate\Pagination\AbstractPaginator;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Enumerable;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
-use Shared\Infrastructure\Integrations\ResponseData;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
-use Spatie\LaravelData\CursorPaginatedDataCollection;
-use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\PaginatedDataCollection;
 
-final class AuthorizationRequest implements RequestInterface, ResponseDataInterface
+final readonly class AuthorizationRequest implements RequestInterface, ResponseDataInterface
 {
-    /**
-     * @param string $token
-     * @param array $headers
-     */
-    public function __construct(public string $token, public array $headers = []) {}
+    public function __construct(public string $token) {}
 
     public function method(): RequestMethod
     {
@@ -37,11 +20,11 @@ final class AuthorizationRequest implements RequestInterface, ResponseDataInterf
     }
 
     /**
-     * @return array|string[]
+     * @return array<string, string>
      */
     public function headers(): array
     {
-        return $this->headers;
+        return [];
     }
 
     public function endpoint(): string
@@ -49,19 +32,18 @@ final class AuthorizationRequest implements RequestInterface, ResponseDataInterf
         return '/api/1/access_token';
     }
 
-    public function data(): array|Arrayable
+    /**
+     * @return array<string, string>
+     */
+    public function data(): array
     {
         return [
             'apiLogin' => $this->token,
         ];
     }
 
-    /**
-     * @param Response $response
-     * @return Paginator|ResponseData|Enumerable|array|Response|Collection|PaginatedDataCollection|LazyCollection|AbstractCursorPaginator|CursorPaginatedDataCollection|DataCollection|AbstractPaginator|CursorPaginator
-     */
-    public function createDtoFromResponse(Response $response): Paginator|ResponseData|Enumerable|array|Response|Collection|PaginatedDataCollection|LazyCollection|AbstractCursorPaginator|CursorPaginatedDataCollection|DataCollection|AbstractPaginator|CursorPaginator
+    public function createDtoFromResponse(Response $response): AuthorizationResponseData
     {
-        return AuthorizationResponseData::from((array) $response->json());
+        return AuthorizationResponseData::from($response->json());
     }
 }
