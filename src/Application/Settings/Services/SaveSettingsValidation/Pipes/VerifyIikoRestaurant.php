@@ -34,7 +34,7 @@ final readonly class VerifyIikoRestaurant
                 ->iikoConnector
                 ->send(
                     new GetOrganizationsRequest(
-                        new GetOrganizationRequestData([$settings->iikoRestaurantId->id], true, false),
+                        new GetOrganizationRequestData([(string) $settings->iikoRestaurantId->id], true, false),
                         [
                             'Authorization' => sprintf(
                                 'Bearer %s',

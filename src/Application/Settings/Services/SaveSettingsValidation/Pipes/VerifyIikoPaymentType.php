@@ -33,7 +33,7 @@ final readonly class VerifyIikoPaymentType
             ->iikoConnector
             ->send(
                 new GetPaymentTypesRequest(
-                    new GetPaymentTypesRequestData([$settings->iikoRestaurantId->id]),
+                    new GetPaymentTypesRequestData([(string) $settings->iikoRestaurantId->id]),
                     [
                         'Authorization' => sprintf(
                             'Bearer %s',
