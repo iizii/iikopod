@@ -16,6 +16,7 @@ use Filament\Support\Facades\FilamentView;
 use Presentation\Admin\Resources\OrganizationSettingResource;
 use Shared\Domain\ValueObjects\IntegerId;
 
+use Shared\Domain\ValueObjects\StringId;
 use function Filament\Support\is_app_url;
 
 final class CreateOrganizationSetting extends CreateRecord
@@ -92,11 +93,11 @@ final class CreateOrganizationSetting extends CreateRecord
             new OrganizationSetting(
                 new IntegerId(),
                 $data['iiko_api_key'],
-                new IntegerId((int) $data['iiko_restaurant_id']),
+                new StringId((string) $data['iiko_restaurant_id']),
                 new IntegerId((int) $data['welcome_group_restaurant_id']),
                 new IntegerId((int) $data['welcome_group_default_workshop_id']),
-                new IntegerId((int) $data['order_delivery_type_id']),
-                new IntegerId((int) $data['order_pickup_type_id']),
+                new StringId((string) $data['order_delivery_type_id']),
+                new StringId((string) $data['order_pickup_type_id']),
                 new PaymentTypeCollection(
                     array_map(
                         static fn (array $paymentType): PaymentType => new PaymentType(

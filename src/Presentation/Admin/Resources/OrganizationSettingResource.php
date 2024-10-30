@@ -71,6 +71,7 @@ final class OrganizationSettingResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('iiko_payment_code')
                             ->label('Код типа оплаты Iiko')
+                            ->maxLength(5)
                             ->string()
                             ->required(),
                         Forms\Components\TextInput::make('welcome_group_payment_code')

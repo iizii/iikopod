@@ -31,7 +31,7 @@ final readonly class VerifyWelcomeGroupRestaurant
             );
         } catch (\Throwable $exception) {
             if ($exception->getCode() === Response::HTTP_NOT_FOUND) {
-                throw new RestaurantNotFoundException('Запрос ресторана по ID не вернул результатов');
+                throw new RestaurantNotFoundException('Запрос ресторана по ID в ПОД не вернул результатов');
             }
 
             throw $exception;

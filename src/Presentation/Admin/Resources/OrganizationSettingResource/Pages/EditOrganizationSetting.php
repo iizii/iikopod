@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Presentation\Admin\Resources\OrganizationSettingResource\Pages;
 
 use Application\Settings\Services\SaveSettingsValidation\SaveSettingsValidationPipeline;
+use Domain\Iiko\Exceptions\PaymentTypeNotFoundException;
 use Domain\Settings\OrganizationSetting;
 use Domain\Settings\ValueObjects\PaymentType;
 use Domain\Settings\ValueObjects\PaymentTypeCollection;
@@ -17,9 +18,11 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Exceptions\Halt;
 use Filament\Support\Facades\FilamentView;
+use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
 use Presentation\Admin\Resources\OrganizationSettingResource;
 use Shared\Domain\ValueObjects\IntegerId;
 
+use Shared\Domain\ValueObjects\StringId;
 use function Filament\Support\is_app_url;
 
 final class EditOrganizationSetting extends EditRecord
@@ -56,7 +59,7 @@ final class EditOrganizationSetting extends EditRecord
                 $this->commitDatabaseTransaction();
 
             return;
-        } catch (WorkshopNotFoundException|RestaurantNotFoundException $exception) {
+        } catch (WorkshopNotFoundException|RestaurantNotFoundException|PaymentTypeNotFoundException|IIkoIntegrationException  $exception) {
             Notification::make('validationError')
                 ->title('Ошибка валидации')
                 ->body($exception->getMessage())
@@ -104,11 +107,11 @@ final class EditOrganizationSetting extends EditRecord
             new OrganizationSetting(
                 new IntegerId($record->id),
                 $data['iiko_api_key'],
-                new IntegerId((int) $data['iiko_restaurant_id']),
+                new StringId((string) $data['iiko_restaurant_id']),
                 new IntegerId((int) $data['welcome_group_restaurant_id']),
                 new IntegerId((int) $data['welcome_group_default_workshop_id']),
-                new IntegerId((int) $data['order_delivery_type_id']),
-                new IntegerId((int) $data['order_pickup_type_id']),
+                new StringId((string) $data['order_delivery_type_id']),
+                new StringId((string) $data['order_pickup_type_id']),
                 new PaymentTypeCollection(
                     array_map(
                         static fn (array $paymentType): PaymentType => new PaymentType(
