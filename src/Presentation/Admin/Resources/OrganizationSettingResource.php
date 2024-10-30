@@ -38,7 +38,7 @@ final class OrganizationSettingResource extends Resource
                             ->required(),
                         Forms\Components\TextInput::make('iiko_restaurant_id')
                             ->label('ID ресторана Iiko')
-                            ->integer()
+                            ->string()
                             ->required(),
                         Forms\Components\TextInput::make('welcome_group_restaurant_id')
                             ->label('ID ресторана Welcome Group')
@@ -50,11 +50,11 @@ final class OrganizationSettingResource extends Resource
                             ->required(),
                         Forms\Components\TextInput::make('order_delivery_type_id')
                             ->label('ID типа заказа на доставку')
-                            ->integer()
+                            ->string()
                             ->required(),
                         Forms\Components\TextInput::make('order_pickup_type_id')
                             ->label('ID типа заказа на самовывоз')
-                            ->integer()
+                            ->string()
                             ->required(),
                     ])
                     ->columns([
