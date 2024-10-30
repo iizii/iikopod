@@ -12,9 +12,9 @@ use Illuminate\Pagination\AbstractCursorPaginator;
 use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Enumerable;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\LazyCollection;
-use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseData;
@@ -23,17 +23,26 @@ use Spatie\LaravelData\CursorPaginatedDataCollection;
 use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\PaginatedDataCollection;
 
-final class AuthorizationRequest implements RequestInterface, ResponseDataInterface
+final readonly class GetPaymentTypesRequest implements RequestInterface, ResponseDataInterface
 {
-    /**
-     * @param string $token
-     * @param array $headers
-     */
-    public function __construct(public string $token, public array $headers = []) {}
+    public function __construct(private GetPaymentTypesRequestData $getPaymentTypesRequestData, private array $headers = []) {}
 
     public function method(): RequestMethod
     {
         return RequestMethod::POST;
+    }
+
+    public function endpoint(): string
+    {
+        return '/api/1/payment_types';
+    }
+
+    /**
+     * @return array|Arrayable|string[]
+     */
+    public function data(): array|Arrayable
+    {
+        return $this->getPaymentTypesRequestData;
     }
 
     /**
@@ -44,24 +53,8 @@ final class AuthorizationRequest implements RequestInterface, ResponseDataInterf
         return $this->headers;
     }
 
-    public function endpoint(): string
-    {
-        return '/api/1/access_token';
-    }
-
-    public function data(): array|Arrayable
-    {
-        return [
-            'apiLogin' => $this->token,
-        ];
-    }
-
-    /**
-     * @param Response $response
-     * @return Paginator|ResponseData|Enumerable|array|Response|Collection|PaginatedDataCollection|LazyCollection|AbstractCursorPaginator|CursorPaginatedDataCollection|DataCollection|AbstractPaginator|CursorPaginator
-     */
     public function createDtoFromResponse(Response $response): Paginator|ResponseData|Enumerable|array|Response|Collection|PaginatedDataCollection|LazyCollection|AbstractCursorPaginator|CursorPaginatedDataCollection|DataCollection|AbstractPaginator|CursorPaginator
     {
-        return AuthorizationResponseData::from((array) $response->json());
+        return GetPaymentTypesResponseData::collect((array) $response->json()['paymentTypes']);
     }
 }

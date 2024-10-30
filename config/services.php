@@ -38,7 +38,7 @@ return [
     ],
 
     'iiko' => [
-        'base_url' => env('IIKO_BASE_URL'),
+        'base_url' => env('IIKO_BASE_URL', 'https://api-ru.iiko.services'),
         'timeout_seconds' => env('IIKO_TIMEOUT_SECONDS', 5),
     ],
 

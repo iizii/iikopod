@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Shared\Infrastructure\Integrations;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -12,7 +14,15 @@ use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Log\Context\Repository as LogContext;
+use Illuminate\Pagination\AbstractCursorPaginator;
+use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
+use Illuminate\Support\LazyCollection;
 use Psr\Log\LoggerInterface;
+use Spatie\LaravelData\CursorPaginatedDataCollection;
+use Spatie\LaravelData\DataCollection;
+use Spatie\LaravelData\PaginatedDataCollection;
 use Throwable;
 
 abstract readonly class AbstractConnector
@@ -28,7 +38,7 @@ abstract readonly class AbstractConnector
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function send(RequestInterface $request): Response|ResponseData
+    public function send(RequestInterface $request): Response|ResponseData|array
     {
         $response = $this
             ->pendingRequest
@@ -148,7 +158,7 @@ abstract readonly class AbstractConnector
             });
     }
 
-    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData
+    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData|array|CursorPaginator|Paginator|AbstractCursorPaginator|AbstractPaginator|Collection|Enumerable|LazyCollection|CursorPaginatedDataCollection|DataCollection|PaginatedDataCollection
     {
         if (! $request instanceof ResponseDataInterface) {
             return $response;
@@ -162,6 +172,7 @@ abstract readonly class AbstractConnector
      */
     private function buildParams(RequestInterface $request): array
     {
+        logger('request', [$request->headers()]);
         $data = $request->data() instanceof Arrayable
             ? $request->data()->toArray()
             : $request->data();
@@ -176,10 +187,11 @@ abstract readonly class AbstractConnector
             $params['query'] = $data;
         }
 
-        if ($this->headers()) {
-            $params['headers'] = $this->headers();
+        if (!blank($this->headers()) || !blank($request->headers())) {
+            $headers = array_merge($this->headers(), $request->headers());
+            $params['headers'] = $headers;
         }
-
+        logger('params', [$params]);
         return $params;
     }
 }

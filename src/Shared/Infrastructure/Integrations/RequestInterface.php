@@ -15,5 +15,10 @@ interface RequestInterface
     /**
      * @return array<string, string>|Arrayable<string, string>
      */
+    public function headers(): array|Arrayable;
+
+    /**
+     * @return array<string, string>|Arrayable<string, string>
+     */
     public function data(): array|Arrayable;
 }

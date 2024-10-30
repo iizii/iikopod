@@ -16,7 +16,7 @@ interface IikoConnectorInterface
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function send(RequestInterface $request): Response|ResponseData;
+    public function send(RequestInterface $request): Response|ResponseData|array;
 
     /**
      * @return iterable<Response|ResponseData>

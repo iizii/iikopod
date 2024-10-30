@@ -8,5 +8,5 @@ use Shared\Infrastructure\Integrations\ResponseData;
 
 final class AuthorizationResponseData extends ResponseData
 {
-    public function __construct(public readonly string $apiLogin) {}
+    public function __construct(public readonly string $token) {}
 }
