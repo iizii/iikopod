@@ -13,6 +13,7 @@ use Illuminate\Http\Client\Factory as HttpClientFactory;
 use Illuminate\Log\Context\Repository as LogContext;
 use Illuminate\Support\ServiceProvider;
 use Infrastructure\Integrations\IIko\IIkoConnector;
+use Infrastructure\Integrations\WelcomeGroup\SignatureCompiler;
 use Infrastructure\Integrations\WelcomeGroup\WelcomeGroupConnector;
 use Psr\Log\LoggerInterface;
 
@@ -44,7 +45,7 @@ final class IntegrationsServiceProvider extends ServiceProvider
             static function (Application $application): WelcomeGroupConnector {
                 $pendingRequest = $application->make(HttpClientFactory::class);
 
-                /** @var array{base_url: string, timeout_seconds: int} $config */
+                /** @var array{base_url: string, timeout_seconds: int, username: string, password: string} $config */
                 $config = $application->make(ConfigRepository::class)->get('services.welcome_group');
 
                 return new WelcomeGroupConnector(
@@ -54,6 +55,7 @@ final class IntegrationsServiceProvider extends ServiceProvider
                     $application->make(EventDispatcher::class),
                     $application->make(LogContext::class),
                     $application->make(LoggerInterface::class),
+                    new SignatureCompiler($config['username'], $config['password'])
                 );
             },
         );

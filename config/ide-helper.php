@@ -142,6 +142,7 @@ return [
 
     'model_locations' => [
         base_path('src/Domain/*/Models'),
+        base_path('src/Infrastructure/Persistence/Eloquent/*'),
     ],
 
     /*

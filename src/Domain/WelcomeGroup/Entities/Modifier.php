@@ -14,7 +14,7 @@ final class Modifier extends DomainEntity
         public int $modifierType,
         public string $name,
         public bool $defaultOption,
-        public \DateTimeImmutable $created,
-        public \DateTimeImmutable $updated
+        public \DateTimeInterface $createdAt,
+        public \DateTimeInterface $updatedAt
     ) {}
 }

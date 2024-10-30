@@ -13,10 +13,12 @@ use Shared\Infrastructure\Integrations\ResponseData;
 interface IikoConnectorInterface
 {
     /**
+     * @return Response|ResponseData|iterable<array-key, ResponseData>
+     *
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function send(RequestInterface $request): Response|ResponseData|array;
+    public function send(RequestInterface $request): Response|ResponseData|iterable;
 
     /**
      * @return iterable<Response|ResponseData>

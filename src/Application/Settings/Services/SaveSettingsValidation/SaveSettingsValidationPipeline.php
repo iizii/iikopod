@@ -18,9 +18,9 @@ final class SaveSettingsValidationPipeline
      */
     private static array $pipes = [
         VerifyIikoRestaurant::class,
+        VerifyIikoPaymentType::class,
         VerifyWelcomeGroupRestaurant::class,
         VerifyWelcomeGroupWorkshop::class,
-        VerifyIikoPaymentType::class,
     ];
 
     public function __construct(private readonly Pipeline $pipeline) {}

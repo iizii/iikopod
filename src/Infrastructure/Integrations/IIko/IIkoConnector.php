@@ -15,11 +15,11 @@ use Infrastructure\Integrations\IIko\Events\IIkoRequestSuccessesEvent;
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
 use Infrastructure\Integrations\IIko\Requests\AuthorizationRequest;
 use Shared\Infrastructure\Integrations\AbstractConnector;
-use Throwable;
+use Shared\Infrastructure\Integrations\RequestInterface;
 
 final readonly class IIkoConnector extends AbstractConnector implements IikoConnectorInterface
 {
-    protected function getRequestException(Response $response, Throwable $clientException): Throwable
+    protected function getRequestException(Response $response, \Throwable $clientException): \Throwable
     {
         return new IIkoIntegrationException(
             $clientException->getMessage(),
@@ -44,7 +44,7 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
         yield IIkoRequestFailedEvent::class;
     }
 
-    protected function headers(): array
+    protected function headers(RequestInterface $request): array
     {
         return [
             'Content-Type' => 'application/json',

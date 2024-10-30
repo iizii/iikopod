@@ -114,7 +114,7 @@ return [
     ],
 
     'ignore_paths' => [
-        'livewire*',
+        //'livewire*',
         'nova-api*',
         'pulse*',
     ],

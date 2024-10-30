@@ -45,5 +45,7 @@ return [
     'welcome_group' => [
         'base_url' => env('WELCOME_GROUP_BASE_URL'),
         'timeout_seconds' => env('WELCOME_GROUP_TIMEOUT_SECONDS', 5),
+        'username' => env('WELCOME_GROUP_USERNAME'),
+        'password' => env('WELCOME_GROUP_PASSWORD'),
     ],
 ];

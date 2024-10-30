@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\WelcomeGroup\ValueObjects;
+namespace Domain\WelcomeGroup\ValueObjects\Order;
 
 use Shared\Domain\ValueObject;
 

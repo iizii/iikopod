@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Shared\Domain\ValueObjects;
 
-final readonly class IntegerId
+use Shared\Domain\ValueObject;
+
+final class IntegerId extends ValueObject
 {
-    public function __construct(public ?int $id = null) {}
+    public function __construct(public readonly ?int $id = null) {}
 }

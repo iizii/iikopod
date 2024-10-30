@@ -28,17 +28,19 @@ use Throwable;
 abstract readonly class AbstractConnector
 {
     public function __construct(
-        private PendingRequest $pendingRequest,
-        private Dispatcher $eventDispatcher,
-        private LogContext $logContext,
-        private LoggerInterface $logger,
+        public PendingRequest $pendingRequest,
+        public Dispatcher $eventDispatcher,
+        public LogContext $logContext,
+        public LoggerInterface $logger,
     ) {}
 
     /**
+     * @return Response|ResponseData|iterable<array-key, ResponseData>
+     *
      * @throws ConnectionException
      * @throws RequestException
      */
-    public function send(RequestInterface $request): Response|ResponseData|array
+    public function send(RequestInterface $request): Response|ResponseData|iterable
     {
         $response = $this
             ->pendingRequest
@@ -60,7 +62,7 @@ abstract readonly class AbstractConnector
     }
 
     /**
-     * @return iterable<Response|ResponseData>
+     * @return iterable<Response|ResponseData|iterable<ResponseData>>
      */
     public function sendAsync(RequestInterface ...$requests): iterable
     {
@@ -80,16 +82,6 @@ abstract readonly class AbstractConnector
         }
     }
 
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger;
-    }
-
-    public function getLoggerContext(): LogContext
-    {
-        return $this->logContext;
-    }
-
     protected function hasRequestFailed(Response $response): ?bool
     {
         return false;
@@ -98,7 +90,7 @@ abstract readonly class AbstractConnector
     /**
      * @return array<non-empty-string, non-empty-string>
      */
-    protected function headers(): array
+    protected function headers(RequestInterface $request): array
     {
         return [];
     }
@@ -172,7 +164,6 @@ abstract readonly class AbstractConnector
      */
     private function buildParams(RequestInterface $request): array
     {
-        logger('request', [$request->headers()]);
         $data = $request->data() instanceof Arrayable
             ? $request->data()->toArray()
             : $request->data();
@@ -191,7 +182,7 @@ abstract readonly class AbstractConnector
             $headers = array_merge($this->headers(), $request->headers());
             $params['headers'] = $headers;
         }
-        logger('params', [$params]);
+
         return $params;
     }
 }
