@@ -37,4 +37,9 @@ final readonly class GetRestaurantsRequest implements RequestInterface, Response
         /**  @phpstan-ignore argument.type */
         return new Collection(GetRestaurantResponseData::collect($response->json('items')));
     }
+
+    public function headers(): array
+    {
+        return [];
+    }
 }

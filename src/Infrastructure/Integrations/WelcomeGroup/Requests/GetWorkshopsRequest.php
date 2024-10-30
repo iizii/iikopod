@@ -37,4 +37,9 @@ final readonly class GetWorkshopsRequest implements RequestInterface, ResponseDa
         /**  @phpstan-ignore argument.type */
         return new Collection(GetWorkshopResponseData::collect($response->json('items')));
     }
+
+    public function headers(): array
+    {
+        return [];
+    }
 }
