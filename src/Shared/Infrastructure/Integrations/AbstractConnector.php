@@ -178,8 +178,8 @@ abstract readonly class AbstractConnector
             $params['query'] = $data;
         }
 
-        if (!blank($this->headers()) || !blank($request->headers())) {
-            $headers = array_merge($this->headers(), $request->headers());
+        if (!blank($this->headers($request)) || !blank($request->headers())) {
+            $headers = array_merge($this->headers($request), $request->headers());
             $params['headers'] = $headers;
         }
 
