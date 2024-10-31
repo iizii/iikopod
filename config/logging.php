@@ -129,6 +129,27 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'delivery_order_error' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/delivery_order_error/delivery_order_error.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 7,
+        ],
+
+        'delivery_order_update' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/delivery_order_update/delivery_order_update.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 7,
+        ],
+
+        'stop_list_update' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/stop_list_update/stop_list_update.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 7,
+        ],
+
     ],
 
 ];
