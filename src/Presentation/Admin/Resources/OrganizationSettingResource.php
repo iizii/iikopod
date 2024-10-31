@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Presentation\Admin\Resources;
 
 use Doctrine\DBAL\ConnectionException;
+use Domain\Iiko\Rules\UniquePrefixRule;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
@@ -16,7 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Validation\Rule;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\ExternalMenuData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
@@ -36,7 +36,9 @@ final class OrganizationSettingResource extends Resource
     protected ?string $heading = 'Организация';
 
     protected static ?string $label = 'организацию';
+
     protected static ?string $pluralLabel = 'Организаций';
+
     protected static ?string $navigationGroup = 'Настройки';
 
     protected static ?string $model = OrganizationSetting::class;
@@ -211,10 +213,15 @@ final class OrganizationSettingResource extends Resource
                             ->label('Префикс')
                             ->string()
                             ->required()
-                            ->unique(OrganizationSetting::class, 'prefix')
-                            ->rules([
-                                Rule::unique('organization_settings', 'prefix'),
-                            ]),
+                            ->rules([new UniquePrefixRule()]) // Проверка уникальности в БД
+                            ->afterStateUpdated(static function ($state, callable $set, $get) {
+                                $prefixes = collect($get('price_categories'))->pluck('prefix');
+                                $duplicates = $prefixes->duplicates();
+
+                                if ($duplicates->isNotEmpty()) {
+                                    $set('error', 'Префиксы внутри одной записи должны быть уникальными.');
+                                }
+                            }),
                     ])
                     ->columns()
                     ->reorderable(false)
