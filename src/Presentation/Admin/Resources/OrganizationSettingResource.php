@@ -169,10 +169,11 @@ final class OrganizationSettingResource extends Resource
                         Select::make('category_id')
                             ->label('Категория')
                             ->options(static function (callable $get, $livewire) {
-                                $apiKey = $get('iiko_api_key') ?? '';
-                                $restaurantId = $get('iiko_restaurant_id') ?? '';
+                                $apiKey = $livewire->data['iiko_api_key'] ?? '';
+                                $restaurantId = $livewire->data['iiko_restaurant_id'] ?? '';
 
-                                if (preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $apiKey) && preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $restaurantId)) {
+                                if (preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $apiKey)
+                                    && preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $restaurantId)) {
                                     $connector = app(IikoConnectorInterface::class);
                                     $auth = app(IikoAuthenticator::class);
 
