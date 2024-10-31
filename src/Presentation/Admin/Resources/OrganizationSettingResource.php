@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Presentation\Admin\Resources;
 
+use Closure;
 use Doctrine\DBAL\ConnectionException;
 use Domain\Iiko\Rules\UniquePrefixRule;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
@@ -17,6 +18,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\ExternalMenuData;
@@ -214,7 +216,17 @@ final class OrganizationSettingResource extends Resource
                             ->label('Префикс')
                             ->string()
                             ->required()
-                            ->rules([new UniquePrefixRule()]) // Проверка уникальности в БД
+                            ->rules([
+                                fn(): Closure => function (string $attribute, $value, Closure $fail) {
+                                    $exists = DB::table('organization_settings')
+                                        ->whereRaw("JSON_CONTAINS(price_categories, JSON_OBJECT('prefix', ?))", [$value])
+                                        ->exists();
+
+                                    if ($exists) {
+                                        $fail('Поле Префикс должно быть уникальным.');
+                                    }
+                                }
+                            ]) // Проверка уникальности в БД
                             ->beforeStateDehydrated(static function ($state, $get) {
                                 $prefixes = collect($get('../'))->pluck('prefix');
 
