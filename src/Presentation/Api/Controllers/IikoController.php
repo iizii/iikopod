@@ -114,6 +114,6 @@ final readonly class IikoController
         $req = new GetMenuRequest($getExternalMenusWithPriceCategoriesData, $authRes->token);
         $response = $this->connector->send($req);
 
-        return $this->responseFactory->json($response, 200);
+        return $this->responseFactory->json($response->toDomainEntity(), 200);
     }
 }

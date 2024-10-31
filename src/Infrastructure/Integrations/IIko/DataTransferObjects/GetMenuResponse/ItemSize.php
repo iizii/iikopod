@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse;
 
+use Domain\Iiko\Entities\Menu\ItemModifierGroup as DomainItemModifierGroup;
+use Domain\Iiko\Entities\Menu\ItemSize as DomainItemSize;
+use Domain\Iiko\ValueObjects\Menu\ItemModifierGroupCollection;
+use Domain\Iiko\ValueObjects\Menu\Nutrition as DomainNutrition;
+use Domain\Iiko\ValueObjects\Menu\NutritionCollection;
+use Domain\Iiko\ValueObjects\Menu\Price as DomainPrice;
+use Domain\Iiko\ValueObjects\Menu\PriceCollection;
+use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\DataCollection;
@@ -33,4 +41,38 @@ final class ItemSize extends ResponseData
         public readonly ?string $buttonImageCroppedUrl,
         public readonly ?string $buttonImageUrl,
     ) {}
+
+    public function toDomainEntity(): DomainItemSize
+    {
+        return new DomainItemSize(
+            new StringId($this->iikoSizeId),
+            $this->sku,
+            $this->sizeCode,
+            $this->sizeName,
+            $this->isDefault,
+            $this->portionWeightGrams,
+            $this->nutritionPerHundredGrams->toDomainEntity(),
+            $this->measureUnitType,
+            $this->buttonImageCroppedUrl,
+            $this->buttonImageUrl,
+            new ItemModifierGroupCollection(
+                $this
+                    ->itemModifierGroups
+                    ->toCollection()
+                    ->map(static fn (ItemModifierGroup $itemModifierGroup): DomainItemModifierGroup => $itemModifierGroup->toDomainEntity())
+            ),
+            new PriceCollection(
+                $this
+                    ->prices
+                    ->toCollection()
+                    ->map(static fn (Price $price): DomainPrice => $price->toDomainEntity()),
+            ),
+            new NutritionCollection(
+                $this
+                    ->nutritions
+                    ->toCollection()
+                    ->map(static fn (Nutrition $nutrition): DomainNutrition => $nutrition->toDomainEntity())
+            ),
+        );
+    }
 }
