@@ -26,14 +26,14 @@ use Presentation\Admin\Resources\OrganizationSettingResource\Pages;
 
 final class OrganizationSettingResource extends Resource
 {
-    protected static ?string $navigationLabel = 'Организация';
+    protected static ?string $navigationLabel = 'Организации';
 
     protected static ?string $title = 'Организация';
 
     protected ?string $heading = 'Организация';
 
     protected static ?string $label = 'организацию';
-
+    protected static ?string $pluralLabel = 'Организаций';
     protected static ?string $navigationGroup = 'Настройки';
 
     protected static ?string $model = OrganizationSetting::class;
@@ -45,33 +45,33 @@ final class OrganizationSettingResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         Forms\Components\TextInput::make('iiko_api_key')
-                            ->label('Iiko API Key')
+                            ->label('IIKO API Key')
                             ->string()
                             ->required()
 //                            ->rules(['regex:/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/']) // Проверка UUID
 //                            ->afterStateUpdated(fn ($state, callable $set) => $set('external_menu', null)) // Обнуляем Select при изменении ID ресторана
                             ->reactive(),
                         Forms\Components\TextInput::make('iiko_restaurant_id')
-                            ->label('ID ресторана Iiko')
+                            ->label('ID ресторана IIKO')
                             ->string()
                             ->required()
                             ->rules(['regex:/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/']) // Проверка UUID
 //                            ->afterStateUpdated(fn ($state, callable $set) => $set('external_menu', null)) // Обнуляем Select при изменении ID ресторана
                             ->reactive(),  // Также делаем поле реактивным
                         Forms\Components\TextInput::make('welcome_group_restaurant_id')
-                            ->label('ID ресторана Welcome Group')
+                            ->label('ID ресторана Welcome Доставка')
                             ->integer()
                             ->required(),
                         Forms\Components\TextInput::make('welcome_group_default_workshop_id')
-                            ->label('ID цеха Welcome Group применяемого по умолчанию')
+                            ->label('ID цеха Welcome Доставка применяемого по умолчанию')
                             ->integer()
                             ->required(),
                         Forms\Components\TextInput::make('order_delivery_type_id')
-                            ->label('ID типа заказа на доставку')
+                            ->label('ID типа заказа на доставку в IIKO')
                             ->string()
                             ->required(),
                         Forms\Components\TextInput::make('order_pickup_type_id')
-                            ->label('ID типа заказа на самовывоз')
+                            ->label('ID типа заказа на самовывоз в IIKO')
                             ->string()
                             ->required(),
                     ])
@@ -88,12 +88,12 @@ final class OrganizationSettingResource extends Resource
                     ->label('Типы оплат')
                     ->schema([
                         Forms\Components\TextInput::make('iiko_payment_code')
-                            ->label('Код типа оплаты Iiko')
+                            ->label('Код типа оплаты IIKO')
                             ->maxLength(5)
                             ->string()
                             ->required(),
                         Forms\Components\TextInput::make('welcome_group_payment_code')
-                            ->label('Код типа оплаты Welcome Group')
+                            ->label('Код типа оплаты Welcome Доставка')
                             ->string()
                             ->required(),
                     ])
@@ -147,7 +147,7 @@ final class OrganizationSettingResource extends Resource
 
                         Notification::make('menuWarning')
                             ->title('Внимание')
-                            ->body('Для выбора меню необходимо верно ввести Iiko API Key и ID ресторана Iiko')
+                            ->body('Для выбора меню необходимо верно ввести IIKO API Key и ID ресторана IIKO')
                             ->warning()
                             ->send();
 
@@ -157,9 +157,9 @@ final class OrganizationSettingResource extends Resource
                     ->reactive()
                     ->hint(static function (callable $get) {
                         if (preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_api_key') ?? '') && preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id') ?? '')) {
-                            return 'Iiko API Key и ID ресторана Iiko введены верно, можете выбрать меню';
+                            return 'IIKO API Key и ID ресторана IIKO введены верно, можете выбрать меню';
                         } else {
-                            return 'Для выбора меню необходимо верно ввести Iiko API Key и ID ресторана Iiko';
+                            return 'Для выбора меню необходимо верно ввести IIKO API Key и ID ресторана IIKO';
                         }
                     })
                     ->required(),
@@ -200,7 +200,7 @@ final class OrganizationSettingResource extends Resource
                                 }
                                 Notification::make('priceCategoriesWarn')
                                     ->title('Внимание')
-                                    ->body('Для выбора ценовых категорий необходимо верно ввести Iiko API Key и ID ресторана Iiko')
+                                    ->body('Для выбора ценовых категорий необходимо верно ввести IIKO API Key и ID ресторана IIKO')
                                     ->warning()
                                     ->send();
 
@@ -225,9 +225,9 @@ final class OrganizationSettingResource extends Resource
                     ->disabled(static fn (callable $get) => ! $get('iiko_api_key') || ! $get('iiko_restaurant_id') || ! preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id')))
                     ->hint(static function (callable $get) {
                         if (preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_api_key') ?? '') && preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id') ?? '')) {
-                            return 'Iiko API Key и ID ресторана Iiko введены верно, можете добавить ценовые категории';
+                            return 'IIKO API Key и ID ресторана IIKO введены верно, можете добавить ценовые категории';
                         } else {
-                            return 'Для добавления ценовых категорий необходимо верно ввести Iiko API Key и ID ресторана Iiko';
+                            return 'Для добавления ценовых категорий необходимо верно ввести IIKO API Key и ID ресторана IIKO';
                         }
                     })
                     ->required(),
@@ -239,15 +239,15 @@ final class OrganizationSettingResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('iiko_api_key')
-                    ->label('Iiko API Key'),
+                    ->label('IIKO API Key'),
                 Tables\Columns\TextColumn::make('iiko_restaurant_id')
-                    ->label('ID ресторана Iiko'),
+                    ->label('ID ресторана IIKO'),
                 Tables\Columns\TextColumn::make('welcome_group_restaurant_id')
-                    ->label('ID ресторана Welcome Group'),
+                    ->label('ID ресторана Welcome Доставка'),
                 Tables\Columns\TextColumn::make('order_delivery_type_id')
-                    ->label('ID типа доставки'),
+                    ->label('ID типа доставки в IIKO'),
                 Tables\Columns\TextColumn::make('order_pickup_type_id')
-                    ->label('ID типа самовывоза'),
+                    ->label('ID типа самовывоза в IIKO'),
             ])
             ->filters([
                 //
