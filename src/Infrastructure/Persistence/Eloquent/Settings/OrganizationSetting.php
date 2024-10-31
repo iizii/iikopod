@@ -49,6 +49,7 @@ final class OrganizationSetting extends Model
         'order_pickup_type_id',
         'payment_types',
         'price_categories',
+        'external_menu,'
     ];
 
     /**
