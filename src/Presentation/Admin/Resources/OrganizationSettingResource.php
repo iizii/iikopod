@@ -6,7 +6,6 @@ namespace Presentation\Admin\Resources;
 
 use Closure;
 use Doctrine\DBAL\ConnectionException;
-use Domain\Iiko\Rules\UniquePrefixRule;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
@@ -217,15 +216,29 @@ final class OrganizationSettingResource extends Resource
                             ->string()
                             ->required()
                             ->rules([
-                                fn(): Closure => function (string $attribute, $value, Closure $fail) {
-                                    $exists = DB::table('organization_settings')
-                                        ->whereRaw("JSON_CONTAINS(price_categories, JSON_OBJECT('prefix', ?))", [$value])
-                                        ->exists();
+                                static fn (): Closure => static function (string $attribute, $value, Closure $fail) {
+                                    // Получаем все записи с JSON-колонки 'price_categories' и декодируем их
+                                    $organizationSettings = DB::table('organization_settings')
+                                        ->select('price_categories')
+                                        ->get();
 
-                                    if ($exists) {
-                                        $fail('Поле Префикс должно быть уникальным.');
+                                    // Обходим все записи и проверяем наличие префикса в каждой из них
+                                    foreach ($organizationSettings as $setting) {
+                                        // Декодируем JSON в массив
+                                        $priceCategories = $setting->price_categories;
+
+                                        // Проверяем, есть ли среди префиксов текущее значение
+                                        if (is_array($priceCategories)) {
+                                            foreach ($priceCategories as $category) {
+                                                if (isset($category['prefix']) && $category['prefix'] === $value) {
+                                                    $fail('Поле Префикс должно быть уникальным.');
+
+                                                    return;
+                                                }
+                                            }
+                                        }
                                     }
-                                }
+                                },
                             ]) // Проверка уникальности в БД
                             ->beforeStateDehydrated(static function ($state, $get) {
                                 $prefixes = collect($get('../'))->pluck('prefix');
@@ -236,13 +249,14 @@ final class OrganizationSettingResource extends Resource
                                     Notification::make('validationErrorInRepeater')
                                         ->title('Ошибка валидации')
                                         ->danger()
-                                        ->body("При указании ценовых категорий не должно быть повторяющихся значений \n Повторяющиеся значения: " . implode(', ', $duplicates->toArray()))
+                                        ->body("При указании ценовых категорий не должно быть повторяющихся значений \n Повторяющиеся значения: ".implode(', ', $duplicates->toArray()))
                                         ->send();
 
                                     // Не удалось сделать ошибку валидации по красоте. Оставил только для того чтобы прервать сохранение записи
                                     throw ValidationException::withMessages([
                                         'prefix' => 'При указании ценовых категорий не должно быть повторяющихся значений',
-                                    ]);                             }
+                                    ]);
+                                }
                             }),
                     ])
                     ->columns()
