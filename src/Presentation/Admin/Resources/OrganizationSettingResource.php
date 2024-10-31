@@ -15,7 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\LazyCollection;
 use Illuminate\Validation\Rule;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
@@ -105,7 +104,7 @@ final class OrganizationSettingResource extends Resource
                     ->required(),
                 Select::make('external_menu')
                     ->label('Меню приложения')
-                    ->options(function (callable $get) {
+                    ->options(static function (callable $get) {
                         $apiKey = $get('iiko_api_key') ?? '';
                         $restaurantId = $get('iiko_restaurant_id') ?? '';
 
@@ -120,7 +119,7 @@ final class OrganizationSettingResource extends Resource
 
                             $request = new GetExternalMenusWithPriceCategoriesRequest(
                                 new GetExternalMenusWithPriceCategoriesRequestData([$restaurantId]),
-                                ['Authorization' => 'Bearer ' . $auth->getAuthToken($apiKey)]
+                                ['Authorization' => 'Bearer '.$auth->getAuthToken($apiKey)]
                             );
 
                             try {
@@ -137,10 +136,12 @@ final class OrganizationSettingResource extends Resource
                                         ->danger()
                                         ->send();
                                 }
+
                                 return [];
                             }
+
                             return collect($response->externalMenus)
-                                ->mapWithKeys(fn($externalMenu) => [$externalMenu['id'] => $externalMenu['name']])
+                                ->mapWithKeys(static fn ($externalMenu) => [$externalMenu['id'] => $externalMenu['name']])
                                 ->toArray();
                         }
 
@@ -152,9 +153,9 @@ final class OrganizationSettingResource extends Resource
 
                         return [];
                     })
-                    ->disabled(fn (callable $get) => !$get('iiko_api_key') || !$get('iiko_restaurant_id') || !preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_api_key') ?? '') || !preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id') ?? '')) // Блокировка селекта
+                    ->disabled(static fn (callable $get) => ! $get('iiko_api_key') || ! $get('iiko_restaurant_id') || ! preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_api_key') ?? '') || ! preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id') ?? '')) // Блокировка селекта
                     ->reactive()
-                    ->hint(function (callable $get) {
+                    ->hint(static function (callable $get) {
                         if (preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_api_key') ?? '') && preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id') ?? '')) {
                             return 'Iiko API Key и ID ресторана Iiko введены верно, можете выбрать меню';
                         } else {
@@ -167,7 +168,7 @@ final class OrganizationSettingResource extends Resource
                     ->schema([
                         Select::make('category_id')
                             ->label('Категория')
-                            ->options(function (callable $get, $livewire) {
+                            ->options(static function (callable $get, $livewire) {
                                 $apiKey = $get('iiko_api_key') ?? '';
                                 $restaurantId = $get('iiko_restaurant_id') ?? '';
 
@@ -177,20 +178,22 @@ final class OrganizationSettingResource extends Resource
 
                                     $request = new GetExternalMenusWithPriceCategoriesRequest(
                                         new GetExternalMenusWithPriceCategoriesRequestData([$restaurantId]),
-                                        ['Authorization' => 'Bearer ' . $auth->getAuthToken($apiKey)]
+                                        ['Authorization' => 'Bearer '.$auth->getAuthToken($apiKey)]
                                     );
 
                                     try {
                                         /** @var GetExternalMenusWithPriceCategoriesResponseData $response */
                                         $response = $connector->send($request);
                                         $priceCategories = collect($response->priceCategories)
-                                            ->mapWithKeys(fn($category) => [$category['id'] => $category['name']])
+                                            ->mapWithKeys(static fn ($category) => [$category['id'] => $category['name']])
                                             ->toArray();
 
                                         $selectedCategories = collect($livewire->data['price_categories'])->pluck('category_id')->filter()->toArray();
+
                                         return array_diff_key($priceCategories, array_flip($selectedCategories));
                                     } catch (IIkoIntegrationException|RequestException|ConnectionException $e) {
                                         Notification::make()->title('Ошибка')->body('Не удалось получить данные ценовых категорий')->danger()->send();
+
                                         return [];
                                     }
                                 }
@@ -199,6 +202,7 @@ final class OrganizationSettingResource extends Resource
                                     ->body('Для выбора ценовых категорий необходимо верно ввести Iiko API Key и ID ресторана Iiko')
                                     ->warning()
                                     ->send();
+
                                 return [];
                             })
                             ->reactive()
@@ -217,8 +221,8 @@ final class OrganizationSettingResource extends Resource
                     ->collapsible()
                     ->reactive()
                     ->addActionLabel('Добавить категорию')
-                    ->disabled(fn (callable $get) => !$get('iiko_api_key') || !$get('iiko_restaurant_id') || !preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id')))
-                    ->hint(function (callable $get) {
+                    ->disabled(static fn (callable $get) => ! $get('iiko_api_key') || ! $get('iiko_restaurant_id') || ! preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id')))
+                    ->hint(static function (callable $get) {
                         if (preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_api_key') ?? '') && preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $get('iiko_restaurant_id') ?? '')) {
                             return 'Iiko API Key и ID ресторана Iiko введены верно, можете добавить ценовые категории';
                         } else {

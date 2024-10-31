@@ -9,5 +9,8 @@
         "single_trait_insert_per_statement": true,
         "static_lambda": true,
         "ordered_class_elements": true
-    }
+    },
+    "exclude": [
+        "_docker"
+    ]
 }
