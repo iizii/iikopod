@@ -50,7 +50,7 @@ return [
     |
     */
 
-    'back_to_system_url' => config('app.url'),
+    'back_to_system_url' => config('app.url').'/admin',
 
     'back_to_system_label' => null, // Displayed by default: "Back to {{ app.name }}"
 

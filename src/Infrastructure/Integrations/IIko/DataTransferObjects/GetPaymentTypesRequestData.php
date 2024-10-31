@@ -10,13 +10,15 @@ use Spatie\LaravelData\Data;
 final class GetPaymentTypesRequestData extends Data
 {
     /**
-     * @param  array<non-empty-string>  $organizationIds
+     * @param  array<array-key, string>  $organizationIds
      */
     public function __construct(
-        public array $organizationIds,
+        public readonly array $organizationIds,
     ) {
         if (empty($this->organizationIds)) {
-            throw new InvalidArgumentException('Массив идентификаторов организаций должен содержать хотя бы один элемент');
+            throw new InvalidArgumentException(
+                'Массив идентификаторов организаций должен содержать хотя бы один элемент',
+            );
         }
     }
 }

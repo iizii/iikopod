@@ -36,6 +36,9 @@ final readonly class GetRestaurantRequest implements RequestInterface, ResponseD
         return GetRestaurantResponseData::from($response->json());
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function headers(): array
     {
         return [];

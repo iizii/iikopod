@@ -10,20 +10,15 @@ use Shared\Infrastructure\Integrations\ResponseData;
 final class GetMenuRequestData extends ResponseData
 {
     /**
-     * @param array $organizationIds
-     * @param string $externalMenuId
-     * @param string $priceCategoryId
-     * @param int $version
-     * @param string $language
-     * @param int $startRevision
+     * @param  array<array-key, string>  $organizationIds
      */
     public function __construct(
-        public array $organizationIds,
-        public string $externalMenuId,
-        public string $priceCategoryId,
-        public int $version = 0,
-        public string $language = 'string',
-        public int $startRevision = 0,
+        public readonly array $organizationIds,
+        public readonly string $externalMenuId,
+        public readonly string $priceCategoryId,
+        public readonly int $version = 0,
+        public readonly string $language = 'string',
+        public readonly int $startRevision = 0,
     ) {
         if (empty($this->organizationIds)) {
             throw new InvalidArgumentException('Организация должна быть указана');

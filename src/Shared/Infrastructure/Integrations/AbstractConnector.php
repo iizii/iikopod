@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Shared\Infrastructure\Integrations;
 
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -14,15 +12,7 @@ use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Log\Context\Repository as LogContext;
-use Illuminate\Pagination\AbstractCursorPaginator;
-use Illuminate\Pagination\AbstractPaginator;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Enumerable;
-use Illuminate\Support\LazyCollection;
 use Psr\Log\LoggerInterface;
-use Spatie\LaravelData\CursorPaginatedDataCollection;
-use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\PaginatedDataCollection;
 use Throwable;
 
 abstract readonly class AbstractConnector
@@ -150,7 +140,10 @@ abstract readonly class AbstractConnector
             });
     }
 
-    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData|array|CursorPaginator|Paginator|AbstractCursorPaginator|AbstractPaginator|Collection|Enumerable|LazyCollection|CursorPaginatedDataCollection|DataCollection|PaginatedDataCollection
+    /**
+     * @return Response|ResponseData|iterable<ResponseData>
+     */
+    private function createResponse(Response $response, RequestInterface $request): Response|ResponseData|iterable
     {
         if (! $request instanceof ResponseDataInterface) {
             return $response;
@@ -178,8 +171,12 @@ abstract readonly class AbstractConnector
             $params['query'] = $data;
         }
 
-        if (!blank($this->headers($request)) || !blank($request->headers())) {
-            $headers = array_merge($this->headers($request), $request->headers());
+        if (! blank($this->headers($request)) || ! blank($request->headers())) {
+            $requestHeaders = $request->headers() instanceof Arrayable
+                ? $request->headers()->toArray()
+                : $request->headers();
+
+            $headers = array_merge($this->headers($request), $requestHeaders);
             $params['headers'] = $headers;
         }
 

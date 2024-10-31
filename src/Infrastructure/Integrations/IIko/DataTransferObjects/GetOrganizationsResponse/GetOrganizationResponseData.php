@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\IIko\DataTransferObjects;
+namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationsResponse;
 
 use Shared\Infrastructure\Integrations\ResponseData;
 
 final class GetOrganizationResponseData extends ResponseData
 {
+    /**
+     * @param  array<array-key, string>|null  $deliveryCityIds
+     * @param  array<array-key, string>  $addressLookup
+     */
     public function __construct(
         public readonly string $responseType,
         public readonly string $country,
@@ -35,6 +39,6 @@ final class GetOrganizationResponseData extends ResponseData
         public readonly array $addressLookup,
         public readonly string $id,
         public readonly string $name,
-        public readonly string $code
+        public readonly string $code,
     ) {}
 }

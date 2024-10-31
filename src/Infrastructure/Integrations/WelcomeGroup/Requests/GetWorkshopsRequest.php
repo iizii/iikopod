@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetWorkshopResponse\GetWorkshopResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
@@ -24,20 +23,25 @@ final readonly class GetWorkshopsRequest implements RequestInterface, ResponseDa
         return '/api/workshop';
     }
 
-    public function data(): array|Arrayable
+    /**
+     * @return array<string, string>
+     */
+    public function data(): array
     {
         return [];
     }
 
     /**
-     * @return Collection<array-key, GetWorkshopResponseData>
+     * @return LazyCollection<array-key, GetWorkshopResponseData>
      */
-    public function createDtoFromResponse(Response $response): Collection
+    public function createDtoFromResponse(Response $response): LazyCollection
     {
-        /**  @phpstan-ignore argument.type */
-        return new Collection(GetWorkshopResponseData::collect($response->json('items')));
+        return GetWorkshopResponseData::collect($response->json('items'), LazyCollection::class);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function headers(): array
     {
         return [];

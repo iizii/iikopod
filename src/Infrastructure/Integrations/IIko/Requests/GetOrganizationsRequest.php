@@ -4,28 +4,20 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\Requests;
 
-use Illuminate\Contracts\Pagination\CursorPaginator;
-use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Pagination\AbstractCursorPaginator;
-use Illuminate\Pagination\AbstractPaginator;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Enumerable;
 use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationRequestData;
-use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationsResponse\GetOrganizationResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
-use Shared\Infrastructure\Integrations\ResponseData;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
-use Spatie\LaravelData\CursorPaginatedDataCollection;
-use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\PaginatedDataCollection;
 
 final readonly class GetOrganizationsRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private GetOrganizationRequestData $getOrganizationRequestData, private array $headers = []) {}
+    public function __construct(
+        private GetOrganizationRequestData $getOrganizationRequestData,
+        private string $authToken,
+    ) {}
 
     public function method(): RequestMethod
     {
@@ -37,24 +29,24 @@ final readonly class GetOrganizationsRequest implements RequestInterface, Respon
         return '/api/1/organizations';
     }
 
-    /**
-     * @return array|Arrayable|string[]
-     */
-    public function data(): array|Arrayable
+    public function data(): GetOrganizationRequestData
     {
         return $this->getOrganizationRequestData;
     }
 
     /**
-     * @return array|string[]
+     * @return array<string, string>
      */
     public function headers(): array
     {
-        return $this->headers;
+        return ['Authorization' => sprintf('Bearer %s', $this->authToken)];
     }
 
-    public function createDtoFromResponse(Response $response): Paginator|ResponseData|Enumerable|array|Response|Collection|PaginatedDataCollection|LazyCollection|AbstractCursorPaginator|CursorPaginatedDataCollection|DataCollection|AbstractPaginator|CursorPaginator
+    /**
+     * @return LazyCollection<array-key, GetOrganizationResponseData>
+     */
+    public function createDtoFromResponse(Response $response): LazyCollection
     {
-        return GetOrganizationResponseData::collect((array) $response->json()['organizations']);
+        return GetOrganizationResponseData::collect($response->json('organizations'), LazyCollection::class);
     }
 }

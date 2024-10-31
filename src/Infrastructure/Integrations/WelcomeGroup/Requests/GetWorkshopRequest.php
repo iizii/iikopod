@@ -36,6 +36,9 @@ final readonly class GetWorkshopRequest implements RequestInterface, ResponseDat
         return GetWorkshopResponseData::from($response->json());
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function headers(): array
     {
         return [];

@@ -4,11 +4,26 @@ declare(strict_types=1);
 
 namespace Presentation\Admin\Resources;
 
+use Doctrine\DBAL\ConnectionException;
+use Domain\Integrations\Iiko\IikoConnectorInterface;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Validation\Rule;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\ExternalMenuData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\PriceCategoryData;
+use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
+use Infrastructure\Integrations\IIko\IikoAuthenticator;
+use Infrastructure\Integrations\IIko\Requests\GetExternalMenusWithPriceCategoriesRequest;
 use Infrastructure\Persistence\Eloquent\Settings\OrganizationSetting;
 use Presentation\Admin\Resources\OrganizationSettingResource\Pages;
 
@@ -35,11 +50,13 @@ final class OrganizationSettingResource extends Resource
                         Forms\Components\TextInput::make('iiko_api_key')
                             ->label('Iiko API Key')
                             ->string()
-                            ->required(),
+                            ->required()
+                            ->live(),
                         Forms\Components\TextInput::make('iiko_restaurant_id')
                             ->label('ID ресторана Iiko')
                             ->string()
-                            ->required(),
+                            ->required()
+                            ->live(),
                         Forms\Components\TextInput::make('welcome_group_restaurant_id')
                             ->label('ID ресторана Welcome Group')
                             ->integer()
@@ -85,25 +102,134 @@ final class OrganizationSettingResource extends Resource
                     ->addActionLabel('Добавить тип оплаты')
                     ->required(),
 
-                Forms\Components\Repeater::make('price_categories')
+                Select::make('external_menu')
+                    ->label('Меню приложения')
+                    ->options(
+                        static function (
+                            Get $get,
+                            IikoAuthenticator $authenticator,
+                            IikoConnectorInterface $iikoConnector,
+                        ): array {
+                            $iikoApiKey = $get('iiko_api_key');
+                            $iikoRestaurantId = $get('iiko_restaurant_id');
+
+                            if (! self::hasValidApiKey($iikoApiKey) || ! self::hasValidRestaurantId($iikoRestaurantId)) {
+                                return [];
+                            }
+
+                            try {
+                                /** @var GetExternalMenusWithPriceCategoriesResponseData $response */
+                                $response = $iikoConnector->send(
+                                    new GetExternalMenusWithPriceCategoriesRequest(
+                                        new GetExternalMenusWithPriceCategoriesRequestData([$iikoRestaurantId]),
+                                        $authenticator->getAuthToken($iikoApiKey),
+                                    ),
+                                );
+                            } catch (IIkoIntegrationException|RequestException|ConnectionException) {
+                                Notification::make('validationError')
+                                    ->title('Неверно введён апи-ключ')
+                                    ->body('Меню не было получено в связи с неверным апи ключом')
+                                    ->danger()
+                                    ->send();
+
+                                return [];
+                            }
+
+                            return $response->externalMenus
+                                ->toCollection()
+                                ->mapWithKeys(
+                                    static fn (ExternalMenuData $externalMenu,
+                                    ): array => [$externalMenu->id => $externalMenu->name],
+                                )
+                                ->toArray();
+                        },
+                    )
+                    ->disabled(
+                        static fn (Get $get): bool => ! self::hasValidApiKey($get('iiko_api_key')) || ! self::hasValidRestaurantId($get('iiko_restaurant_id')),
+                    )
+                    ->hint(static function (Get $get): string {
+                        if (! self::hasValidApiKey($get('iiko_api_key')) || ! self::hasValidRestaurantId($get('iiko_restaurant_id'))) {
+                            return 'Для выбора меню необходимо верно ввести Iiko API Key и ID ресторана Iiko';
+                        }
+
+                        return 'Iiko API Key и ID ресторана Iiko введены верно, можете выбрать меню';
+                    })
+                    ->required(),
+
+                Repeater::make('price_categories')
                     ->label('Ценовые категории')
                     ->schema([
-                        Forms\Components\Select::make('category_id')
+                        Select::make('category_id')
                             ->label('Категория')
-                            ->options([
-                                'default' => 'default',
-                            ])
-                            ->string()
+                            ->options(
+                                static function (
+                                    Get $get,
+                                    IikoAuthenticator $authenticator,
+                                    IikoConnectorInterface $iikoConnector,
+                                ): array {
+                                    $iikoApiKey = $get('../../iiko_api_key');
+                                    $iikoRestaurantId = $get('../../iiko_restaurant_id');
+
+                                    if (! self::hasValidApiKey($iikoApiKey) || ! self::hasValidRestaurantId($iikoRestaurantId)) {
+                                        return [];
+                                    }
+
+                                    try {
+                                        /** @var GetExternalMenusWithPriceCategoriesResponseData $response */
+                                        $response = $iikoConnector->send(
+                                            new GetExternalMenusWithPriceCategoriesRequest(
+                                                new GetExternalMenusWithPriceCategoriesRequestData([$iikoRestaurantId]),
+                                                $authenticator->getAuthToken($iikoApiKey),
+                                            ),
+                                        );
+                                    } catch (IIkoIntegrationException|RequestException|ConnectionException) {
+                                        Notification::make()
+                                            ->title('Ошибка')
+                                            ->body('Не удалось получить данные ценовых категорий')
+                                            ->danger()
+                                            ->send();
+
+                                        return [];
+                                    }
+
+                                    return $response->priceCategories
+                                        ->toCollection()
+                                        ->mapWithKeys(
+                                            static fn (PriceCategoryData $priceCategoryData,
+                                            ): array => [$priceCategoryData->id => $priceCategoryData->name],
+                                        )
+                                        ->toArray();
+                                },
+                            )
                             ->required(),
+
                         Forms\Components\TextInput::make('prefix')
                             ->label('Префикс')
                             ->string()
-                            ->required(),
+                            ->required()
+                            ->unique(OrganizationSetting::class, 'prefix')
+                            ->rules([
+                                Rule::unique('organization_settings', 'prefix'),
+                            ]),
                     ])
                     ->columns()
                     ->reorderable(false)
                     ->collapsible()
                     ->addActionLabel('Добавить категорию')
+                    ->disabled(
+                        static fn (Get $get): bool => ! self::hasValidApiKey(
+                            $get('iiko_api_key'),
+                        ) || ! self::hasValidRestaurantId($get('iiko_restaurant_id')),
+                    )
+                    ->hint(static function (Get $get): string {
+                        if (! self::hasValidApiKey($get('iiko_api_key')) || ! self::hasValidRestaurantId(
+                            $get('iiko_restaurant_id'),
+                        )) {
+                            return 'Для добавления ценовых категорий необходимо верно ввести Iiko API Key и ID ресторана Iiko';
+                        }
+
+                        return 'Iiko API Key и ID ресторана Iiko введены верно, можете добавить ценовые категории';
+                    })
                     ->required(),
             ]);
     }
@@ -150,5 +276,29 @@ final class OrganizationSettingResource extends Resource
             'create' => Pages\CreateOrganizationSetting::route('/create'),
             'edit' => Pages\EditOrganizationSetting::route('/{record}/edit'),
         ];
+    }
+
+    private static function hasValidApiKey(?string $apiKey): bool
+    {
+        if (blank($apiKey)) {
+            return false;
+        }
+
+        return (bool) preg_match(
+            '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/',
+            $apiKey,
+        );
+    }
+
+    private static function hasValidRestaurantId(?string $restaurantId): bool
+    {
+        if (blank($restaurantId)) {
+            return false;
+        }
+
+        return (bool) preg_match(
+            '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/',
+            $restaurantId,
+        );
     }
 }

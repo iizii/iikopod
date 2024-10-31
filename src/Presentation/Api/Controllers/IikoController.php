@@ -10,7 +10,9 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesRequestData;
@@ -46,9 +48,12 @@ final readonly class IikoController
     public function getOrganizations(Request $request): JsonResponse
     {
         $authReq = new AuthorizationRequest((string) $request->input('token'));
+
+        /** @var AuthorizationResponseData $authRes */
         $authRes = $this->connector->send($authReq);
+
         $getOrganizationsData = new GetOrganizationRequestData([], true, false, []);
-        $req = new GetOrganizationsRequest($getOrganizationsData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetOrganizationsRequest($getOrganizationsData, $authRes->token);
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
@@ -62,10 +67,12 @@ final readonly class IikoController
     public function getPaymentTypes(Request $request): JsonResponse
     {
         $authReq = new AuthorizationRequest((string) $request->input('token'));
+
+        /** @var AuthorizationResponseData $authRes */
         $authRes = $this->connector->send($authReq);
 
         $getPaymentTypesData = new GetPaymentTypesRequestData($request->input('organizationIds'));
-        $req = new GetPaymentTypesRequest($getPaymentTypesData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetPaymentTypesRequest($getPaymentTypesData, $authRes->token);
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
@@ -79,10 +86,13 @@ final readonly class IikoController
     public function getExternalMenusWithPriceCategories(Request $request): JsonResponse
     {
         $authReq = new AuthorizationRequest((string) $request->input('token'));
+
+        /** @var AuthorizationResponseData $authRes */
         $authRes = $this->connector->send($authReq);
 
         $getExternalMenusWithPriceCategoriesData = new GetExternalMenusWithPriceCategoriesRequestData($request->input('organizationIds'));
-        $req = new GetExternalMenusWithPriceCategoriesRequest($getExternalMenusWithPriceCategoriesData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetExternalMenusWithPriceCategoriesRequest($getExternalMenusWithPriceCategoriesData, $authRes->token);
+        /** @var GetExternalMenusWithPriceCategoriesResponseData $response */
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
@@ -96,10 +106,12 @@ final readonly class IikoController
     public function getMenu(Request $request): JsonResponse
     {
         $authReq = new AuthorizationRequest((string) $request->input('token'));
+
+        /** @var AuthorizationResponseData $authRes */
         $authRes = $this->connector->send($authReq);
 
         $getExternalMenusWithPriceCategoriesData = new GetMenuRequestData([$request->input('organizationId')], $request->input('externalMenuId'), $request->input('priceCategoryId'));
-        $req = new GetMenuRequest($getExternalMenusWithPriceCategoriesData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetMenuRequest($getExternalMenusWithPriceCategoriesData, $authRes->token);
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
