@@ -35,12 +35,7 @@ final readonly class VerifyIikoRestaurant
                 ->send(
                     new GetOrganizationsRequest(
                         new GetOrganizationRequestData([(string) $settings->iikoRestaurantId->id], true, false),
-                        [
-                            'Authorization' => sprintf(
-                                'Bearer %s',
-                                $this->authenticator->getAuthToken($settings->iikoApiKey),
-                            ),
-                        ],
+                        $this->authenticator->getAuthToken($settings->iikoApiKey),
                     ),
                 );
 

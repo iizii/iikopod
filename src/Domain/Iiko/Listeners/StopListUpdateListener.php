@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Domain\Iiko\Listeners;
 
 use Domain\Iiko\Events\StopListUpdateEvent;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class StopListUpdateListener
+final class StopListUpdateListener
 {
     /**
      * Create the event listener.

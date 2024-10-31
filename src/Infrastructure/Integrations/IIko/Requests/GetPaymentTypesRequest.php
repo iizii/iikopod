@@ -14,10 +14,10 @@ use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class GetPaymentTypesRequest implements RequestInterface, ResponseDataInterface
 {
-    /**
-     * @param  array<string, string>  $headers
-     */
-    public function __construct(private GetPaymentTypesRequestData $getPaymentTypesRequestData, private array $headers = []) {}
+    public function __construct(
+        private GetPaymentTypesRequestData $getPaymentTypesRequestData,
+        private string $authToken,
+    ) {}
 
     public function method(): RequestMethod
     {
@@ -39,7 +39,7 @@ final readonly class GetPaymentTypesRequest implements RequestInterface, Respons
      */
     public function headers(): array
     {
-        return $this->headers;
+        return ['Authorization' => sprintf('Bearer %s', $this->authToken)];
     }
 
     /**

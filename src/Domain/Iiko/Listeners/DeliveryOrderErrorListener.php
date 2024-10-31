@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Domain\Iiko\Listeners;
 
 use Domain\Iiko\Events\DeliveryOrderError;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class DeliveryOrderErrorListener
+final class DeliveryOrderErrorListener
 {
     /**
      * Create the event listener.

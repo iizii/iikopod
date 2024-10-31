@@ -13,12 +13,9 @@ use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class GetExternalMenusWithPriceCategoriesRequest implements RequestInterface, ResponseDataInterface
 {
-    /**
-     * @param  array<string, string>  $headers
-     */
     public function __construct(
         private GetExternalMenusWithPriceCategoriesRequestData $getExternalMenusWithPriceCategoriesRequestData,
-        private array $headers = [],
+        private string $authToken,
     ) {}
 
     public function method(): RequestMethod
@@ -46,6 +43,6 @@ final readonly class GetExternalMenusWithPriceCategoriesRequest implements Reque
      */
     public function headers(): array
     {
-        return $this->headers;
+        return ['Authorization' => sprintf('Bearer %s', $this->authToken)];
     }
 }
