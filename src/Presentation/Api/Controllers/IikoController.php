@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesRequestData;
@@ -91,6 +92,7 @@ final readonly class IikoController
 
         $getExternalMenusWithPriceCategoriesData = new GetExternalMenusWithPriceCategoriesRequestData($request->input('organizationIds'));
         $req = new GetExternalMenusWithPriceCategoriesRequest($getExternalMenusWithPriceCategoriesData, ['Authorization' => 'Bearer '.$authRes->token]);
+        /** @var GetExternalMenusWithPriceCategoriesResponseData $response */
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);

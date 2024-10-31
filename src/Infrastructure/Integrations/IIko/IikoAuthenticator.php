@@ -23,7 +23,7 @@ final readonly class IikoAuthenticator
     public function getAuthToken(string $iikoApiKey): string
     {
         return $this->cacheRepository->remember(
-            self::CACHE_KEY,
+            $iikoApiKey,
             $this->dateTime->addMinutes(30),
             function () use ($iikoApiKey): string {
                 /** @var AuthorizationResponseData $response */
