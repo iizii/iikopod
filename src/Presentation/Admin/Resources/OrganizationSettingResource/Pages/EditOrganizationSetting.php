@@ -6,6 +6,7 @@ namespace Presentation\Admin\Resources\OrganizationSettingResource\Pages;
 
 use Application\Settings\Services\SaveSettingsValidation\SaveSettingsValidationPipeline;
 use Domain\Iiko\Exceptions\PaymentTypeNotFoundException;
+use Domain\Iiko\Exceptions\PriceCategoriesRepeatedInRepeaterException;
 use Domain\Iiko\Exceptions\RestaurantNotFoundException as IIkoRestaurantNotFoundException;
 use Domain\Settings\OrganizationSetting;
 use Domain\Settings\ValueObjects\PaymentType;
@@ -60,7 +61,14 @@ final class EditOrganizationSetting extends EditRecord
                 $this->commitDatabaseTransaction();
 
             return;
-        } catch (WorkshopNotFoundException|RestaurantNotFoundException|IIkoRestaurantNotFoundException|PaymentTypeNotFoundException|IIkoIntegrationException  $exception) {
+        } catch (
+            WorkshopNotFoundException
+            |RestaurantNotFoundException
+            |IIkoRestaurantNotFoundException
+            |PaymentTypeNotFoundException
+            |IIkoIntegrationException
+            |PriceCategoriesRepeatedInRepeaterException $exception
+        ) {
             Notification::make('validationError')
                 ->title('Ошибка валидации')
                 ->body($exception->getMessage())

@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Validation\ValidationException;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\ExternalMenuData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
@@ -214,14 +215,22 @@ final class OrganizationSettingResource extends Resource
                             ->string()
                             ->required()
                             ->rules([new UniquePrefixRule()]) // Проверка уникальности в БД
-                            ->afterStateUpdated(static function ($state, callable $set, $get) {
+                            ->beforeStateDehydrated(static function ($state, $get) {
                                 $prefixes = collect($get('../'))->pluck('prefix');
 
                                 $duplicates = $prefixes->duplicates();
 
                                 if ($duplicates->isNotEmpty()) {
-                                    $set('error', 'Префиксы должны быть уникальными.');
-                                }
+                                    Notification::make('validationErrorInRepeater')
+                                        ->title('Ошибка валидации')
+                                        ->danger()
+                                        ->body("При указании ценовых категорий не должно быть повторяющихся значений \n Повторяющиеся значения: " . implode(', ', $duplicates->toArray()))
+                                        ->send();
+
+                                    // Не удалось сделать ошибку валидации по красоте. Оставил только для того чтобы прервать сохранение записи
+                                    throw ValidationException::withMessages([
+                                        'prefix' => 'При указании ценовых категорий не должно быть повторяющихся значений',
+                                    ]);                             }
                             }),
                     ])
                     ->columns()
