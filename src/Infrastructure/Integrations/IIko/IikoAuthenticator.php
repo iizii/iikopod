@@ -12,7 +12,7 @@ use Infrastructure\Integrations\IIko\Requests\AuthorizationRequest;
 
 final readonly class IikoAuthenticator
 {
-    private const CACHE_KEY = 'iiko_auth_token';
+    private const CACHE_KEY = 'iiko:auth:token';
 
     public function __construct(
         private CacheRepository $cacheRepository,
@@ -23,7 +23,7 @@ final readonly class IikoAuthenticator
     public function getAuthToken(string $iikoApiKey): string
     {
         return $this->cacheRepository->remember(
-            $iikoApiKey,
+            sprintf('%s:%s', self::CACHE_KEY, $iikoApiKey),
             $this->dateTime->addMinutes(30),
             function () use ($iikoApiKey): string {
                 /** @var AuthorizationResponseData $response */

@@ -13,10 +13,10 @@ use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class GetMenuRequest implements RequestInterface, ResponseDataInterface
 {
-    /**
-     * @param  array<string, string>  $headers
-     */
-    public function __construct(private GetMenuRequestData $getMenuRequestData, private array $headers = []) {}
+    public function __construct(
+        private GetMenuRequestData $getMenuRequestData,
+        private string $authToken,
+    ) {}
 
     public function method(): RequestMethod
     {
@@ -43,6 +43,6 @@ final readonly class GetMenuRequest implements RequestInterface, ResponseDataInt
      */
     public function headers(): array
     {
-        return $this->headers;
+        return ['Authorization' => sprintf('Bearer %s', $this->authToken)];
     }
 }

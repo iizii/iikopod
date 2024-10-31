@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Domain\Iiko\Listeners;
 
 use Domain\Iiko\Events\DeliveryOrderUpdate;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class DeliveryOrderUpdateListener
+final class DeliveryOrderUpdateListener
 {
     /**
      * Create the event listener.

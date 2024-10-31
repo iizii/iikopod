@@ -14,12 +14,9 @@ use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class GetOrganizationsRequest implements RequestInterface, ResponseDataInterface
 {
-    /**
-     * @param  array<string, string>  $headers
-     */
     public function __construct(
         private GetOrganizationRequestData $getOrganizationRequestData,
-        private array $headers = [],
+        private string $authToken,
     ) {}
 
     public function method(): RequestMethod
@@ -42,7 +39,7 @@ final readonly class GetOrganizationsRequest implements RequestInterface, Respon
      */
     public function headers(): array
     {
-        return $this->headers;
+        return ['Authorization' => sprintf('Bearer %s', $this->authToken)];
     }
 
     /**

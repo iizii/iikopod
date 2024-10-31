@@ -34,12 +34,7 @@ final readonly class VerifyIikoPaymentType
             ->send(
                 new GetPaymentTypesRequest(
                     new GetPaymentTypesRequestData([(string) $settings->iikoRestaurantId->id]),
-                    [
-                        'Authorization' => sprintf(
-                            'Bearer %s',
-                            $this->authenticator->getAuthToken($settings->iikoApiKey),
-                        ),
-                    ],
+                    $this->authenticator->getAuthToken($settings->iikoApiKey),
                 ),
             );
 

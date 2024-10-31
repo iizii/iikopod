@@ -53,7 +53,7 @@ final readonly class IikoController
         $authRes = $this->connector->send($authReq);
 
         $getOrganizationsData = new GetOrganizationRequestData([], true, false, []);
-        $req = new GetOrganizationsRequest($getOrganizationsData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetOrganizationsRequest($getOrganizationsData, $authRes->token);
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
@@ -72,7 +72,7 @@ final readonly class IikoController
         $authRes = $this->connector->send($authReq);
 
         $getPaymentTypesData = new GetPaymentTypesRequestData($request->input('organizationIds'));
-        $req = new GetPaymentTypesRequest($getPaymentTypesData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetPaymentTypesRequest($getPaymentTypesData, $authRes->token);
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
@@ -91,7 +91,7 @@ final readonly class IikoController
         $authRes = $this->connector->send($authReq);
 
         $getExternalMenusWithPriceCategoriesData = new GetExternalMenusWithPriceCategoriesRequestData($request->input('organizationIds'));
-        $req = new GetExternalMenusWithPriceCategoriesRequest($getExternalMenusWithPriceCategoriesData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetExternalMenusWithPriceCategoriesRequest($getExternalMenusWithPriceCategoriesData, $authRes->token);
         /** @var GetExternalMenusWithPriceCategoriesResponseData $response */
         $response = $this->connector->send($req);
 
@@ -111,7 +111,7 @@ final readonly class IikoController
         $authRes = $this->connector->send($authReq);
 
         $getExternalMenusWithPriceCategoriesData = new GetMenuRequestData([$request->input('organizationId')], $request->input('externalMenuId'), $request->input('priceCategoryId'));
-        $req = new GetMenuRequest($getExternalMenusWithPriceCategoriesData, ['Authorization' => 'Bearer '.$authRes->token]);
+        $req = new GetMenuRequest($getExternalMenusWithPriceCategoriesData, $authRes->token);
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
