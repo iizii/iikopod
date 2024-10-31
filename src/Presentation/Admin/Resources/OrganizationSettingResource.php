@@ -215,11 +215,12 @@ final class OrganizationSettingResource extends Resource
                             ->required()
                             ->rules([new UniquePrefixRule()]) // Проверка уникальности в БД
                             ->afterStateUpdated(static function ($state, callable $set, $get) {
-                                $prefixes = collect($get('price_categories'))->pluck('prefix');
+                                $prefixes = collect($get('../'))->pluck('prefix');
+
                                 $duplicates = $prefixes->duplicates();
 
                                 if ($duplicates->isNotEmpty()) {
-                                    $set('error', 'Префиксы внутри одной записи должны быть уникальными.');
+                                    $set('error', 'Префиксы должны быть уникальными.');
                                 }
                             }),
                     ])
