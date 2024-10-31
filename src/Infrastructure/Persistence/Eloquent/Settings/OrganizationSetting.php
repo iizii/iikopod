@@ -18,11 +18,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property array $price_categories
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property string $external_menu
  *
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting query()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereExternalMenu($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereIikoApiKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereIikoRestaurantId($value)

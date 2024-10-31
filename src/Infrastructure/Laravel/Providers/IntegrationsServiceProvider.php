@@ -33,7 +33,7 @@ final class IntegrationsServiceProvider extends ServiceProvider
             return new IIkoConnector(
                 $pendingRequest
                     ->baseUrl($config['base_url'])
-                    ->timeout($config['timeout_seconds']),
+                    ->timeout((int) $config['timeout_seconds']),
                 $application->make(EventDispatcher::class),
                 $application->make(LogContext::class),
                 $application->make(LoggerInterface::class),
@@ -51,7 +51,7 @@ final class IntegrationsServiceProvider extends ServiceProvider
                 return new WelcomeGroupConnector(
                     $pendingRequest
                         ->baseUrl($config['base_url'])
-                        ->timeout($config['timeout_seconds']),
+                        ->timeout((int) $config['timeout_seconds']),
                     $application->make(EventDispatcher::class),
                     $application->make(LogContext::class),
                     $application->make(LoggerInterface::class),
