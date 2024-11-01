@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Persistence\Eloquent\IIko;
+namespace Infrastructure\Persistence\Eloquent\IIko\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

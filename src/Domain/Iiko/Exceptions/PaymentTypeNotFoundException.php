@@ -4,6 +4,4 @@ declare(strict_types=1);
 
 namespace Domain\Iiko\Exceptions;
 
-use Exception;
-
-final class PaymentTypeNotFoundException extends Exception {}
+final class PaymentTypeNotFoundException extends \DomainException {}

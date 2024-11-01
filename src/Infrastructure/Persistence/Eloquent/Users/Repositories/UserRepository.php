@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Persistence\Repositories;
+namespace Infrastructure\Persistence\Eloquent\Users\Repositories;
 
 use Domain\Users\Models\User;
 use Domain\Users\Repositories\UserRepositoryInterface;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Shared\Persistence\Repositories;
 
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 abstract class AbstractPersistenceRepository
 {
-    public function __construct(protected Model $model, protected DatabaseManager $databaseManager) {}
+    public function __construct(protected Model $model) {}
 
     /**
      * @return Builder<TModel>

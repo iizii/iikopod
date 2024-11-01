@@ -2,9 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Persistence\Eloquent\Settings;
+namespace Infrastructure\Persistence\Eloquent\Settings\Models;
 
+use Domain\Settings\OrganizationSetting as DomainOrganizationSetting;
+use Domain\Settings\ValueObjects\PaymentType;
+use Domain\Settings\ValueObjects\PaymentTypeCollection;
+use Domain\Settings\ValueObjects\PriceCategory;
+use Domain\Settings\ValueObjects\PriceCategoryCollection;
+use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Model;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -14,8 +22,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $welcome_group_default_workshop_id
  * @property string $order_delivery_type_id
  * @property string $order_pickup_type_id
- * @property array $payment_types
- * @property array $price_categories
+ * @property \Illuminate\Support\Collection $payment_types
+ * @property \Illuminate\Support\Collection $price_categories
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
  * @property string $external_menu
@@ -52,6 +60,33 @@ final class OrganizationSetting extends Model
         'external_menu',
     ];
 
+    public function toDomainEntity(): DomainOrganizationSetting
+    {
+        return new DomainOrganizationSetting(
+            new IntegerId($this->id),
+            $this->iiko_api_key,
+            new StringId($this->iiko_restaurant_id),
+            new IntegerId($this->welcome_group_restaurant_id),
+            new IntegerId($this->welcome_group_default_workshop_id),
+            new StringId($this->order_delivery_type_id),
+            new StringId($this->order_pickup_type_id),
+            new PaymentTypeCollection(
+                $this
+                    ->payment_types
+                    ->map(static fn (array $data): PaymentType => new PaymentType(
+                        $data['iiko_payment_code'],
+                        $data['welcome_group_payment_code'],
+                    )),
+            ),
+            new PriceCategoryCollection(
+                $this->price_categories->map(static fn (array $data): PriceCategory => new PriceCategory(
+                    new IntegerId((int) $data['category_id']),
+                    $data['prefix'],
+                )),
+            ),
+        );
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -60,8 +95,8 @@ final class OrganizationSetting extends Model
     protected function casts(): array
     {
         return [
-            'payment_types' => 'array',
-            'price_categories' => 'array',
+            'payment_types' => AsCollection::class,
+            'price_categories' => AsCollection::class,
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
         ];

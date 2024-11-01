@@ -7,6 +7,8 @@ namespace Presentation\Admin\Resources;
 use Closure;
 use Doctrine\DBAL\ConnectionException;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
+use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
+use Domain\Settings\OrganizationSetting as DomainOrganizationSetting;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -17,7 +19,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\ExternalMenuData;
@@ -26,7 +27,7 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPri
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
 use Infrastructure\Integrations\IIko\IikoAuthenticator;
 use Infrastructure\Integrations\IIko\Requests\GetExternalMenusWithPriceCategoriesRequest;
-use Infrastructure\Persistence\Eloquent\Settings\OrganizationSetting;
+use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Presentation\Admin\Resources\OrganizationSettingResource\Pages;
 
 final class OrganizationSettingResource extends Resource
@@ -55,15 +56,14 @@ final class OrganizationSettingResource extends Resource
                             ->label('IIKO API Key')
                             ->string()
                             ->required()
-//                            ->rules(['regex:/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/']) // Проверка UUID
-//                            ->afterStateUpdated(fn ($state, callable $set) => $set('external_menu', null)) // Обнуляем Select при изменении ID ресторана
                             ->reactive(),
                         Forms\Components\TextInput::make('iiko_restaurant_id')
                             ->label('ID ресторана IIKO')
                             ->string()
                             ->required()
-                            ->rules(['regex:/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/']) // Проверка UUID
-//                            ->afterStateUpdated(fn ($state, callable $set) => $set('external_menu', null)) // Обнуляем Select при изменении ID ресторана
+                            ->rules(
+                                ['regex:/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/'],
+                            )
                             ->reactive(),  // Также делаем поле реактивным
                         Forms\Components\TextInput::make('welcome_group_restaurant_id')
                             ->label('ID ресторана Welcome Доставка')
@@ -153,10 +153,14 @@ final class OrganizationSettingResource extends Resource
                         },
                     )
                     ->disabled(
-                        static fn (Get $get): bool => ! self::hasValidApiKey($get('iiko_api_key')) || ! self::hasValidRestaurantId($get('iiko_restaurant_id')),
+                        static fn (Get $get): bool => ! self::hasValidApiKey($get('iiko_api_key'))
+                            || ! self::hasValidRestaurantId($get('iiko_restaurant_id')),
                     )
                     ->hint(static function (Get $get): string {
-                        if (! self::hasValidApiKey($get('iiko_api_key')) || ! self::hasValidRestaurantId($get('iiko_restaurant_id'))) {
+                        if (
+                            ! self::hasValidApiKey($get('iiko_api_key'))
+                            || ! self::hasValidRestaurantId($get('iiko_restaurant_id'))
+                        ) {
                             return 'Для выбора меню необходимо верно ввести Iiko API Key и ID ресторана Iiko';
                         }
 
@@ -178,7 +182,10 @@ final class OrganizationSettingResource extends Resource
                                     $iikoApiKey = $get('../../iiko_api_key');
                                     $iikoRestaurantId = $get('../../iiko_restaurant_id');
 
-                                    if (! self::hasValidApiKey($iikoApiKey) || ! self::hasValidRestaurantId($iikoRestaurantId)) {
+                                    if (
+                                        ! self::hasValidApiKey($iikoApiKey)
+                                        || ! self::hasValidRestaurantId($iikoRestaurantId)
+                                    ) {
                                         return [];
                                     }
 
@@ -216,30 +223,35 @@ final class OrganizationSettingResource extends Resource
                             ->string()
                             ->required()
                             ->rules([
-                                static fn (): Closure => static function (string $attribute, $value, Closure $fail) {
-                                    // Получаем все записи с JSON-колонки 'price_categories' и декодируем их
-                                    $organizationSettings = DB::table('organization_settings')
-                                        ->select('price_categories')
-                                        ->get();
+                                static fn (): Closure => static function (
+                                    string $attribute,
+                                    mixed $value,
+                                    Closure $fail,
+                                ) {
+                                    $organizationSettingRepository = resolve(
+                                        OrganizationSettingRepositoryInterface::class,
+                                    );
 
-                                    // Обходим все записи и проверяем наличие префикса в каждой из них
-                                    foreach ($organizationSettings as $setting) {
-                                        // Декодируем JSON в массив
-                                        $priceCategories = $setting->price_categories;
+                                    $organizationSettingRepository
+                                        ->all()
+                                        ->each(
+                                            static function (DomainOrganizationSetting $organizationSetting) use (
+                                                $value,
+                                                $fail
+                                            ): void {
+                                                $duplicates = $organizationSetting
+                                                    ->priceCategoryCollection
+                                                    ->where('prefix', $value);
 
-                                        // Проверяем, есть ли среди префиксов текущее значение
-                                        if (is_array($priceCategories)) {
-                                            foreach ($priceCategories as $category) {
-                                                if (isset($category['prefix']) && $category['prefix'] === $value) {
+                                                if ($duplicates->count() > 1) {
                                                     $fail('Поле Префикс должно быть уникальным.');
 
                                                     return;
                                                 }
-                                            }
-                                        }
-                                    }
+                                            },
+                                        );
                                 },
-                            ]) // Проверка уникальности в БД
+                            ])
                             ->beforeStateDehydrated(static function ($state, $get) {
                                 $prefixes = collect($get('../'))->pluck('prefix');
 
@@ -264,14 +276,14 @@ final class OrganizationSettingResource extends Resource
                     ->collapsible()
                     ->addActionLabel('Добавить категорию')
                     ->disabled(
-                        static fn (Get $get): bool => ! self::hasValidApiKey(
-                            $get('iiko_api_key'),
-                        ) || ! self::hasValidRestaurantId($get('iiko_restaurant_id')),
+                        static fn (Get $get): bool => ! self::hasValidApiKey($get('iiko_api_key'))
+                            || ! self::hasValidRestaurantId($get('iiko_restaurant_id')),
                     )
                     ->hint(static function (Get $get): string {
-                        if (! self::hasValidApiKey($get('iiko_api_key')) || ! self::hasValidRestaurantId(
-                            $get('iiko_restaurant_id'),
-                        )) {
+                        if (
+                            ! self::hasValidApiKey($get('iiko_api_key'))
+                            || ! self::hasValidRestaurantId($get('iiko_restaurant_id'))
+                        ) {
                             return 'Для добавления ценовых категорий необходимо верно ввести IIKO API Key и ID ресторана IIKO';
                         }
 
