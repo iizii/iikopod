@@ -79,10 +79,12 @@ final class OrganizationSetting extends Model
                     )),
             ),
             new PriceCategoryCollection(
-                $this->price_categories->map(static fn (array $data): PriceCategory => new PriceCategory(
-                    new IntegerId((int) $data['category_id']),
-                    $data['prefix'],
-                )),
+                $this
+                    ->price_categories
+                    ->map(static fn (array $data): PriceCategory => new PriceCategory(
+                        new IntegerId((int)$data['category_id']),
+                        $data['prefix'],
+                    )),
             ),
         );
     }
