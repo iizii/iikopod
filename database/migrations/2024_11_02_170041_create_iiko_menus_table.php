@@ -13,10 +13,15 @@ return new class() extends Migration
      */
     public function up(): void
     {
-        Schema::table('organization_settings', static function (Blueprint $table) {
+        Schema::create('iiko_menus', static function (Blueprint $table) {
+            $table->id();
+            $table->string('external_id');
+            $table->integer('revision');
+            $table->string('name');
             $table
-                ->string('external_menu')
-                ->after('order_pickup_type_id');
+                ->string('description')
+                ->nullable();
+            $table->timestamps();
         });
     }
 
@@ -25,8 +30,6 @@ return new class() extends Migration
      */
     public function down(): void
     {
-        Schema::table('organization_settings', static function (Blueprint $table) {
-            $table->dropColumn('external_menu');
-        });
+        Schema::dropIfExists('iiko_menus');
     }
 };

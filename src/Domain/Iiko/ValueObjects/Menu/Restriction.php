@@ -12,7 +12,6 @@ final class Restriction extends DomainEntity
         public readonly int $minQuantity,
         public readonly int $maxQuantity,
         public readonly int $freeQuantity,
-        public readonly int $byDefault,
         public readonly bool $hideIfDefaultQuantity
     ) {}
 }

@@ -13,8 +13,8 @@ final class Restriction extends ResponseData
         public readonly int $minQuantity,
         public readonly int $maxQuantity,
         public readonly int $freeQuantity,
-        public readonly int $byDefault,
-        public readonly bool $hideIfDefaultQuantity,
+        public readonly int $defaultQuantity,
+        public readonly bool $hideIfDefaultQuantity
     ) {}
 
     public function toDomainEntity(): DomainRestriction
@@ -23,7 +23,6 @@ final class Restriction extends ResponseData
             $this->minQuantity,
             $this->maxQuantity,
             $this->freeQuantity,
-            $this->byDefault,
             $this->hideIfDefaultQuantity,
         );
     }

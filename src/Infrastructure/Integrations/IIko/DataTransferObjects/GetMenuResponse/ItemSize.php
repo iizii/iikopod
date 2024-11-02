@@ -6,11 +6,12 @@ namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse;
 
 use Domain\Iiko\Entities\Menu\ItemModifierGroup as DomainItemModifierGroup;
 use Domain\Iiko\Entities\Menu\ItemSize as DomainItemSize;
+use Domain\Iiko\Entities\Menu\Nutrition as DomainNutrition;
+use Domain\Iiko\Entities\Menu\Price as DomainPrice;
 use Domain\Iiko\ValueObjects\Menu\ItemModifierGroupCollection;
-use Domain\Iiko\ValueObjects\Menu\Nutrition as DomainNutrition;
 use Domain\Iiko\ValueObjects\Menu\NutritionCollection;
-use Domain\Iiko\ValueObjects\Menu\Price as DomainPrice;
 use Domain\Iiko\ValueObjects\Menu\PriceCollection;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
@@ -24,37 +25,30 @@ final class ItemSize extends ResponseData
      * @param  DataCollection<array-key, Nutrition>  $nutritions
      */
     public function __construct(
+        public readonly ?string $id,
         public readonly string $sku,
-        public readonly string $sizeCode,
-        public readonly string $sizeName,
-        public readonly bool $isDefault,
-        public readonly int $portionWeightGrams,
-        #[DataCollectionOf(ItemModifierGroup::class)]
-        public readonly DataCollection $itemModifierGroups,
-        public readonly ?string $iikoSizeId,
-        public readonly Nutrition $nutritionPerHundredGrams,
+        public readonly ?bool $isDefault,
+        public readonly int $weight,
+        public readonly ?Nutrition $nutritionPerHundredGrams,
+        public readonly string $measureUnitType,
         #[DataCollectionOf(Price::class)]
         public readonly DataCollection $prices,
         #[DataCollectionOf(Nutrition::class)]
         public readonly DataCollection $nutritions,
-        public readonly string $measureUnitType,
-        public readonly ?string $buttonImageCroppedUrl,
-        public readonly ?string $buttonImageUrl,
+        #[DataCollectionOf(ItemModifierGroup::class)]
+        public readonly DataCollection $itemModifierGroups,
     ) {}
 
     public function toDomainEntity(): DomainItemSize
     {
         return new DomainItemSize(
-            new StringId($this->iikoSizeId),
+            new IntegerId(),
+            new IntegerId(),
+            new StringId($this->id),
             $this->sku,
-            $this->sizeCode,
-            $this->sizeName,
             $this->isDefault,
-            $this->portionWeightGrams,
-            $this->nutritionPerHundredGrams->toDomainEntity(),
+            $this->weight,
             $this->measureUnitType,
-            $this->buttonImageCroppedUrl,
-            $this->buttonImageUrl,
             new ItemModifierGroupCollection(
                 $this
                     ->itemModifierGroups

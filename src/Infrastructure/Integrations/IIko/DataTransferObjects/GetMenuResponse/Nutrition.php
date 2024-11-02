@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse;
 
-use Domain\Iiko\ValueObjects\Menu\Nutrition as DomainNutrition;
+use Domain\Iiko\Entities\Menu\Nutrition as DomainNutrition;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
 
 final class Nutrition extends ResponseData
@@ -26,11 +27,12 @@ final class Nutrition extends ResponseData
     public function toDomainEntity(): DomainNutrition
     {
         return new DomainNutrition(
+            new IntegerId(),
+            new IntegerId(),
             $this->fats,
             $this->proteins,
             $this->carbs,
             $this->energy,
-            $this->organizations,
             $this->saturatedFattyAcid,
             $this->salt,
             $this->sugar,

@@ -22,11 +22,11 @@ use Shared\Domain\ValueObjects\StringId;
  * @property int $welcome_group_default_workshop_id
  * @property string $order_delivery_type_id
  * @property string $order_pickup_type_id
+ * @property string $external_menu
  * @property \Illuminate\Support\Collection $payment_types
  * @property \Illuminate\Support\Collection $price_categories
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
- * @property string $external_menu
  *
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newQuery()
@@ -82,7 +82,7 @@ final class OrganizationSetting extends Model
                 $this
                     ->price_categories
                     ->map(static fn (array $data): PriceCategory => new PriceCategory(
-                        new IntegerId((int)$data['category_id']),
+                        new IntegerId((int) $data['category_id']),
                         $data['prefix'],
                     )),
             ),

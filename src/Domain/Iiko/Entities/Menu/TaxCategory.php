@@ -8,14 +8,13 @@ use Shared\Domain\DomainEntity;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
-final class ProductCategory extends DomainEntity
+final class TaxCategory extends DomainEntity
 {
     public function __construct(
         public readonly IntegerId $id,
         public readonly IntegerId $menuId,
         public readonly StringId $externalId,
         public readonly string $name,
-        public readonly bool $isDeleted,
         public readonly ?int $percentage,
     ) {}
 }

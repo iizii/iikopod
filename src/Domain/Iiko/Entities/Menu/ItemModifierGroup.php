@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace Domain\Iiko\Entities\Menu;
 
-use Domain\Iiko\ValueObjects\Menu\ModifierItemCollection;
-use Domain\Iiko\ValueObjects\Menu\Restriction;
+use Domain\Iiko\ValueObjects\Menu\ItemCollection;
 use Shared\Domain\DomainEntity;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 final class ItemModifierGroup extends DomainEntity
 {
     /**
-     * @param  ModifierItemCollection<array-key, ModifierItem>  $items
+     * @param  ItemCollection<array-key, Item>  $items
      */
     public function __construct(
-        public readonly StringId $id,
+        public readonly IntegerId $id,
+        public readonly IntegerId $itemSizeId,
+        public readonly StringId $externalId,
         public readonly string $name,
-        public readonly string $description,
-        public readonly Restriction $restriction,
-        public readonly bool $canBeDivided,
-        public readonly bool $hidden,
+        public readonly ?string $description,
+        public readonly bool $splittable,
+        public readonly bool $isHidden,
         public readonly bool $childModifiersHaveMinMaxRestrictions,
         public readonly string $sku,
-        public readonly ModifierItemCollection $items,
+        public readonly ItemCollection $items,
     ) {}
 }

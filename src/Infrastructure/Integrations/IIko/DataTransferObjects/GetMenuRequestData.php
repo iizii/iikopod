@@ -16,7 +16,6 @@ final class GetMenuRequestData extends ResponseData
         public readonly array $organizationIds,
         public readonly string $externalMenuId,
         public readonly string $priceCategoryId,
-        public readonly int $version = 0,
         public readonly string $language = 'string',
         public readonly int $startRevision = 0,
     ) {

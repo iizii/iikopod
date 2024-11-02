@@ -1,5 +1,6 @@
-  SQLSTATE[42S02]: Base table or view not found: 1146 Table 'default.organizations' doesn't exist (Connection: mysql, SQL: alter table `organizations` add `iiko_restaurant_id` varchar(255) not null)
 <?php
+
+declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

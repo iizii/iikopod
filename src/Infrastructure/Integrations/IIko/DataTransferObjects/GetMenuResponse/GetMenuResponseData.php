@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse;
 
+use Domain\Iiko\Entities\Menu\ItemGroup as DomainItemGroup;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\Entities\Menu\ProductCategory as DomainProductCategory;
-use Domain\Iiko\Entities\Menu\PureExternalMenuItemCategory as DomainPureExternalMenuItemCategory;
+use Domain\Iiko\Entities\Menu\TaxCategory as DomainTaxCategory;
+use Domain\Iiko\ValueObjects\Menu\ItemGroupCollection;
 use Domain\Iiko\ValueObjects\Menu\ProductCategoryCollection;
-use Domain\Iiko\ValueObjects\Menu\PureExternalMenuItemCollection;
+use Domain\Iiko\ValueObjects\Menu\TaxCategoryCollection;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
@@ -17,40 +19,48 @@ use Spatie\LaravelData\DataCollection;
 final class GetMenuResponseData extends ResponseData
 {
     /**
+     * @param  DataCollection<array-key, TaxCategory>  $taxCategories
      * @param  DataCollection<array-key, ProductCategory>  $productCategories
-     * @param  DataCollection<array-key, PureExternalMenuItemCategory>  $pureExternalMenuItemCategories
+     * @param  DataCollection<array-key, ItemGroup>  $itemGroups
      */
     public function __construct(
         public readonly int $id,
         public readonly int $revision,
         public readonly string $name,
         public readonly string $description,
-        public readonly ?string $buttonImageUrl,
+        #[DataCollectionOf(TaxCategory::class)]
+        public readonly DataCollection $taxCategories,
         #[DataCollectionOf(ProductCategory::class)]
         public readonly DataCollection $productCategories,
-        #[DataCollectionOf(PureExternalMenuItemCategory::class)]
-        public readonly DataCollection $pureExternalMenuItemCategories,
+        #[DataCollectionOf(ItemGroup::class)]
+        public readonly DataCollection $itemGroups,
     ) {}
 
     public function toDomainEntity(): Menu
     {
         return new Menu(
+            new IntegerId(),
             new IntegerId($this->id),
             $this->revision,
             $this->name,
             $this->description,
-            $this->buttonImageUrl,
+            new TaxCategoryCollection(
+                $this
+                    ->taxCategories
+                    ->toCollection()
+                    ->map(static fn (TaxCategory $taxCategory): DomainTaxCategory => $taxCategory->toDomainEntity())
+            ),
             new ProductCategoryCollection(
                 $this
                     ->productCategories
                     ->toCollection()
                     ->map(static fn (ProductCategory $productCategory): DomainProductCategory => $productCategory->toDomainEntity())
             ),
-            new PureExternalMenuItemCollection(
+            new ItemGroupCollection(
                 $this
-                    ->pureExternalMenuItemCategories
+                    ->itemGroups
                     ->toCollection()
-                    ->map(static fn (PureExternalMenuItemCategory $category): DomainPureExternalMenuItemCategory => $category->toDomainEntity()),
+                    ->map(static fn (ItemGroup $itemGroup): DomainItemGroup => $itemGroup->toDomainEntity()),
             ),
         );
     }

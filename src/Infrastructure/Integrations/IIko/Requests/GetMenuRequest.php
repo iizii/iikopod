@@ -13,6 +13,8 @@ use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class GetMenuRequest implements RequestInterface, ResponseDataInterface
 {
+    private const VERSION = 3;
+
     public function __construct(
         private GetMenuRequestData $getMenuRequestData,
         private string $authToken,
@@ -28,9 +30,15 @@ final readonly class GetMenuRequest implements RequestInterface, ResponseDataInt
         return '/api/2/menu/by_id';
     }
 
-    public function data(): GetMenuRequestData
+    /**
+     * @return array<string, string|int>
+     */
+    public function data(): array
     {
-        return $this->getMenuRequestData;
+        return [
+            'version' => self::VERSION,
+            ...$this->getMenuRequestData->toArray(),
+        ];
     }
 
     public function createDtoFromResponse(Response $response): GetMenuResponseData
