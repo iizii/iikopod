@@ -10,8 +10,10 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\Requests\CreateAddressRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\CreateClientRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\GetRestaurantRequest;
@@ -98,6 +100,26 @@ final readonly class WelcomeGroupController
     public function createPhone(Request $request): JsonResponse
     {
         $req = new CreatePhoneRequest(new CreatePhoneRequestData($request->input('number')));
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_address', name: 'wg.create_address')]
+    public function createAddress(Request $request): JsonResponse
+    {
+        $req = new CreateAddressRequest(
+            new CreateAddressRequestData(
+                $request->input('city'),
+                $request->input('street'),
+                $request->input('house'),
+
+            )
+        );
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
