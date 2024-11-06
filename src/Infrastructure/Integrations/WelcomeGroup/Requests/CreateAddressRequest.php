@@ -7,10 +7,6 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateAddressResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateClientRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateClientResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
@@ -37,10 +33,6 @@ final readonly class CreateAddressRequest implements RequestInterface, ResponseD
         return $this->data->toArray();
     }
 
-    /**
-     * @param Response $response
-     * @return CreateAddressResponseData
-     */
     public function createDtoFromResponse(Response $response): CreateAddressResponseData
     {
         return CreateAddressResponseData::from($response->json());

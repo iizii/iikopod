@@ -33,10 +33,6 @@ final readonly class CreateClientRequest implements RequestInterface, ResponseDa
         return $this->data->toArray();
     }
 
-    /**
-     * @param Response $response
-     * @return CreateClientResponseData
-     */
     public function createDtoFromResponse(Response $response): CreateClientResponseData
     {
         return CreateClientResponseData::from($response->json());

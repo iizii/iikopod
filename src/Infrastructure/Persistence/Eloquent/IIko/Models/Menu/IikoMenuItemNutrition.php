@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\Nutrition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Shared\Domain\ValueObjects\IntegerId;
 
 /**
  * @property int $id
@@ -54,5 +56,34 @@ final class IikoMenuItemNutrition extends Model
     public function itemSize(): BelongsTo
     {
         return $this->belongsTo(IikoMenuItemSize::class, 'iiko_menu_item_size_id', 'id');
+    }
+
+    public function fromDomainEntity(Nutrition $nutrition): self
+    {
+        return $this->fill([
+            'iiko_menu_item_size_id' => $nutrition->itemSizeId->id,
+            'fats' => $nutrition->fats,
+            'proteins' => $nutrition->proteins,
+            'carbs' => $nutrition->carbs,
+            'energy' => $nutrition->energy,
+            'saturated_fatty_acid' => $nutrition->saturatedFattyAcid,
+            'salt' => $nutrition->salt,
+            'sugar' => $nutrition->sugar,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuItemNutrition): Nutrition
+    {
+        return new Nutrition(
+            new IntegerId($iikoMenuItemNutrition->id),
+            new IntegerId($iikoMenuItemNutrition->iiko_menu_item_size_id),
+            $iikoMenuItemNutrition->fats,
+            $iikoMenuItemNutrition->proteins,
+            $iikoMenuItemNutrition->carbs,
+            $iikoMenuItemNutrition->energy,
+            $iikoMenuItemNutrition->saturated_fatty_acid,
+            $iikoMenuItemNutrition->salt,
+            $iikoMenuItemNutrition->sugar,
+        );
     }
 }

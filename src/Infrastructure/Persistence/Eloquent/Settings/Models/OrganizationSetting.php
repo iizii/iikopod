@@ -22,7 +22,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property int $welcome_group_default_workshop_id
  * @property string $order_delivery_type_id
  * @property string $order_pickup_type_id
- * @property string $external_menu
+ * @property string $external_menu_id
  * @property \Illuminate\Support\Collection $payment_types
  * @property \Illuminate\Support\Collection $price_categories
  * @property \Carbon\CarbonImmutable|null $created_at
@@ -32,7 +32,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting query()
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereExternalMenu($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereExternalMenuId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereIikoApiKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereIikoRestaurantId($value)
@@ -55,9 +55,9 @@ final class OrganizationSetting extends Model
         'welcome_group_default_workshop_id',
         'order_delivery_type_id',
         'order_pickup_type_id',
+        'external_menu_id',
         'payment_types',
         'price_categories',
-        'external_menu',
     ];
 
     public function toDomainEntity(): DomainOrganizationSetting
@@ -66,6 +66,7 @@ final class OrganizationSetting extends Model
             new IntegerId($this->id),
             $this->iiko_api_key,
             new StringId($this->iiko_restaurant_id),
+            new StringId($this->external_menu_id),
             new IntegerId($this->welcome_group_restaurant_id),
             new IntegerId($this->welcome_group_default_workshop_id),
             new StringId($this->order_delivery_type_id),
@@ -82,7 +83,7 @@ final class OrganizationSetting extends Model
                 $this
                     ->price_categories
                     ->map(static fn (array $data): PriceCategory => new PriceCategory(
-                        new IntegerId((int) $data['category_id']),
+                        new StringId($data['category_id']),
                         $data['prefix'],
                     )),
             ),

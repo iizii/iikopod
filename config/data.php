@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
+
 return [
     /**
      * The package will use this format when working with dates. If this option
@@ -50,6 +53,8 @@ return [
     'casts' => [
         DateTimeInterface::class => Spatie\LaravelData\Casts\DateTimeInterfaceCast::class,
         BackedEnum::class => Spatie\LaravelData\Casts\EnumCast::class,
+        IntegerId::class => \Shared\Domain\DataCasts\IntegerIdCast::class,
+        StringId::class => \Shared\Domain\DataCasts\StringIdCast::class,
         //        Enumerable::class => Spatie\LaravelData\Casts\EnumerableCast::class,
     ],
 

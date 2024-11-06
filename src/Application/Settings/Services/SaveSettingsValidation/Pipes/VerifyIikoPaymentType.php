@@ -40,17 +40,19 @@ final readonly class VerifyIikoPaymentType
 
         $errorTypes = [];
 
-        $settings->paymentTypeCollection->each(
-            static function (PaymentType $paymentType) use (&$errorTypes, $response) {
-                $exists = $response->contains(
-                    static fn (GetPaymentTypesResponseData $item) => $item->code === $paymentType->iikoPaymentCode,
-                );
+        $settings
+            ->paymentTypes
+            ->each(
+                static function (PaymentType $paymentType) use (&$errorTypes, $response) {
+                    $exists = $response->contains(
+                        static fn (GetPaymentTypesResponseData $item) => $item->code === $paymentType->iikoPaymentCode,
+                    );
 
-                if (! $exists) {
-                    $errorTypes[] = $paymentType->iikoPaymentCode;
-                }
-            },
-        );
+                    if (! $exists) {
+                        $errorTypes[] = $paymentType->iikoPaymentCode;
+                    }
+                },
+            );
 
         if (! empty($errorTypes)) {
             throw new PaymentTypeNotFoundException(

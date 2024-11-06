@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\Price;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Shared\Domain\ValueObjects\IntegerId;
 
 /**
  * @property int $id
@@ -36,5 +38,29 @@ final class IikoMenuItemPrice extends Model
     public function itemSize(): BelongsTo
     {
         return $this->belongsTo(IikoMenuItemSize::class, 'iiko_menu_item_size_id', 'id');
+    }
+
+    public function fromDomainEntity(Price $price): self
+    {
+        return $this->fill([
+            'iiko_menu_item_size_id' => $price->itemId->id,
+            'price' => $price->price,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuItemPrice): Price
+    {
+        return new Price(
+            new IntegerId($iikoMenuItemPrice->id),
+            new IntegerId($iikoMenuItemPrice->iiko_menu_item_size_id),
+            $iikoMenuItemPrice->price,
+        );
+    }
+
+    public function casts(): array
+    {
+        return [
+            'price' => 'integer',
+        ];
     }
 }

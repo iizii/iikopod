@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\Item;
+use Domain\Iiko\ValueObjects\Menu\ItemSizeCollection;
+use Domain\Iiko\ValueObjects\Menu\PriceCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -64,5 +69,38 @@ final class IikoMenuItemModifierItem extends Model
         return [
             'is_hidden' => 'boolean',
         ];
+    }
+
+    public function fromDomainEntity(Item $item): self
+    {
+        return $this->fill([
+            'iiko_menu_item_modifier_group_id' => $item->itemGroupId->id,
+            'external_id' => $item->externalId->id,
+            'sku' => $item->sku,
+            'name' => $item->name,
+            'description' => $item->description,
+            'type' => $item->type,
+            'measure_unit' => $item->measureUnit,
+            'payment_subject' => $item->paymentSubject,
+            'is_hidden' => $item->isHidden,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuItemModifierItem): Item
+    {
+        return new Item(
+            new IntegerId($iikoMenuItemModifierItem->id),
+            new IntegerId($iikoMenuItemModifierItem->iiko_menu_item_modifier_group_id),
+            new StringId($iikoMenuItemModifierItem->external_id),
+            $iikoMenuItemModifierItem->sku,
+            $iikoMenuItemModifierItem->name,
+            $iikoMenuItemModifierItem->description,
+            $iikoMenuItemModifierItem->type,
+            $iikoMenuItemModifierItem->measure_unit,
+            $iikoMenuItemModifierItem->payment_subject,
+            $iikoMenuItemModifierItem->is_hidden,
+            new PriceCollection(),
+            new ItemSizeCollection(),
+        );
     }
 }

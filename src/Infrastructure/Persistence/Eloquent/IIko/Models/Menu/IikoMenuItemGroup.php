@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\ItemGroup;
+use Domain\Iiko\ValueObjects\Menu\ItemCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -63,5 +67,29 @@ final class IikoMenuItemGroup extends Model
         return [
             'is_hidden' => 'boolean',
         ];
+    }
+
+    public function fromDomainEntity(ItemGroup $itemGroup): self
+    {
+        return $this->fill([
+            'iiko_menu_id' => $itemGroup->iikoMenuId->id,
+            'external_id' => $itemGroup->externalId->id,
+            'name' => $itemGroup->name,
+            'description' => $itemGroup->description,
+            'is_hidden' => $itemGroup->isHidden,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuItemGroup): ItemGroup
+    {
+        return new ItemGroup(
+            new IntegerId($iikoMenuItemGroup->id),
+            new IntegerId($iikoMenuItemGroup->iiko_menu_id),
+            new StringId($iikoMenuItemGroup->external_id),
+            $iikoMenuItemGroup->name,
+            $iikoMenuItemGroup->description,
+            $iikoMenuItemGroup->is_hidden,
+            new ItemCollection(),
+        );
     }
 }

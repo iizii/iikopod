@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects;
 
 use Carbon\CarbonImmutable;
-use Domain\WelcomeGroup\Entities\Client;
 use Domain\WelcomeGroup\Entities\Phone;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;

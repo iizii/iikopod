@@ -117,6 +117,7 @@ final class EditOrganizationSetting extends EditRecord
                 new IntegerId($record->id),
                 $data['iiko_api_key'],
                 new StringId($data['iiko_restaurant_id']),
+                new StringId($data['external_menu_id']),
                 new IntegerId((int) $data['welcome_group_restaurant_id']),
                 new IntegerId((int) $data['welcome_group_default_workshop_id']),
                 new StringId($data['order_delivery_type_id']),
@@ -133,7 +134,7 @@ final class EditOrganizationSetting extends EditRecord
                 new PriceCategoryCollection(
                     array_map(
                         static fn (array $paymentType): PriceCategory => new PriceCategory(
-                            new IntegerId((int) $paymentType['category_id']),
+                            new StringId($paymentType['category_id']),
                             $paymentType['prefix'],
                         ),
                         $data['price_categories'],

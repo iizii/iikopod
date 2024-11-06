@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\ProductCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -52,5 +55,28 @@ final class IikoMenuProductCategory extends Model
         return [
             'is_deleted' => 'boolean',
         ];
+    }
+
+    public function fromDomainEntity(ProductCategory $productCategory): self
+    {
+        return $this->fill([
+            'iiko_menu_id' => $productCategory->iikoMenuId->id,
+            'external_id' => $productCategory->externalId->id,
+            'name' => $productCategory->name,
+            'is_deleted' => $productCategory->isDeleted,
+            'percentage' => $productCategory->percentage,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuProductCategory): ProductCategory
+    {
+        return new ProductCategory(
+            new IntegerId($iikoMenuProductCategory->id),
+            new IntegerId($iikoMenuProductCategory->iiko_menu_id),
+            new StringId($iikoMenuProductCategory->external_id),
+            $iikoMenuProductCategory->name,
+            $iikoMenuProductCategory->is_deleted,
+            $iikoMenuProductCategory->percentage,
+        );
     }
 }

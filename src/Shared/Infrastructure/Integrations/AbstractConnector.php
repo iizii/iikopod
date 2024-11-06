@@ -25,7 +25,7 @@ abstract readonly class AbstractConnector
     ) {}
 
     /**
-     * @return Response|ResponseData|iterable<array-key, ResponseData>
+     * @return Response|ResponseData|iterable<array-key, ResponseData>|
      *
      * @throws ConnectionException
      * @throws RequestException

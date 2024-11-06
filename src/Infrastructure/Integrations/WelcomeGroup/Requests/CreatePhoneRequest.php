@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateClientRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
@@ -35,10 +33,6 @@ final readonly class CreatePhoneRequest implements RequestInterface, ResponseDat
         return $this->data->toArray();
     }
 
-    /**
-     * @param Response $response
-     * @return CreatePhoneResponseData
-     */
     public function createDtoFromResponse(Response $response): CreatePhoneResponseData
     {
         return CreatePhoneResponseData::from($response->json());
