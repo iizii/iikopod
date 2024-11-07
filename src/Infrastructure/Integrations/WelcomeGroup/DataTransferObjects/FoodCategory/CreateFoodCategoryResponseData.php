@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects;
+namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory;
 
 use Carbon\CarbonImmutable;
-use Domain\WelcomeGroup\Entities\Phone;
+use Domain\WelcomeGroup\Entities\FoodCategory;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\MapInputName;
@@ -14,20 +14,20 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapInputName(SnakeCaseMapper::class)]
 #[MapOutputName(SnakeCaseMapper::class)]
-final class CreatePhoneResponseData extends ResponseData
+final class CreateFoodCategoryResponseData extends ResponseData
 {
     public function __construct(
         public readonly int $id,
-        public readonly string $number,
+        public readonly string $name,
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}
 
-    public function toDomainEntity(): Phone
+    public function toDomainEntity(): FoodCategory
     {
-        return new Phone(
+        return new FoodCategory(
             new IntegerId($this->id),
-            $this->number,
+            $this->name,
             $this->created,
             $this->updated
         );

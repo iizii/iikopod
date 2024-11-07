@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\CreateFoodCategoryResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateFoodCategoryRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;

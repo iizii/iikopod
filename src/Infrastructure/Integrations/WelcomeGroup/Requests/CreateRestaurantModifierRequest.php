@@ -6,7 +6,7 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Domain\WelcomeGroup\Entities\RestaurantModifier;
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateRestaurantFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;

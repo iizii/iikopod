@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects;
+namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address;
 
 use Carbon\CarbonImmutable;
 use Domain\WelcomeGroup\Entities\Address;

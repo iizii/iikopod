@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateClientRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateClientResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;

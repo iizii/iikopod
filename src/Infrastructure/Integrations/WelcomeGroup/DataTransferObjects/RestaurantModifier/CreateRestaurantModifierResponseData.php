@@ -2,36 +2,31 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects;
+namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier;
 
 use Carbon\CarbonImmutable;
-use Domain\WelcomeGroup\Entities\RestaurantFood;
+use Domain\WelcomeGroup\Entities\RestaurantModifier;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
-use Spatie\LaravelData\Attributes\MapInputName;
-use Spatie\LaravelData\Attributes\MapOutputName;
-use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
-#[MapInputName(SnakeCaseMapper::class)]
-#[MapOutputName(SnakeCaseMapper::class)]
-final class CreateRestaurantFoodResponseData extends ResponseData
+final class CreateRestaurantModifierResponseData extends ResponseData
 {
     public function __construct(
         public readonly int $id,
         public readonly int $restaurant,
-        public readonly int $food,
+        public readonly int $modifier,
         public readonly ?string $statusComment,
         public readonly string $status,
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}
 
-    public function toDomainEntity(): RestaurantFood
+    public function toDomainEntity(): RestaurantModifier
     {
-        return new RestaurantFood(
+        return new RestaurantModifier(
             new IntegerId($this->id),
             new IntegerId($this->restaurant),
-            new IntegerId($this->food),
+            new IntegerId($this->modifier),
             $this->statusComment,
             $this->status,
             $this->created,

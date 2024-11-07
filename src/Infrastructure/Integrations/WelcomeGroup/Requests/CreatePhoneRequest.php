@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
