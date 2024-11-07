@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\WelcomeGroup\Entities;
 
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\ModifierObject;
 use Shared\Domain\DomainEntity;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -19,7 +20,7 @@ final class FoodModifier extends DomainEntity
         public readonly int $caloricity,
         public readonly float $price,
         public readonly int $duration,
-        public readonly Modifier $modifier,
+        public readonly ModifierObject $modifier,
         public readonly \DateTimeInterface $createdAt,
         public readonly \DateTimeInterface $updatedAt,
     ) {}
