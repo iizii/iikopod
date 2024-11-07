@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\Requests;
+namespace Infrastructure\Integrations\WelcomeGroup\Requests\Client;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class CreatePhoneRequest implements RequestInterface, ResponseDataInterface
+final readonly class CreateClientRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreatePhoneRequestData $data) {}
+    public function __construct(private CreateClientRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -22,7 +22,7 @@ final readonly class CreatePhoneRequest implements RequestInterface, ResponseDat
 
     public function endpoint(): string
     {
-        return '/api/phone';
+        return '/api/client';
     }
 
     /**
@@ -33,9 +33,9 @@ final readonly class CreatePhoneRequest implements RequestInterface, ResponseDat
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): CreatePhoneResponseData
+    public function createDtoFromResponse(Response $response): CreateClientResponseData
     {
-        return CreatePhoneResponseData::from($response->json());
+        return CreateClientResponseData::from($response->json());
     }
 
     /**

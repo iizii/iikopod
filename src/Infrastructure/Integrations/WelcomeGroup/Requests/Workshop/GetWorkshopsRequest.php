@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\Requests;
+namespace Infrastructure\Integrations\WelcomeGroup\Requests\Workshop;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;

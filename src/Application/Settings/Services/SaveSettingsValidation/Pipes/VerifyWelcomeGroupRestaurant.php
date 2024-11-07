@@ -10,7 +10,7 @@ use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Exceptions\RestaurantNotFoundException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
-use Infrastructure\Integrations\WelcomeGroup\Requests\GetRestaurantRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 final readonly class VerifyWelcomeGroupRestaurant

@@ -10,7 +10,7 @@ use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Exceptions\WorkshopNotFoundException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
-use Infrastructure\Integrations\WelcomeGroup\Requests\GetWorkshopRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Workshop\GetWorkshopRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 final readonly class VerifyWelcomeGroupWorkshop

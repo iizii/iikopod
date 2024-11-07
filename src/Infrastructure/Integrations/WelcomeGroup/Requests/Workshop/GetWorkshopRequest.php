@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\Requests;
+namespace Infrastructure\Integrations\WelcomeGroup\Requests\Workshop;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\LazyCollection;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantResponse\GetRestaurantResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetWorkshopResponse\GetWorkshopResponseData;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class GetRestaurantsRequest implements RequestInterface, ResponseDataInterface
+final readonly class GetWorkshopRequest implements RequestInterface, ResponseDataInterface
 {
+    public function __construct(public IntegerId $integerId) {}
+
     public function method(): RequestMethod
     {
         return RequestMethod::GET;
@@ -21,7 +23,7 @@ final readonly class GetRestaurantsRequest implements RequestInterface, Response
 
     public function endpoint(): string
     {
-        return '/api/restaurant';
+        return sprintf('/api/workshop/%s', $this->integerId->id);
     }
 
     public function data(): array|Arrayable
@@ -29,12 +31,9 @@ final readonly class GetRestaurantsRequest implements RequestInterface, Response
         return [];
     }
 
-    /**
-     * @return LazyCollection<array-key, GetRestaurantResponseData>
-     */
-    public function createDtoFromResponse(Response $response): LazyCollection
+    public function createDtoFromResponse(Response $response): GetWorkshopResponseData
     {
-        return GetRestaurantResponseData::collect($response->json('items'), LazyCollection::class);
+        return GetWorkshopResponseData::from($response->json());
     }
 
     /**

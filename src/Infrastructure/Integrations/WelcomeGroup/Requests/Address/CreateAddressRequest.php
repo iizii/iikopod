@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\Requests;
+namespace Infrastructure\Integrations\WelcomeGroup\Requests\Address;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class CreateModifierRequest implements RequestInterface, ResponseDataInterface
+final readonly class CreateAddressRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreateModifierRequestData $data) {}
+    public function __construct(private CreateFoodRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -22,7 +22,7 @@ final readonly class CreateModifierRequest implements RequestInterface, Response
 
     public function endpoint(): string
     {
-        return '/api/modifier';
+        return '/api/address';
     }
 
     /**
@@ -33,9 +33,9 @@ final readonly class CreateModifierRequest implements RequestInterface, Response
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): CreateModifierResponseData
+    public function createDtoFromResponse(Response $response): CreateFoodResponseData
     {
-        return CreateModifierResponseData::from($response->json());
+        return CreateFoodResponseData::from($response->json());
     }
 
     /**

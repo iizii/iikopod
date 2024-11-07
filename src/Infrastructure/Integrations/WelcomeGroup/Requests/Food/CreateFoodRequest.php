@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\Requests;
+namespace Infrastructure\Integrations\WelcomeGroup\Requests\Food;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class CreateClientRequest implements RequestInterface, ResponseDataInterface
+final readonly class CreateFoodRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreateClientRequestData $data) {}
+    public function __construct(private CreateFoodRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -22,7 +22,7 @@ final readonly class CreateClientRequest implements RequestInterface, ResponseDa
 
     public function endpoint(): string
     {
-        return '/api/client';
+        return '/api/address';
     }
 
     /**
@@ -33,9 +33,9 @@ final readonly class CreateClientRequest implements RequestInterface, ResponseDa
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): CreateClientResponseData
+    public function createDtoFromResponse(Response $response): CreateFoodResponseData
     {
-        return CreateClientResponseData::from($response->json());
+        return CreateFoodResponseData::from($response->json());
     }
 
     /**
