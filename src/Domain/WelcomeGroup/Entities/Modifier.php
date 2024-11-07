@@ -11,7 +11,7 @@ final class Modifier extends DomainEntity
 {
     public function __construct(
         public readonly IntegerId $id,
-        public readonly int $modifierType,
+        public readonly IntegerId $modifierType,
         public readonly string $name,
         public readonly bool $defaultOption,
         public readonly \DateTimeInterface $createdAt,
