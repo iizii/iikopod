@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class CreateAddressRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreateAddressRequestData $data) {}
+    public function __construct(private CreateFoodRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -33,9 +33,9 @@ final readonly class CreateAddressRequest implements RequestInterface, ResponseD
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): CreateAddressResponseData
+    public function createDtoFromResponse(Response $response): CreateFoodResponseData
     {
-        return CreateAddressResponseData::from($response->json());
+        return CreateFoodResponseData::from($response->json());
     }
 
     /**

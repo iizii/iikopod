@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class CreateRestaurantFoodRequest implements RequestInterface, ResponseDataInterface
+final readonly class CreateFoodRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreateRestaurantModifierRequestData $data) {}
+    public function __construct(private CreateFoodRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -22,7 +22,7 @@ final readonly class CreateRestaurantFoodRequest implements RequestInterface, Re
 
     public function endpoint(): string
     {
-        return '/api/restaurant_food';
+        return '/api/address';
     }
 
     /**
