@@ -135,7 +135,7 @@ final readonly class WelcomeGroupController
     #[Route(methods: 'GET', uri: '/wg/get_restaurant_food', name: 'wg.get_restaurant_food')]
     public function getRestaurantFood(Request $request): JsonResponse
     {
-        $req = new GetRestaurantFoodRequest((int)$request->input('id'));
+        $req = new GetRestaurantFoodRequest((int) $request->input('id'));
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);
@@ -149,10 +149,10 @@ final readonly class WelcomeGroupController
     public function editRestaurantFood(Request $request): JsonResponse
     {
         $req = new EditRestaurantFoodRequest(
-            (int)$request->input('id'),
+            (int) $request->input('id'),
             new EditRestaurantFoodRequestData(
-                (int)$request->input('restaurant_id'),
-                (int)$request->input('food_id'),
+                (int) $request->input('restaurant_id'),
+                (int) $request->input('food_id'),
             )
         );
         $response = $this->connector->send($req);

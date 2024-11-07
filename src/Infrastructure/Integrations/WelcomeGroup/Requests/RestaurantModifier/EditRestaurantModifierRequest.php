@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantModifier;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\GetRestaurantFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\EditRestaurantModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\GetRestaurantModifierResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;

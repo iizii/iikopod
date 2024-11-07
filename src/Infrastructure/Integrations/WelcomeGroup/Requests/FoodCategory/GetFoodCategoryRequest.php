@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\EditFoodCategoryResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\GetFoodCategoryResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\GetRestaurantFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
