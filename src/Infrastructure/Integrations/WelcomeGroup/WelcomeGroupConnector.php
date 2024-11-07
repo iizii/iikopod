@@ -7,13 +7,20 @@ namespace Infrastructure\Integrations\WelcomeGroup;
 use Carbon\CarbonImmutable;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Log\Context\Repository as LogContext;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryResponseData;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEvent;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\UpdateFoodCategoryRequest;
 use Psr\Log\LoggerInterface;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\RequestInterface;
 
@@ -27,6 +34,30 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
         private SignatureCompiler $signatureCompiler,
     ) {
         parent::__construct($pendingRequest, $eventDispatcher, $logContext, $logger);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createFoodCategory(CreateFoodCategoryRequestData $createFoodCategoryRequestData): CreateFoodCategoryResponseData
+    {
+        /** @var CreateFoodCategoryResponseData $response */
+        $response = $this->send(new CreateFoodCategoryRequest($createFoodCategoryRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateFoodCategory(CreateFoodCategoryRequestData $createFoodCategoryRequestData, IntegerId $id): CreateFoodCategoryResponseData
+    {
+        /** @var CreateFoodCategoryResponseData $response */
+        $response = $this->send(new UpdateFoodCategoryRequest($createFoodCategoryRequestData, $id));
+
+        return $response;
     }
 
     protected function getRequestException(Response $response, \Throwable $clientException): \Throwable

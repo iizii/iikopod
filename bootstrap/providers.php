@@ -8,4 +8,5 @@ return [
     \Infrastructure\Laravel\Providers\TelescopeServiceProvider::class,
     \Infrastructure\Laravel\Providers\PersistenceRepositoryServiceProvider::class,
     \Infrastructure\Laravel\Providers\IntegrationsServiceProvider::class,
+    \Infrastructure\Laravel\Providers\EventServiceProvider::class,
 ];

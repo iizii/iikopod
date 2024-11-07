@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\Listeners;
+namespace Infrastructure\Listeners\Iiko;
 
 use Domain\Iiko\Events\StopListUpdateEvent;
 

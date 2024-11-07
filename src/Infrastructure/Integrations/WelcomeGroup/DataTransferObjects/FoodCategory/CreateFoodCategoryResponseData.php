@@ -26,10 +26,10 @@ final class CreateFoodCategoryResponseData extends ResponseData
     public function toDomainEntity(): FoodCategory
     {
         return new FoodCategory(
+            new IntegerId(),
             new IntegerId($this->id),
+            new IntegerId(),
             $this->name,
-            $this->created,
-            $this->updated
         );
     }
 }

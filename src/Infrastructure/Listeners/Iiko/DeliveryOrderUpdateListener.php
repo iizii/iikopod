@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\Listeners;
+namespace Infrastructure\Listeners\Iiko;
 
-use Domain\Iiko\Events\DeliveryOrderUpdate;
+use Domain\Iiko\Events\DeliveryOrderUpdateEvent;
 
 final class DeliveryOrderUpdateListener
 {
@@ -19,7 +19,7 @@ final class DeliveryOrderUpdateListener
     /**
      * Handle the event.
      */
-    public function handle(DeliveryOrderUpdate $event): void
+    public function handle(DeliveryOrderUpdateEvent $event): void
     {
         logger()->channel('delivery_order_update')->info('Listener data', [$event]);
     }

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
 use Domain\Iiko\Entities\Menu\ProductCategory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Infrastructure\Observers\Iiko\ProductCategoryObserver;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -35,6 +37,7 @@ use Shared\Domain\ValueObjects\StringId;
  *
  * @mixin \Eloquent
  */
+#[ObservedBy([ProductCategoryObserver::class])]
 final class IikoMenuProductCategory extends Model
 {
     protected $fillable = [

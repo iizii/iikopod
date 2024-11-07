@@ -18,6 +18,7 @@ use Domain\Iiko\Repositories\IikoMenuTaxCategoryRepositoryInterface;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Users\Models\User;
 use Domain\Users\Repositories\UserRepositoryInterface;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepositoryInterface;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenu;
@@ -45,6 +46,8 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuTaxCate
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Infrastructure\Persistence\Eloquent\Settings\Repositories\OrganizationSettingRepository;
 use Infrastructure\Persistence\Eloquent\Users\Repositories\UserRepository;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodCategory;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepository;
 
 final class PersistenceRepositoryServiceProvider extends ServiceProvider
 {
@@ -128,6 +131,12 @@ final class PersistenceRepositoryServiceProvider extends ServiceProvider
         $this->app->scoped(IikoMenuItemModifierItemPriceRepositoryInterface::class, static function (Application $application): IikoMenuItemModifierItemPriceRepository {
             return new IikoMenuItemModifierItemPriceRepository(
                 $application->make(IikoMenuItemModifierItemPrice::class),
+            );
+        });
+
+        $this->app->scoped(WelcomeGroupFoodCategoryRepositoryInterface::class, static function (Application $application): WelcomeGroupFoodCategoryRepository {
+            return new WelcomeGroupFoodCategoryRepository(
+                $application->make(WelcomeGroupFoodCategory::class),
             );
         });
     }

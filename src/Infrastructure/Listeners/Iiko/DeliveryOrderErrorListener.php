@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\Listeners;
+namespace Infrastructure\Listeners\Iiko;
 
-use Domain\Iiko\Events\DeliveryOrderError;
+use Domain\Iiko\Events\DeliveryOrderErrorEvent;
 
 final class DeliveryOrderErrorListener
 {
@@ -19,7 +19,7 @@ final class DeliveryOrderErrorListener
     /**
      * Handle the event.
      */
-    public function handle(DeliveryOrderError $event): void
+    public function handle(DeliveryOrderErrorEvent $event): void
     {
         logger()->channel('delivery_order_error')->info('Listener data', [$event]);
 

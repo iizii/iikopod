@@ -11,8 +11,18 @@ final class FoodCategory extends DomainEntity
 {
     public function __construct(
         public readonly IntegerId $id,
+        public readonly IntegerId $externalId,
+        public readonly IntegerId $iikoProductCategoryId,
         public readonly string $name,
-        public readonly \DateTimeInterface $createdAt,
-        public readonly \DateTimeInterface $updatedAt,
     ) {}
+
+    public static function withName(self $foodCategory, string $name): self
+    {
+        return new self(
+            $foodCategory->id,
+            $foodCategory->externalId,
+            $foodCategory->iikoProductCategoryId,
+            $name,
+        );
+    }
 }
