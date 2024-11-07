@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests\Food;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class CreateFoodRequest implements RequestInterface, ResponseDataInterface
+final readonly class EditFoodRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreateFoodRequestData $data) {}
+    public function __construct(private int $id, private EditFoodRequestData $data) {}
 
     public function method(): RequestMethod
     {
-        return RequestMethod::POST;
+        return RequestMethod::PATCH;
     }
 
     public function endpoint(): string
     {
-        return '/api/food';
+        return '/api/food/'.$this->id;
     }
 
     /**
@@ -33,9 +33,9 @@ final readonly class CreateFoodRequest implements RequestInterface, ResponseData
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): CreateFoodResponseData
+    public function createDtoFromResponse(Response $response): EditFoodResponseData
     {
-        return CreateFoodResponseData::from($response->json());
+        return EditFoodResponseData::from($response->json());
     }
 
     /**

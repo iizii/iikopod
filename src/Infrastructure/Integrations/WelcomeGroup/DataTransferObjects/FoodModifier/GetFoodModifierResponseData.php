@@ -14,7 +14,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapInputName(SnakeCaseMapper::class)]
 #[MapOutputName(SnakeCaseMapper::class)]
-final class CreateFoodModifierResponseData extends ResponseData
+final class GetFoodModifierResponseData extends ResponseData
 {
     public function __construct(
         public readonly int $id, //id
@@ -27,7 +27,7 @@ final class CreateFoodModifierResponseData extends ResponseData
         public readonly ModifierObject $modifierObject,
         public readonly string $status,
         public readonly ?string $statusComment,
-//        public readonly string $foodName, Почему-то в доке описано, но не получается в ответе от ПОД
+//        public readonly string $foodName, // Не получаем из ПОД, в доке есть
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}

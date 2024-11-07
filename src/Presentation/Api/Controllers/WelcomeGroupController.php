@@ -12,12 +12,35 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\EditFoodCategoryRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\EditFoodModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\EditModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Address\CreateAddressRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Client\CreateClientRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Food\CreateFoodRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Food\EditFoodRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Food\GetFoodRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\EditFoodCategoryRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\GetFoodCategoryRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\CreateFoodModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\EditFoodModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\GetFoodModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\EditModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\GetModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantsRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\EditRestaurantFoodRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\GetRestaurantFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Workshop\GetWorkshopRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Workshop\GetWorkshopsRequest;
 use Shared\Domain\ValueObjects\IntegerId;
@@ -117,6 +140,266 @@ final readonly class WelcomeGroupController
                 $request->input('city'),
                 $request->input('street'),
                 $request->input('house'),
+
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'GET', uri: '/wg/get_restaurant_food', name: 'wg.get_restaurant_food')]
+    public function getRestaurantFood(Request $request): JsonResponse
+    {
+        $req = new GetRestaurantFoodRequest((int) $request->input('id'));
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'PATCH', uri: '/wg/edit_restaurant_food', name: 'wg.edit_restaurant_food')]
+    public function editRestaurantFood(Request $request): JsonResponse
+    {
+        $req = new EditRestaurantFoodRequest(
+            (int) $request->input('id'),
+            new EditRestaurantFoodRequestData(
+                (int) $request->input('restaurant_id'),
+                (int) $request->input('food_id'),
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_food_category', name: 'wg.create_food_category')]
+    public function createFoodCategory(Request $request): JsonResponse
+    {
+        $req = new CreateFoodCategoryRequest(
+            new CreateFoodCategoryRequestData(
+                $request->input('name'),
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'PATCH', uri: '/wg/edit_food_category', name: 'wg.edit_food_category')]
+    public function editFoodCategory(Request $request): JsonResponse
+    {
+        $req = new EditFoodCategoryRequest(
+            (int) $request->input('id'),
+            new EditFoodCategoryRequestData(
+                $request->input('name'),
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'GET', uri: '/wg/get_food_category', name: 'wg.get_food_category')]
+    public function getFoodCategory(Request $request): JsonResponse
+    {
+        $req = new GetFoodCategoryRequest(
+            (int) $request->input('id'),
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'GET', uri: '/wg/get_food', name: 'wg.get_food')]
+    public function getFood(Request $request): JsonResponse
+    {
+        $req = new GetFoodRequest(
+            (int) $request->input('id'),
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'PATCH', uri: '/wg/edit_food', name: 'wg.edit_food')]
+    public function editFood(Request $request): JsonResponse
+    {
+        $req = new EditFoodRequest(
+            (int) $request->input('id'),
+            new EditFoodRequestData(
+                $request->input('food_category_id'),
+                $request->input('workshop'),
+                $request->input('name'),
+                $request->input('description'),
+                $request->input('weight'),
+                $request->input('caloricity'),
+                $request->input('price'),
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_food', name: 'wg.create_food')]
+    public function createFood(Request $request): JsonResponse
+    {
+        $req = new CreateFoodRequest(
+            new CreateFoodRequestData(
+                $request->input('food_category_id'),
+                $request->input('workshop'),
+                $request->input('name'),
+                $request->input('description'),
+                $request->input('weight'),
+                $request->input('caloricity'),
+                $request->input('price'),
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_food_modifier', name: 'wg.create_food_modifier')]
+    public function createFoodModifier(Request $request): JsonResponse
+    {
+        $req = new CreateFoodModifierRequest(
+            new CreateFoodModifierRequestData(
+                $request->input('food_id'),
+                $request->input('modifier_id'),
+                $request->input('weight'),
+                $request->input('caloricity'),
+                $request->input('price'),
+                0
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'PATCH', uri: '/wg/edit_food_modifier', name: 'wg.edit_food_modifier')]
+    public function editFoodModifier(Request $request): JsonResponse
+    {
+        $req = new EditFoodModifierRequest(
+            $request->input('id'),
+            new EditFoodModifierRequestData(
+                $request->input('food_id'),
+                $request->input('modifier_id'),
+                $request->input('weight'),
+                $request->input('caloricity'),
+                $request->input('price'),
+                0
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'GET', uri: '/wg/get_food_modifier', name: 'wg.get_food_modifier')]
+    public function getFoodModifier(Request $request): JsonResponse
+    {
+        $req = new GetFoodModifierRequest(
+            (int)$request->input('id'),
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'GET', uri: '/wg/get_modifier', name: 'wg.get_modifier')]
+    public function getModifier(Request $request): JsonResponse
+    {
+        $req = new GetModifierRequest(
+            (int)$request->input('id'),
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_modifier', name: 'wg.create_modifier')]
+    public function createModifier(Request $request): JsonResponse
+    {
+        $req = new CreateModifierRequest(
+            new CreateModifierRequestData(
+                $request->input('name'),
+                $request->input('modifier_type_id'),
+                $request->input('default_option'),
+
+            )
+        );
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'PATCH', uri: '/wg/edit_modifier', name: 'wg.edit_modifier')]
+    public function editModifier(Request $request): JsonResponse
+    {
+        $req = new EditModifierRequest(
+            (int) $request->input('id'),
+            new EditModifierRequestData(
+                $request->input('name'),
+                $request->input('modifier_type_id'),
+                $request->input('default_option'),
 
             )
         );

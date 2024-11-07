@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests\Address;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
@@ -13,7 +13,7 @@ use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class CreateAddressRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreateFoodRequestData $data) {}
+    public function __construct(private CreateAddressRequestData $data) {}
 
     public function method(): RequestMethod
     {
