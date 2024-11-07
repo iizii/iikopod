@@ -6,8 +6,6 @@ namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects;
 
 use Carbon\CarbonImmutable;
 use Domain\WelcomeGroup\Entities\Address;
-use Domain\WelcomeGroup\Entities\Client;
-use Domain\WelcomeGroup\Entities\Phone;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\MapInputName;

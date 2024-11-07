@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\WelcomeGroup\Requests;
 
+use Domain\WelcomeGroup\Entities\RestaurantModifier;
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreatePhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\CreateRestaurantFoodRequestData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class CreatePhoneRequest implements RequestInterface, ResponseDataInterface
+final readonly class CreateRestaurantModifierRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreatePhoneRequestData $data) {}
+    public function __construct(private CreateRestaurantFoodRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -22,7 +22,7 @@ final readonly class CreatePhoneRequest implements RequestInterface, ResponseDat
 
     public function endpoint(): string
     {
-        return '/api/phone';
+        return '/api/restaurant_modifier';
     }
 
     /**
@@ -33,9 +33,9 @@ final readonly class CreatePhoneRequest implements RequestInterface, ResponseDat
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): CreatePhoneResponseData
+    public function createDtoFromResponse(Response $response): RestaurantModifier
     {
-        return CreatePhoneResponseData::from($response->json());
+        return RestaurantModifier::from($response->json());
     }
 
     /**
