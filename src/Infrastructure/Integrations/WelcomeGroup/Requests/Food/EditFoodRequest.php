@@ -2,19 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory;
+namespace Infrastructure\Integrations\WelcomeGroup\Requests\Food;
 
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\EditFoodCategoryRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\EditFoodCategoryResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class EditFoodCategoryRequest implements RequestInterface, ResponseDataInterface
+final readonly class EditFoodRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private int $id, private EditFoodCategoryRequestData $data) {}
+    public function __construct(private int $id, private EditFoodRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -23,7 +24,7 @@ final readonly class EditFoodCategoryRequest implements RequestInterface, Respon
 
     public function endpoint(): string
     {
-        return '/api/food_category/'.$this->id;
+        return '/api/food/'.$this->id;
     }
 
     /**
@@ -34,9 +35,9 @@ final readonly class EditFoodCategoryRequest implements RequestInterface, Respon
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): EditFoodCategoryResponseData
+    public function createDtoFromResponse(Response $response): EditFoodResponseData
     {
-        return EditFoodCategoryResponseData::from($response->json());
+        return EditFoodResponseData::from($response->json());
     }
 
     /**
