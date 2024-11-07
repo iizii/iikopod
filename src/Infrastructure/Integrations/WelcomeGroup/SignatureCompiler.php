@@ -37,7 +37,7 @@ final readonly class SignatureCompiler
             $params = \implode(',', $paramStrings);
         }
 
-        if ($request->method() === RequestMethod::POST) {
+        if ($request->method() === RequestMethod::POST || $request->method() === RequestMethod::PATCH) {
             $params = \json_encode($requestParams);
         }
 

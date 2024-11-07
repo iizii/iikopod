@@ -12,5 +12,7 @@ enum RequestMethod: string
 
     case PUT = 'PUT';
 
+    case PATCH = 'PATCH';
+
     case DELETE = 'DELETE';
 }

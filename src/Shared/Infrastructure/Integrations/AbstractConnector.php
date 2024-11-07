@@ -163,7 +163,7 @@ abstract readonly class AbstractConnector
 
         $params = [];
 
-        if ($request->method() === RequestMethod::POST) {
+        if ($request->method() === RequestMethod::POST || $request->method() === RequestMethod::PATCH) {
             $params['json'] = $data;
         }
 
