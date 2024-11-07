@@ -110,7 +110,7 @@ final class OrganizationSettingResource extends Resource
                     ->addActionLabel('Добавить тип оплаты')
                     ->required(),
 
-                Select::make('external_menu')
+                Select::make('external_menu_id')
                     ->label('Меню приложения')
                     ->options(
                         static function (
@@ -240,7 +240,7 @@ final class OrganizationSettingResource extends Resource
                                                 $fail
                                             ): void {
                                                 $duplicates = $organizationSetting
-                                                    ->priceCategoryCollection
+                                                    ->priceCategories
                                                     ->where('prefix', $value);
 
                                                 if ($duplicates->count() > 1) {

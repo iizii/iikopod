@@ -118,6 +118,7 @@ final class CreateOrganizationSetting extends CreateRecord
                 new IntegerId(),
                 $data['iiko_api_key'],
                 new StringId($data['iiko_restaurant_id']),
+                new StringId($data['external_menu_id']),
                 new IntegerId((int) $data['welcome_group_restaurant_id']),
                 new IntegerId((int) $data['welcome_group_default_workshop_id']),
                 new StringId($data['order_delivery_type_id']),
@@ -134,7 +135,7 @@ final class CreateOrganizationSetting extends CreateRecord
                 new PriceCategoryCollection(
                     array_map(
                         static fn (array $paymentType): PriceCategory => new PriceCategory(
-                            new IntegerId((int) $paymentType['category_id']),
+                            new StringId($paymentType['category_id']),
                             $paymentType['prefix'],
                         ),
                         $data['price_categories'],

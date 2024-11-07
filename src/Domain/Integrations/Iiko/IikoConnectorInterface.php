@@ -7,6 +7,8 @@ namespace Domain\Integrations\Iiko;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse\GetMenuResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
 
@@ -24,4 +26,13 @@ interface IikoConnectorInterface
      * @return iterable<Response|ResponseData>
      */
     public function sendAsync(RequestInterface ...$requests): iterable;
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getMenu(
+        GetMenuRequestData $getMenuRequestData,
+        string $authToken,
+    ): GetMenuResponseData;
 }

@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\ItemSize;
+use Domain\Iiko\ValueObjects\Menu\ItemModifierGroupCollection;
+use Domain\Iiko\ValueObjects\Menu\NutritionCollection;
+use Domain\Iiko\ValueObjects\Menu\PriceCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -86,5 +92,33 @@ final class IikoMenuItemSize extends Model
         return [
             'is_default' => 'boolean',
         ];
+    }
+
+    public function fromDomainEntity(ItemSize $itemSize): self
+    {
+        return $this->fill([
+            'iiko_menu_item_id' => $itemSize->itemId->id,
+            'external_id' => $itemSize->externalId->id,
+            'sku' => $itemSize->sku,
+            'measure_unit_type' => $itemSize->measureUnitType,
+            'is_default' => $itemSize->isDefault,
+            'weight' => $itemSize->weight,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuItemSize): ItemSize
+    {
+        return new ItemSize(
+            new IntegerId($iikoMenuItemSize->id),
+            new IntegerId($iikoMenuItemSize->iiko_menu_item_id),
+            new StringId($iikoMenuItemSize->external_id),
+            $iikoMenuItemSize->sku,
+            $iikoMenuItemSize->is_default,
+            $iikoMenuItemSize->weight,
+            $iikoMenuItemSize->measure_unit_type,
+            new ItemModifierGroupCollection(),
+            new PriceCollection(),
+            new NutritionCollection(),
+        );
     }
 }

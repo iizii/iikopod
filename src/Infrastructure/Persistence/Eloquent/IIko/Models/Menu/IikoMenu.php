@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\Menu;
+use Domain\Iiko\ValueObjects\Menu\ItemGroupCollection;
+use Domain\Iiko\ValueObjects\Menu\ProductCategoryCollection;
+use Domain\Iiko\ValueObjects\Menu\TaxCategoryCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -66,5 +72,29 @@ final class IikoMenu extends Model
     public function itemGroups(): HasMany
     {
         return $this->hasMany(IikoMenuItemGroup::class, 'iiko_menu_id', 'id');
+    }
+
+    public function fromDomainEntity(Menu $menu): self
+    {
+        return $this->fill([
+            'external_id' => $menu->externalId->id,
+            'revision' => $menu->revision,
+            'name' => $menu->name,
+            'description' => $menu->description,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenu): Menu
+    {
+        return new Menu(
+            new IntegerId($iikoMenu->id),
+            new StringId($iikoMenu->external_id),
+            $iikoMenu->revision,
+            $iikoMenu->name,
+            $iikoMenu->description,
+            new TaxCategoryCollection(),
+            new ProductCategoryCollection(),
+            new ItemGroupCollection(),
+        );
     }
 }

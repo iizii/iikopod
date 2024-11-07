@@ -6,7 +6,9 @@ namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse;
 
 use Domain\Iiko\Entities\Menu\Item as DomainItem;
 use Domain\Iiko\Entities\Menu\ItemSize as DomainItemSize;
+use Domain\Iiko\Entities\Menu\Price as DomainPrice;
 use Domain\Iiko\ValueObjects\Menu\ItemSizeCollection;
+use Domain\Iiko\ValueObjects\Menu\PriceCollection;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\ResponseData;
@@ -27,6 +29,8 @@ final class Item extends ResponseData
         public readonly ?string $measureUnit,
         public readonly ?string $paymentSubject,
         public readonly bool $isHidden,
+        #[DataCollectionOf(Price::class)]
+        public readonly ?DataCollection $prices,
         #[DataCollectionOf(ItemSize::class)]
         public readonly ?DataCollection $itemSizes,
     ) {}
@@ -44,6 +48,12 @@ final class Item extends ResponseData
             $this->measureUnit,
             $this->paymentSubject,
             $this->isHidden,
+            new PriceCollection(
+                $this
+                    ->prices
+                    ?->toCollection()
+                    ->map(static fn (Price $price): DomainPrice => $price->toDomainEntity()),
+            ),
             new ItemSizeCollection(
                 $this
                     ->itemSizes

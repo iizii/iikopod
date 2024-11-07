@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\Menu;
+use Domain\Iiko\Entities\Menu\TaxCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -42,5 +46,26 @@ final class IikoMenuTaxCategory extends Model
     public function iikoMenu(): BelongsTo
     {
         return $this->belongsTo(IikoMenu::class, 'iiko_menu_id', 'id');
+    }
+
+    public function fromDomainEntity(TaxCategory $taxCategory): self
+    {
+        return $this->fill([
+            'iiko_menu_id' => $taxCategory->iikoMenuId->id,
+            'external_id' => $taxCategory->externalId->id,
+            'name' => $taxCategory->name,
+            'percentage' => $taxCategory->percentage,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuTaxCategory): TaxCategory
+    {
+        return new TaxCategory(
+            new IntegerId($iikoMenuTaxCategory->id),
+            new IntegerId($iikoMenuTaxCategory->iiko_menu_id),
+            new StringId($iikoMenuTaxCategory->external_id),
+            $iikoMenuTaxCategory->name,
+            $iikoMenuTaxCategory->percentage,
+        );
     }
 }

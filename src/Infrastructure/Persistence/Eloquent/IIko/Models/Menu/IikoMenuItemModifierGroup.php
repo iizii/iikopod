@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
+use Domain\Iiko\Entities\Menu\ItemModifierGroup;
+use Domain\Iiko\ValueObjects\Menu\ItemCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -74,5 +78,35 @@ final class IikoMenuItemModifierGroup extends Model
             'splittable' => 'boolean',
             'child_modifiers_have_min_max_restrictions' => 'boolean',
         ];
+    }
+
+    public function fromDomainEntity(ItemModifierGroup $itemModifierGroup): self
+    {
+        return $this->fill([
+            'iiko_menu_item_size_id' => $itemModifierGroup->itemSizeId->id,
+            'external_id' => $itemModifierGroup->externalId->id,
+            'name' => $itemModifierGroup->name,
+            'sku' => $itemModifierGroup->sku,
+            'description' => $itemModifierGroup->description,
+            'splittable' => $itemModifierGroup->splittable,
+            'is_hidden' => $itemModifierGroup->isHidden,
+            'child_modifiers_have_min_max_restrictions' => $itemModifierGroup->childModifiersHaveMinMaxRestrictions,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuItemModifierGroup): ItemModifierGroup
+    {
+        return new ItemModifierGroup(
+            new IntegerId($iikoMenuItemModifierGroup->id),
+            new IntegerId($iikoMenuItemModifierGroup->iiko_menu_item_size_id),
+            new StringId($iikoMenuItemModifierGroup->external_id),
+            $iikoMenuItemModifierGroup->name,
+            $iikoMenuItemModifierGroup->description,
+            $iikoMenuItemModifierGroup->splittable,
+            $iikoMenuItemModifierGroup->is_hidden,
+            $iikoMenuItemModifierGroup->child_modifiers_have_min_max_restrictions,
+            $iikoMenuItemModifierGroup->sku,
+            new ItemCollection(),
+        );
     }
 }

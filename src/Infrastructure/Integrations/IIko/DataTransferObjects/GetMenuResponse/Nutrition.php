@@ -18,7 +18,6 @@ final class Nutrition extends ResponseData
         public readonly float $proteins,
         public readonly float $carbs,
         public readonly float $energy,
-        public readonly array $organizations,
         public readonly ?float $saturatedFattyAcid,
         public readonly ?float $salt,
         public readonly ?float $sugar,
