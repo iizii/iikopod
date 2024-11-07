@@ -22,7 +22,7 @@ final readonly class CreateFoodRequest implements RequestInterface, ResponseData
 
     public function endpoint(): string
     {
-        return '/api/address';
+        return '/api/food';
     }
 
     /**

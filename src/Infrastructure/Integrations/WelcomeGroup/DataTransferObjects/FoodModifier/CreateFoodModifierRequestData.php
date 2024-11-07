@@ -14,6 +14,6 @@ final class CreateFoodModifierRequestData extends ResponseData
         public readonly int $weight,
         public readonly int $caloricity,
         public readonly float $price,
-        public readonly int $duration,
+        public readonly int $duration = 0,
     ) {}
 }

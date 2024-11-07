@@ -26,8 +26,8 @@ final class GetFoodModifierResponseData extends ResponseData
         public readonly int $duration,
         public readonly ModifierObject $modifierObject,
         public readonly string $status,
-        public readonly string $statusComment,
-        public readonly string $foodName,
+        public readonly ?string $statusComment,
+//        public readonly string $foodName, // Не получаем из ПОД, в доке есть
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}

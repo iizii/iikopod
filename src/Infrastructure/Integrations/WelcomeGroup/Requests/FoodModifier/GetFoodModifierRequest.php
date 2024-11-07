@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier;
 
 use Illuminate\Http\Client\Response;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\GetFoodModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\GetModifierTypeResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
@@ -32,9 +33,9 @@ final readonly class GetFoodModifierRequest implements RequestInterface, Respons
         return $this->data ?? [];
     }
 
-    public function createDtoFromResponse(Response $response): GetModifierTypeResponseData
+    public function createDtoFromResponse(Response $response): GetFoodModifierResponseData
     {
-        return GetModifierTypeResponseData::from($response->json());
+        return GetFoodModifierResponseData::from($response->json());
     }
 
     /**

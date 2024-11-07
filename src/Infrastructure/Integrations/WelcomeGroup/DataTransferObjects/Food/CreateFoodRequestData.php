@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food;
 
 use Shared\Infrastructure\Integrations\ResponseData;
+use Spatie\LaravelData\Attributes\MapOutputName;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
+#[MapOutputName(SnakeCaseMapper::class)]
 final class CreateFoodRequestData extends ResponseData
 {
     public function __construct(
@@ -17,7 +20,8 @@ final class CreateFoodRequestData extends ResponseData
         public readonly int $weight,
         public readonly int $caloricity,
         public readonly float $price,
-        //        public readonly int $duration,
+        public readonly ?string $recipe = "", // Не передаём это поле т.к. не получаем из IIKO
+        public readonly ?int $duration = 0, // Не передаём это поле т.к. не получаем из IIKO
         //        public readonly string $externalId
     ) {}
 }

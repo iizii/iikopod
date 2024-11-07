@@ -26,8 +26,8 @@ final class CreateFoodModifierResponseData extends ResponseData
         public readonly int $duration,
         public readonly ModifierObject $modifierObject,
         public readonly string $status,
-        public readonly string $statusComment,
-        public readonly string $foodName,
+        public readonly ?string $statusComment,
+//        public readonly string $foodName, Почему-то в доке описано, но не получается в ответе от ПОД
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}
