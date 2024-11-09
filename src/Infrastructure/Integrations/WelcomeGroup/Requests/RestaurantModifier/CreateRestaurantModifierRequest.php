@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantModifier;
 
-use Domain\WelcomeGroup\Entities\RestaurantModifier;
 use Illuminate\Http\Client\Response;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class CreateRestaurantModifierRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private CreateRestaurantFoodRequestData $data) {}
+    public function __construct(private CreateRestaurantModifierRequestData $data) {}
 
     public function method(): RequestMethod
     {
@@ -33,9 +33,9 @@ final readonly class CreateRestaurantModifierRequest implements RequestInterface
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): RestaurantModifier
+    public function createDtoFromResponse(Response $response): CreateRestaurantModifierResponseData
     {
-        return RestaurantModifier::from($response->json());
+        return CreateRestaurantModifierResponseData::from($response->json());
     }
 
     /**

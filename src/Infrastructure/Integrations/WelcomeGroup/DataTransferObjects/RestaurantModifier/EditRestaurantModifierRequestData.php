@@ -11,6 +11,6 @@ final class EditRestaurantModifierRequestData extends ResponseData
     public function __construct(
         public readonly int $restaurant,
         public readonly int $modifier,
-        public readonly string $status = 'active',
+        public readonly ?string $status = 'active',
     ) {}
 }
