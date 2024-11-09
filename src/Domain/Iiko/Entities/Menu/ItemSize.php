@@ -30,36 +30,4 @@ final class ItemSize extends DomainEntity
         public readonly PriceCollection $prices,
         public readonly NutritionCollection $nutritions,
     ) {}
-
-    public static function withId(self $itemSize, IntegerId $id): self
-    {
-        return new self(
-            $id,
-            $itemSize->itemId,
-            $itemSize->externalId,
-            $itemSize->sku,
-            $itemSize->isDefault,
-            $itemSize->weight,
-            $itemSize->measureUnitType,
-            $itemSize->itemModifierGroups,
-            $itemSize->prices,
-            $itemSize->nutritions,
-        );
-    }
-
-    public static function withItemId(self $itemSize, IntegerId $itemId): self
-    {
-        return new self(
-            $itemSize->id,
-            $itemId,
-            $itemSize->externalId,
-            $itemSize->sku,
-            $itemSize->isDefault,
-            $itemSize->weight,
-            $itemSize->measureUnitType,
-            $itemSize->itemModifierGroups,
-            $itemSize->prices,
-            $itemSize->nutritions,
-        );
-    }
 }

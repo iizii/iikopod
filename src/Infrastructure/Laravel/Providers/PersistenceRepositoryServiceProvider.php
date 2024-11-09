@@ -12,9 +12,7 @@ use Domain\Iiko\Repositories\IikoMenuItemNutritionRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemPriceRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemSizeRepositoryInterface;
-use Domain\Iiko\Repositories\IikoMenuProductCategoryRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
-use Domain\Iiko\Repositories\IikoMenuTaxCategoryRepositoryInterface;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Users\Models\User;
 use Domain\Users\Repositories\UserRepositoryInterface;
@@ -30,8 +28,6 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierIte
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemNutrition;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemPrice;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize;
-use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuProductCategory;
-use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuTaxCategory;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemGroupRepository;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemModifierGroupRepository;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemModifierItemPriceRepository;
@@ -40,9 +36,7 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemNut
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemPriceRepository;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemRepository;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemSizeRepository;
-use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuProductCategoryRepository;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuRepository;
-use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuTaxCategoryRepository;
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Infrastructure\Persistence\Eloquent\Settings\Repositories\OrganizationSettingRepository;
 use Infrastructure\Persistence\Eloquent\Users\Repositories\UserRepository;
@@ -110,21 +104,9 @@ final class PersistenceRepositoryServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->scoped(IikoMenuProductCategoryRepositoryInterface::class, static function (Application $application): IikoMenuProductCategoryRepository {
-            return new IikoMenuProductCategoryRepository(
-                $application->make(IikoMenuProductCategory::class),
-            );
-        });
-
         $this->app->scoped(IikoMenuRepositoryInterface::class, static function (Application $application): IikoMenuRepository {
             return new IikoMenuRepository(
                 $application->make(IikoMenu::class),
-            );
-        });
-
-        $this->app->scoped(IikoMenuTaxCategoryRepositoryInterface::class, static function (Application $application): IikoMenuTaxCategoryRepository {
-            return new IikoMenuTaxCategoryRepository(
-                $application->make(IikoMenuTaxCategory::class),
             );
         });
 

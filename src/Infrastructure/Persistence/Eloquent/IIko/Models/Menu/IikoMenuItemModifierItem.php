@@ -9,6 +9,7 @@ use Domain\Iiko\ValueObjects\Menu\ItemSizeCollection;
 use Domain\Iiko\ValueObjects\Menu\PriceCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -26,22 +27,24 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierGroup $modifierGroup
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItemPrice> $prices
+ * @property-read int|null $prices_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereIikoMenuItemModifierGroupId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereIsHidden($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereMeasureUnit($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem wherePaymentSubject($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereSku($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereIikoMenuItemModifierGroupId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereIsHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereMeasureUnit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem wherePaymentSubject($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */
@@ -62,6 +65,14 @@ final class IikoMenuItemModifierItem extends Model
     public function modifierGroup(): BelongsTo
     {
         return $this->belongsTo(IikoMenuItemModifierGroup::class, 'iiko_menu_item_modifier_group_id', 'id');
+    }
+
+    /**
+     * @return HasMany<IikoMenuItemModifierItemPrice>
+     */
+    public function prices(): HasMany
+    {
+        return $this->hasMany(IikoMenuItemModifierItemPrice::class, 'iiko_menu_item_modifier_item_id', 'id');
     }
 
     public function casts(): array

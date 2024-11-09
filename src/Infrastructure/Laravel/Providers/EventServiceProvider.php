@@ -6,6 +6,7 @@ namespace Infrastructure\Laravel\Providers;
 
 use Domain\Iiko\Events\DeliveryOrderErrorEvent;
 use Domain\Iiko\Events\DeliveryOrderUpdateEvent;
+use Domain\Iiko\Events\ItemCreatedEvent;
 use Domain\Iiko\Events\ProductCategoryCreatedEvent;
 use Domain\Iiko\Events\ProductCategoryUpdatedEvent;
 use Domain\Iiko\Events\StopListUpdateEvent;
@@ -14,6 +15,7 @@ use Infrastructure\Listeners\Iiko\DeliveryOrderErrorListener;
 use Infrastructure\Listeners\Iiko\DeliveryOrderUpdateListener;
 use Infrastructure\Listeners\Iiko\StopListUpdateListener;
 use Infrastructure\Listeners\WelcomeGroup\SendCreatedFoodCategoryListener;
+use Infrastructure\Listeners\WelcomeGroup\SendCreatedFoodListener;
 use Infrastructure\Listeners\WelcomeGroup\SendUpdatedFoodCategoryListener;
 
 final class EventServiceProvider extends LaravelEventServiceProvider
@@ -33,6 +35,9 @@ final class EventServiceProvider extends LaravelEventServiceProvider
         ],
         ProductCategoryUpdatedEvent::class => [
             SendUpdatedFoodCategoryListener::class,
+        ],
+        ItemCreatedEvent::class => [
+            SendCreatedFoodListener::class,
         ],
     ];
 }

@@ -11,8 +11,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
+use Shared\Domain\ValueObjects\IntegerId;
 
-final class UpdateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
+final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -28,11 +29,17 @@ final class UpdateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodCategoryRepositoryInterface $welcomeGroupFoodCategoryRepository,
     ): void {
-        $welcomeGroupConnector->updateFoodCategory(
+        $response = $welcomeGroupConnector->createFoodCategory(
             new CreateFoodCategoryRequestData($this->foodCategory->name),
-            $this->foodCategory->externalId,
         );
 
-        $welcomeGroupFoodCategoryRepository->update($this->foodCategory);
+        $foodCategory = new FoodCategory(
+            new IntegerId(),
+            new IntegerId($response->id),
+            $this->foodCategory->iikoProductCategoryId,
+            $this->foodCategory->name,
+        );
+
+        $welcomeGroupFoodCategoryRepository->save($foodCategory);
     }
 }

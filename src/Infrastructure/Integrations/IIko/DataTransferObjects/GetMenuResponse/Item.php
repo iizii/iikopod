@@ -28,6 +28,7 @@ final class Item extends ResponseData
         public readonly ?string $type,
         public readonly ?string $measureUnit,
         public readonly ?string $paymentSubject,
+        public readonly ?string $productCategoryId,
         public readonly bool $isHidden,
         #[DataCollectionOf(Price::class)]
         public readonly ?DataCollection $prices,

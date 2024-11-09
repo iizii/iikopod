@@ -6,7 +6,6 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier;
 
 use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\GetFoodModifierResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\GetModifierTypeResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;

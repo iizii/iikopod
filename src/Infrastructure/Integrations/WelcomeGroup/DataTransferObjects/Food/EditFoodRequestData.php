@@ -13,11 +13,8 @@ final class EditFoodRequestData extends ResponseData
         public readonly int $workshop,
         public readonly string $name,
         public readonly string $description,
-        //        public readonly string $recipe,
         public readonly int $weight,
         public readonly int $caloricity,
         public readonly float $price,
-        //        public readonly int $duration,
-        //        public readonly string $externalId
     ) {}
 }

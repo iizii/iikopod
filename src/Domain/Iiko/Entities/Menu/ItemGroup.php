@@ -23,30 +23,4 @@ final class ItemGroup extends DomainEntity
         public readonly bool $isHidden,
         public readonly ItemCollection $items,
     ) {}
-
-    public static function withId(self $itemGroup, IntegerId $id): self
-    {
-        return new self(
-            $id,
-            $itemGroup->iikoMenuId,
-            $itemGroup->externalId,
-            $itemGroup->name,
-            $itemGroup->description,
-            $itemGroup->isHidden,
-            $itemGroup->items,
-        );
-    }
-
-    public static function withMenuId(self $itemGroup, IntegerId $menuId): self
-    {
-        return new self(
-            $itemGroup->id,
-            $menuId,
-            $itemGroup->externalId,
-            $itemGroup->name,
-            $itemGroup->description,
-            $itemGroup->isHidden,
-            $itemGroup->items,
-        );
-    }
 }

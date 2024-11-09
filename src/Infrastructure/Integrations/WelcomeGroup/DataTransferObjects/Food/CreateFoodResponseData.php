@@ -22,12 +22,9 @@ final class CreateFoodResponseData extends ResponseData
         public readonly int $workshop,
         public readonly string $name,
         public readonly ?string $description,
-        //        public readonly ?string $recipe = null,
         public readonly int $weight,
         public readonly int $caloricity,
         public readonly float $price,
-        //        public readonly int $duration,
-        //        public readonly int $externalId,
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}
@@ -35,6 +32,9 @@ final class CreateFoodResponseData extends ResponseData
     public function toDomainEntity(): Food
     {
         return new Food(
+            new IntegerId(),
+            new IntegerId(),
+            new IntegerId(),
             new IntegerId($this->id),
             new IntegerId($this->foodCategory),
             new IntegerId($this->workshop),
@@ -42,9 +42,7 @@ final class CreateFoodResponseData extends ResponseData
             $this->description,
             $this->weight,
             $this->caloricity,
-            $this->price,
-            $this->created,
-            $this->updated
+            $this->price * 100,
         );
     }
 }

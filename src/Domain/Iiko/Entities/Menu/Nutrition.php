@@ -20,19 +20,4 @@ final class Nutrition extends DomainEntity
         public readonly ?float $salt,
         public readonly ?float $sugar,
     ) {}
-
-    public static function withItemId(self $nutrition, IntegerId $itemSizeId): self
-    {
-        return new self(
-            $nutrition->id,
-            $itemSizeId,
-            $nutrition->fats,
-            $nutrition->proteins,
-            $nutrition->carbs,
-            $nutrition->energy,
-            $nutrition->saturatedFattyAcid,
-            $nutrition->salt,
-            $nutrition->sugar,
-        );
-    }
 }

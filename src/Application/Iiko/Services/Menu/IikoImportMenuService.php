@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace Application\Iiko\Services\Menu;
 
+use Application\Iiko\Builders\ItemBuilder;
+use Application\Iiko\Builders\ItemGroupBuilder;
+use Application\Iiko\Builders\ItemModifierGroupBuilder;
+use Application\Iiko\Builders\ItemSizeBuilder;
+use Application\Iiko\Builders\MenuBuilder;
+use Application\Iiko\Builders\NutritionBuilder;
+use Application\Iiko\Builders\PriceBuilder;
 use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\ItemGroup;
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
@@ -11,8 +18,6 @@ use Domain\Iiko\Entities\Menu\ItemSize;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\Entities\Menu\Nutrition;
 use Domain\Iiko\Entities\Menu\Price;
-use Domain\Iiko\Entities\Menu\ProductCategory;
-use Domain\Iiko\Entities\Menu\TaxCategory;
 use Domain\Iiko\Repositories\IikoMenuItemGroupRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemModifierGroupRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemModifierItemPriceRepositoryInterface;
@@ -21,9 +26,7 @@ use Domain\Iiko\Repositories\IikoMenuItemNutritionRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemPriceRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemSizeRepositoryInterface;
-use Domain\Iiko\Repositories\IikoMenuProductCategoryRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
-use Domain\Iiko\Repositories\IikoMenuTaxCategoryRepositoryInterface;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Settings\OrganizationSetting;
@@ -42,8 +45,6 @@ final readonly class IikoImportMenuService
         private DatabaseManager $databaseManager,
         private OrganizationSettingRepositoryInterface $organizationSettingRepository,
         private IikoMenuRepositoryInterface $menuRepository,
-        private IikoMenuTaxCategoryRepositoryInterface $taxCategoryRepository,
-        private IikoMenuProductCategoryRepositoryInterface $productCategoryRepository,
         private IikoMenuItemGroupRepositoryInterface $iikoMenuItemGroupRepository,
         private IikoMenuItemRepositoryInterface $iikoMenuItemRepository,
         private IikoMenuItemSizeRepositoryInterface $iikoMenuItemSizeRepository,
@@ -80,64 +81,36 @@ final readonly class IikoImportMenuService
 
                     $this
                         ->databaseManager
-                        ->transaction(function () use ($priceCategory, $responseEntity): void {
-                            $menu = Menu::withId(
-                                $responseEntity,
-                                $this->menuRepository->createOrUpdate($responseEntity)->id,
-                            );
+                        ->transaction(function () use ($priceCategory, $organizationSetting, $responseEntity): void {
+                            $menuBuilder = MenuBuilder::fromExisted($responseEntity);
+                            $menuBuilder = $menuBuilder->setOrganizationSettingId($organizationSetting->id);
 
-                            $this->handleTaxCategories($menu);
-                            $this->handleProductCategories($menu, $priceCategory);
-                            $this->handleItemGroups($menu);
+                            $createdMenu = $this->menuRepository->createOrUpdate($menuBuilder->build());
+
+                            $menuBuilder = $menuBuilder->setId($createdMenu->id);
+
+                            $this->handleItemGroups($menuBuilder->build(), $priceCategory);
                         });
                 },
             );
         });
     }
 
-    private function handleMenu(Menu $menu): Menu
-    {
-        return $this->menuRepository->createOrUpdate($menu);
-    }
-
-    private function handleTaxCategories(Menu $menu): void
-    {
-        $menu
-            ->taxCategories
-            ->each(function (TaxCategory $taxCategory) use ($menu) {
-                $this->taxCategoryRepository->createOrUpdate(TaxCategory::withMenuId($taxCategory, $menu->id));
-            });
-    }
-
-    private function handleProductCategories(Menu $menu, PriceCategory $priceCategory): void
-    {
-        $menu
-            ->productCategories
-            ->each(function (ProductCategory $productCategory) use ($priceCategory, $menu) {
-                $this->productCategoryRepository->createOrUpdate(
-                    ProductCategory::withMenuIdAndPrefix(
-                        $productCategory,
-                        $menu->id,
-                        $priceCategory->prefix,
-                    ),
-                );
-            });
-    }
-
-    private function handleItemGroups(Menu $menu): void
+    private function handleItemGroups(Menu $menu, PriceCategory $priceCategory): void
     {
         $menu
             ->itemGroups
-            ->each(function (ItemGroup $itemGroup) use ($menu) {
-                $this->handleItemGroupItems(
-                    ItemGroup::withId(
-                        $itemGroup,
-                        $this
-                            ->iikoMenuItemGroupRepository
-                            ->createOrUpdate(ItemGroup::withMenuId($itemGroup, $menu->id))
-                            ->id,
-                    ),
-                );
+            ->each(function (ItemGroup $itemGroup) use ($priceCategory, $menu) {
+                $itemGroupBuilder = ItemGroupBuilder::fromExisted($itemGroup);
+                $itemGroupBuilder = $itemGroupBuilder
+                    ->setIikoMenuId($menu->id)
+                    ->setName(sprintf('%s %s', $priceCategory->prefix, $itemGroup->name));
+
+                $createdGroup = $this->iikoMenuItemGroupRepository->createOrUpdate($itemGroupBuilder->build());
+
+                $itemGroupBuilder = $itemGroupBuilder->setId($createdGroup->id);
+
+                $this->handleItemGroupItems($itemGroupBuilder->build());
             });
     }
 
@@ -146,15 +119,14 @@ final readonly class IikoImportMenuService
         $itemGroup
             ->items
             ->each(function (Item $item) use ($itemGroup) {
-                $this->handleItemGroupItemSizes(
-                    Item::withId(
-                        $item,
-                        $this
-                            ->iikoMenuItemRepository
-                            ->createOrUpdate(Item::withItemGroupId($item, $itemGroup->id))
-                            ->id,
-                    ),
-                );
+                $itemBuilder = ItemBuilder::fromExisted($item);
+                $itemBuilder = $itemBuilder->setItemGroupId($itemGroup->id);
+
+                $createdItem = $this->iikoMenuItemRepository->createOrUpdate($itemBuilder->build());
+
+                $itemBuilder = $itemBuilder->setId($createdItem->id);
+
+                $this->handleItemGroupItemSizes($itemBuilder->build());
             });
     }
 
@@ -163,13 +135,14 @@ final readonly class IikoImportMenuService
         $item
             ->itemSizes
             ->each(function (ItemSize $itemSize) use ($item) {
-                $itemSize = ItemSize::withId(
-                    $itemSize,
-                    $this
-                        ->iikoMenuItemSizeRepository
-                        ->createOrUpdate(ItemSize::withItemId($itemSize, $item->id))
-                        ->id,
-                );
+                $itemSizeBuilder = ItemSizeBuilder::fromExisted($itemSize);
+                $itemSizeBuilder->setItemId($item->id);
+
+                $createdItemSize = $this->iikoMenuItemSizeRepository->createOrUpdate($itemSizeBuilder->build());
+
+                $itemSize = $itemSizeBuilder
+                    ->setId($createdItemSize->id)
+                    ->build();
 
                 $this->handleItemSizePrices($itemSize);
                 $this->handleItemSizeNutritions($itemSize);
@@ -182,7 +155,10 @@ final readonly class IikoImportMenuService
         $itemSize
             ->prices
             ->each(function (Price $price) use ($itemSize) {
-                $this->iikoMenuItemPriceRepository->createOrUpdate(Price::withItemId($price, $itemSize->id));
+                $priceBuilder = PriceBuilder::fromExisted($price);
+                $priceBuilder = $priceBuilder->setItemId($itemSize->id);
+
+                $this->iikoMenuItemPriceRepository->createOrUpdate($priceBuilder->build());
             });
     }
 
@@ -191,9 +167,10 @@ final readonly class IikoImportMenuService
         $itemSize
             ->nutritions
             ->each(function (Nutrition $nutrition) use ($itemSize) {
-                $this->iikoMenuItemNutritionRepository->createOrUpdate(
-                    Nutrition::withItemId($nutrition, $itemSize->id),
-                );
+                $nutritionBuilder = NutritionBuilder::fromExisted($nutrition);
+                $nutritionBuilder = $nutritionBuilder->setItemSizeId($itemSize->id);
+
+                $this->iikoMenuItemNutritionRepository->createOrUpdate($nutritionBuilder->build());
             });
     }
 
@@ -202,15 +179,14 @@ final readonly class IikoImportMenuService
         $itemSize
             ->itemModifierGroups
             ->each(function (ItemModifierGroup $itemModifierGroup) use ($itemSize) {
-                $this->handleModifierItems(
-                    ItemModifierGroup::withId(
-                        $itemModifierGroup,
-                        $this
-                            ->iikoMenuItemModifierGroupRepository
-                            ->createOrUpdate(ItemModifierGroup::withItemSizeId($itemModifierGroup, $itemSize->id))
-                            ->id,
-                    ),
-                );
+                $itemModifierBuilder = ItemModifierGroupBuilder::fromExisted($itemModifierGroup);
+                $itemModifierBuilder = $itemModifierBuilder->setItemSizeId($itemSize->id);
+
+                $createdModifierGroup = $this->iikoMenuItemModifierGroupRepository->createOrUpdate($itemModifierBuilder->build());
+
+                $itemModifierBuilder = $itemModifierBuilder->setId($createdModifierGroup->id);
+
+                $this->handleModifierItems($itemModifierBuilder->build());
             });
     }
 
@@ -219,26 +195,26 @@ final readonly class IikoImportMenuService
         $modifierGroup
             ->items
             ->each(function (Item $item) use ($modifierGroup) {
-                $this->handleModifierItemPrices(
-                    Item::withId(
-                        $item,
-                        $this
-                            ->iikoMenuItemModifierItemRepository
-                            ->createOrUpdate(Item::withItemGroupId($item, $modifierGroup->id))
-                            ->id,
-                    ),
-                );
+                $itemBuilder = ItemBuilder::fromExisted($item);
+                $itemBuilder = $itemBuilder->setItemGroupId($modifierGroup->id);
+
+                $createdItem = $this->iikoMenuItemModifierItemRepository->createOrUpdate($itemBuilder->build());
+
+                $itemBuilder = $itemBuilder->setId($createdItem->id);
+
+                $this->handleModifierItemPrices($itemBuilder->build());
             });
     }
 
-    private function handleModifierItemPrices(Item $itemSize): void
+    private function handleModifierItemPrices(Item $item): void
     {
-        $itemSize
+        $item
             ->prices
-            ->each(function (Price $price) use ($itemSize) {
-                $this->iikoMenuItemModifierItemPriceRepository->createOrUpdate(
-                    Price::withItemId($price, $itemSize->id),
-                );
+            ->each(function (Price $price) use ($item) {
+                $priceBuilder = PriceBuilder::fromExisted($price);
+                $priceBuilder = $priceBuilder->setItemId($item->id);
+
+                $this->iikoMenuItemModifierItemPriceRepository->createOrUpdate($priceBuilder->build());
             });
     }
 }

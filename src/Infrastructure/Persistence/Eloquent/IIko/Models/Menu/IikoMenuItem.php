@@ -8,9 +8,11 @@ use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\ValueObjects\Menu\ItemSizeCollection;
 use Domain\Iiko\ValueObjects\Menu\PriceCollection;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Infrastructure\Observers\Iiko\ItemObserver;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -31,24 +33,25 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize> $itemSizes
  * @property-read int|null $item_sizes_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereIikoMenuItemGroupId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereIsHidden($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereMeasureUnit($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem wherePaymentSubject($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereSku($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereIikoMenuItemGroupId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereIsHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereMeasureUnit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem wherePaymentSubject($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */
+#[ObservedBy([ItemObserver::class])]
 final class IikoMenuItem extends Model
 {
     protected $fillable = [

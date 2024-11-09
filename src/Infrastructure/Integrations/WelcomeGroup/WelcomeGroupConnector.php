@@ -12,11 +12,17 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Log\Context\Repository as LogContext;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryResponseData;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEvent;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Food\CreateFoodRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Food\EditFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\UpdateFoodCategoryRequest;
 use Psr\Log\LoggerInterface;
@@ -56,6 +62,30 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var CreateFoodCategoryResponseData $response */
         $response = $this->send(new UpdateFoodCategoryRequest($createFoodCategoryRequestData, $id));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createFood(CreateFoodRequestData $createFoodRequestData): CreateFoodResponseData
+    {
+        /** @var CreateFoodResponseData $response */
+        $response = $this->send(new CreateFoodRequest($createFoodRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateFood(EditFoodRequestData $editFoodRequestData, IntegerId $Id): EditFoodResponseData
+    {
+        /** @var EditFoodResponseData $response */
+        $response = $this->send(new EditFoodRequest($editFoodRequestData, $Id));
 
         return $response;
     }

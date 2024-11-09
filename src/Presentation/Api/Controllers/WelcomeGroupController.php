@@ -48,7 +48,10 @@ use Spatie\RouteAttributes\Attributes\Route;
 
 final readonly class WelcomeGroupController
 {
-    public function __construct(private ResponseFactory $responseFactory, private WelcomeGroupConnectorInterface $connector) {}
+    public function __construct(
+        private ResponseFactory $responseFactory,
+        private WelcomeGroupConnectorInterface $connector,
+    ) {}
 
     /**
      * @throws ConnectionException
@@ -141,7 +144,7 @@ final readonly class WelcomeGroupController
                 $request->input('street'),
                 $request->input('house'),
 
-            )
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -173,7 +176,7 @@ final readonly class WelcomeGroupController
             new EditRestaurantFoodRequestData(
                 (int) $request->input('restaurant_id'),
                 (int) $request->input('food_id'),
-            )
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -190,7 +193,7 @@ final readonly class WelcomeGroupController
         $req = new CreateFoodCategoryRequest(
             new CreateFoodCategoryRequestData(
                 $request->input('name'),
-            )
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -208,7 +211,7 @@ final readonly class WelcomeGroupController
             (int) $request->input('id'),
             new EditFoodCategoryRequestData(
                 $request->input('name'),
-            )
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -253,7 +256,6 @@ final readonly class WelcomeGroupController
     public function editFood(Request $request): JsonResponse
     {
         $req = new EditFoodRequest(
-            (int) $request->input('id'),
             new EditFoodRequestData(
                 $request->input('food_category_id'),
                 $request->input('workshop'),
@@ -262,7 +264,8 @@ final readonly class WelcomeGroupController
                 $request->input('weight'),
                 $request->input('caloricity'),
                 $request->input('price'),
-            )
+            ),
+            new IntegerId($request->integer('id')),
         );
         $response = $this->connector->send($req);
 
@@ -285,7 +288,7 @@ final readonly class WelcomeGroupController
                 $request->input('weight'),
                 $request->input('caloricity'),
                 $request->input('price'),
-            )
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -306,8 +309,8 @@ final readonly class WelcomeGroupController
                 $request->input('weight'),
                 $request->input('caloricity'),
                 $request->input('price'),
-                0
-            )
+                0,
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -329,8 +332,8 @@ final readonly class WelcomeGroupController
                 $request->input('weight'),
                 $request->input('caloricity'),
                 $request->input('price'),
-                0
-            )
+                0,
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -345,7 +348,7 @@ final readonly class WelcomeGroupController
     public function getFoodModifier(Request $request): JsonResponse
     {
         $req = new GetFoodModifierRequest(
-            (int)$request->input('id'),
+            (int) $request->input('id'),
         );
         $response = $this->connector->send($req);
 
@@ -360,7 +363,7 @@ final readonly class WelcomeGroupController
     public function getModifier(Request $request): JsonResponse
     {
         $req = new GetModifierRequest(
-            (int)$request->input('id'),
+            (int) $request->input('id'),
         );
         $response = $this->connector->send($req);
 
@@ -380,7 +383,7 @@ final readonly class WelcomeGroupController
                 $request->input('modifier_type_id'),
                 $request->input('default_option'),
 
-            )
+            ),
         );
         $response = $this->connector->send($req);
 
@@ -401,7 +404,7 @@ final readonly class WelcomeGroupController
                 $request->input('modifier_type_id'),
                 $request->input('default_option'),
 
-            )
+            ),
         );
         $response = $this->connector->send($req);
 

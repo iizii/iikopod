@@ -32,18 +32,18 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemPrice> $prices
  * @property-read int|null $prices_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereIikoMenuItemId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereIsDefault($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereMeasureUnitType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereSku($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemSize whereWeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereIikoMenuItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereIsDefault($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereMeasureUnitType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereWeight($value)
  *
  * @mixin \Eloquent
  */

@@ -27,7 +27,7 @@ final class EditFoodModifierResponseData extends ResponseData
         public readonly ModifierObject $modifierObject,
         public readonly string $status,
         public readonly ?string $statusComment,
-//        public readonly string $foodName, // Не получаем в ответе от ПОД, но в доке есть
+        //        public readonly string $foodName, // Не получаем в ответе от ПОД, но в доке есть
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}

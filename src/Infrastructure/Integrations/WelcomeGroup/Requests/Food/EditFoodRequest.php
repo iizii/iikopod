@@ -7,13 +7,14 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests\Food;
 use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodResponseData;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class EditFoodRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private int $id, private EditFoodRequestData $data) {}
+    public function __construct(private EditFoodRequestData $data, private IntegerId $id) {}
 
     public function method(): RequestMethod
     {
@@ -22,7 +23,7 @@ final readonly class EditFoodRequest implements RequestInterface, ResponseDataIn
 
     public function endpoint(): string
     {
-        return '/api/food/'.$this->id;
+        return sprintf('/api/food/%s', $this->id->id);
     }
 
     /**

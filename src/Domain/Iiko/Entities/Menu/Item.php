@@ -30,40 +30,4 @@ final class Item extends DomainEntity
         public readonly PriceCollection $prices,
         public readonly ItemSizeCollection $itemSizes,
     ) {}
-
-    public static function withId(self $item, IntegerId $id): self
-    {
-        return new self(
-            $id,
-            $item->itemGroupId,
-            $item->externalId,
-            $item->sku,
-            $item->name,
-            $item->description,
-            $item->type,
-            $item->measureUnit,
-            $item->paymentSubject,
-            $item->isHidden,
-            $item->prices,
-            $item->itemSizes,
-        );
-    }
-
-    public static function withItemGroupId(self $item, IntegerId $itemGroupId): self
-    {
-        return new self(
-            $item->id,
-            $itemGroupId,
-            $item->externalId,
-            $item->sku,
-            $item->name,
-            $item->description,
-            $item->type,
-            $item->measureUnit,
-            $item->paymentSubject,
-            $item->isHidden,
-            $item->prices,
-            $item->itemSizes,
-        );
-    }
 }
