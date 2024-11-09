@@ -27,6 +27,7 @@ final class Item extends DomainEntity
         public readonly ?string $measureUnit,
         public readonly ?string $paymentSubject,
         public readonly bool $isHidden,
+        public readonly ?int $weight,
         public readonly PriceCollection $prices,
         public readonly ItemSizeCollection $itemSizes,
     ) {}

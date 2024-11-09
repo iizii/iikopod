@@ -58,7 +58,7 @@ final class ItemGroupBuilder
 
         $this->externalId = $externalId;
 
-        return $this;
+        return $clone;
     }
 
     public function setName(string $name): ItemGroupBuilder

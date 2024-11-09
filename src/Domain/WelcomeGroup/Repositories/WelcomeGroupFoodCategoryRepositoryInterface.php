@@ -13,5 +13,5 @@ interface WelcomeGroupFoodCategoryRepositoryInterface
 
     public function update(FoodCategory $foodCategory): FoodCategory;
 
-    public function findByIikoProductCategoryId(IntegerId $id): ?FoodCategory;
+    public function findByIikoMenuItemGroupId(IntegerId $id): ?FoodCategory;
 }

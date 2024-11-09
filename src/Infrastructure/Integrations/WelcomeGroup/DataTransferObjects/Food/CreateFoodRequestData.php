@@ -19,5 +19,7 @@ final class CreateFoodRequestData extends ResponseData
         public readonly int $weight,
         public readonly int $caloricity,
         public readonly float $price,
+        public readonly string $recipe = '',
+        public readonly int $duration = 0,
     ) {}
 }

@@ -6,10 +6,11 @@ namespace Infrastructure\Observers\Iiko;
 
 use Domain\Iiko\Events\ItemCreatedEvent;
 use Domain\Iiko\Events\ItemUpdatedEvent;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Events\Dispatcher;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 
-final readonly class ItemObserver
+final readonly class ItemObserver implements ShouldHandleEventsAfterCommit
 {
     public function __construct(private Dispatcher $dispatcher) {}
 
@@ -18,9 +19,9 @@ final readonly class ItemObserver
      */
     public function created(IikoMenuItem $iikoMenuItem): void
     {
-        /* $this
-             ->dispatcher
-             ->dispatch(new ItemCreatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem)));*/
+        $this
+            ->dispatcher
+            ->dispatch(new ItemCreatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem)));
     }
 
     /**

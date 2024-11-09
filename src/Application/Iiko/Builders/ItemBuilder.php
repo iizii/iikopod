@@ -23,6 +23,7 @@ final class ItemBuilder
         private ?string $measureUnit,
         private ?string $paymentSubject,
         private bool $isHidden,
+        private ?int $weight,
         private PriceCollection $prices,
         private ItemSizeCollection $itemSizes,
     ) {}
@@ -40,6 +41,7 @@ final class ItemBuilder
             $item->measureUnit,
             $item->paymentSubject,
             $item->isHidden,
+            $item->weight,
             $item->prices,
             $item->itemSizes,
         );
@@ -90,7 +92,7 @@ final class ItemBuilder
         $clone = clone $this;
         $this->description = $description;
 
-        return $this;
+        return $clone;
     }
 
     public function setType(?string $type): ItemBuilder
@@ -130,7 +132,7 @@ final class ItemBuilder
         $clone = clone $this;
         $clone->prices = $prices;
 
-        return $this;
+        return $clone;
     }
 
     public function setItemSizes(ItemSizeCollection $itemSizes): ItemBuilder
@@ -138,7 +140,15 @@ final class ItemBuilder
         $clone = clone $this;
         $clone->itemSizes = $itemSizes;
 
-        return $this;
+        return $clone;
+    }
+
+    public function setWeight(?int $weight): ItemBuilder
+    {
+        $clone = clone $this;
+        $clone->weight = $weight;
+
+        return $clone;
     }
 
     public function build(): Item
@@ -154,6 +164,7 @@ final class ItemBuilder
             $this->measureUnit,
             $this->paymentSubject,
             $this->isHidden,
+            $this->weight,
             $this->prices,
             $this->itemSizes,
         );

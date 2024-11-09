@@ -21,6 +21,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property string $name
  * @property string|null $description
  * @property string|null $type
+ * @property int $weight
  * @property string|null $measure_unit
  * @property string|null $payment_subject
  * @property bool $is_hidden
@@ -45,6 +46,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereSku($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereWeight($value)
  *
  * @mixin \Eloquent
  */
@@ -57,6 +59,7 @@ final class IikoMenuItemModifierItem extends Model
         'name',
         'description',
         'type',
+        'weight',
         'measure_unit',
         'payment_subject',
         'is_hidden',
@@ -94,6 +97,7 @@ final class IikoMenuItemModifierItem extends Model
             'measure_unit' => $item->measureUnit,
             'payment_subject' => $item->paymentSubject,
             'is_hidden' => $item->isHidden,
+            'weight' => $item->weight,
         ]);
     }
 
@@ -110,6 +114,7 @@ final class IikoMenuItemModifierItem extends Model
             $iikoMenuItemModifierItem->measure_unit,
             $iikoMenuItemModifierItem->payment_subject,
             $iikoMenuItemModifierItem->is_hidden,
+            $iikoMenuItemModifierItem->weight,
             new PriceCollection(),
             new ItemSizeCollection(),
         );

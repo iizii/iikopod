@@ -15,6 +15,7 @@ final class ItemModifierGroupBuilder
         private IntegerId $id,
         private IntegerId $itemSizeId,
         private StringId $externalId,
+        private int $maxQuantity,
         private string $name,
         private ?string $description,
         private bool $splittable,
@@ -30,6 +31,7 @@ final class ItemModifierGroupBuilder
             $itemModifierGroup->id,
             $itemModifierGroup->itemSizeId,
             $itemModifierGroup->externalId,
+            $itemModifierGroup->maxQuantity,
             $itemModifierGroup->name,
             $itemModifierGroup->description,
             $itemModifierGroup->splittable,
@@ -120,12 +122,21 @@ final class ItemModifierGroupBuilder
         return $clone;
     }
 
+    public function setMaxQuantity(int $maxQuantity): ItemModifierGroupBuilder
+    {
+        $clone = clone $this;
+        $this->maxQuantity = $maxQuantity;
+
+        return $clone;
+    }
+
     public function build(): ItemModifierGroup
     {
         return new ItemModifierGroup(
             $this->id,
             $this->itemSizeId,
             $this->externalId,
+            $this->maxQuantity,
             $this->name,
             $this->description,
             $this->splittable,

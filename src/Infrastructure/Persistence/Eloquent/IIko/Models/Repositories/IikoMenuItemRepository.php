@@ -16,6 +16,17 @@ use Shared\Persistence\Repositories\AbstractPersistenceRepository;
  */
 final class IikoMenuItemRepository extends AbstractPersistenceRepository implements IikoMenuItemRepositoryInterface
 {
+    public function findById(IntegerId $id): ?Item
+    {
+        $result = $this->query()->find($id->id);
+
+        if (! $result) {
+            return null;
+        }
+
+        return IikoMenuItem::toDomainEntity($result);
+    }
+
     public function findByMenuIdAndExternalId(IntegerId $iikoMenuItemGroupId, StringId $externalId): ?Item
     {
         $result = $this->findEloquentByMenuIdAndExternalId($iikoMenuItemGroupId, $externalId);

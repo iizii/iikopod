@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Jobs\WelcomeGroup;
 
+use Application\WelcomeGroup\Builders\FoodCategoryBuilder;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\WelcomeGroup\Entities\FoodCategory;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepositoryInterface;
@@ -11,7 +12,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
-use Shared\Domain\ValueObjects\IntegerId;
 
 final class CreateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
 {
@@ -33,13 +33,9 @@ final class CreateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
             new CreateFoodCategoryRequestData($this->foodCategory->name),
         );
 
-        $foodCategory = new FoodCategory(
-            new IntegerId(),
-            new IntegerId($response->id),
-            $this->foodCategory->iikoProductCategoryId,
-            $this->foodCategory->name,
-        );
+        $foodCategoryBuilder = FoodCategoryBuilder::fromExisted($response->toDomainEntity());
+        $foodCategoryBuilder = $foodCategoryBuilder->setIikoItemGroupId($this->foodCategory->iikoItemGroupId);
 
-        $welcomeGroupFoodCategoryRepository->save($foodCategory);
+        $welcomeGroupFoodCategoryRepository->save($foodCategoryBuilder->build());
     }
 }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Repositories;
 
+use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenu;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
@@ -15,6 +17,27 @@ use Shared\Persistence\Repositories\AbstractPersistenceRepository;
  */
 final class IikoMenuRepository extends AbstractPersistenceRepository implements IikoMenuRepositoryInterface
 {
+    public function findForItem(Item $item): ?Menu
+    {
+        $result = $this
+            ->query()
+            ->whereHas(
+                'itemGroups',
+                static function (Builder $builder) use ($item): Builder {
+                    return $builder->whereHas('items', static function (Builder $builder) use ($item): Builder {
+                        return $builder->where('id', $item->id->id);
+                    });
+                },
+            )
+            ->first();
+
+        if (! $result) {
+            return null;
+        }
+
+        return IikoMenu::toDomainEntity($result);
+    }
+
     public function findByExternalId(StringId $externalId): ?Menu
     {
         $result = $this->findEloquentByExternalId($externalId);

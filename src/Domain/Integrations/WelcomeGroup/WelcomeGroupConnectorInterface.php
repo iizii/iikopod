@@ -13,6 +13,12 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRe
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeResponseData;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
@@ -39,4 +45,10 @@ interface WelcomeGroupConnectorInterface
     public function createFood(CreateFoodRequestData $createFoodRequestData): CreateFoodResponseData;
 
     public function updateFood(EditFoodRequestData $editFoodRequestData, IntegerId $Id): EditFoodResponseData;
+
+    public function createModifierType(CreateModifierTypeRequestData $createModifierTypeRequestData): CreateModifierTypeResponseData;
+
+    public function createModifier(CreateModifierRequestData $createModifierRequestData): CreateModifierResponseData;
+
+    public function createFoodModifier(CreateFoodModifierRequestData $createFoodModifierRequestData): CreateFoodModifierResponseData;
 }

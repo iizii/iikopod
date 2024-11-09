@@ -30,6 +30,7 @@ final class Item extends ResponseData
         public readonly ?string $paymentSubject,
         public readonly ?string $productCategoryId,
         public readonly bool $isHidden,
+        public readonly ?int $weight,
         #[DataCollectionOf(Price::class)]
         public readonly ?DataCollection $prices,
         #[DataCollectionOf(ItemSize::class)]
@@ -49,6 +50,7 @@ final class Item extends ResponseData
             $this->measureUnit,
             $this->paymentSubject,
             $this->isHidden,
+            $this->weight,
             new PriceCollection(
                 $this
                     ->prices

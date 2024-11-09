@@ -18,6 +18,12 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRe
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeResponseData;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEvent;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
@@ -25,6 +31,9 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Food\CreateFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Food\EditFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\UpdateFoodCategoryRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\CreateFoodModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
 use Psr\Log\LoggerInterface;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
@@ -86,6 +95,42 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var EditFoodResponseData $response */
         $response = $this->send(new EditFoodRequest($editFoodRequestData, $Id));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createModifierType(CreateModifierTypeRequestData $createModifierTypeRequestData): CreateModifierTypeResponseData
+    {
+        /** @var CreateModifierTypeResponseData $response */
+        $response = $this->send(new CreateModifierTypeRequest($createModifierTypeRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createModifier(CreateModifierRequestData $createModifierRequestData): CreateModifierResponseData
+    {
+        /** @var CreateModifierResponseData $respone */
+        $respone = $this->send(new CreateModifierRequest($createModifierRequestData));
+
+        return $respone;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createFoodModifier(CreateFoodModifierRequestData $createFoodModifierRequestData): CreateFoodModifierResponseData
+    {
+        /** @var CreateFoodModifierResponseData $response */
+        $response = $this->send(new CreateFoodModifierRequest($createFoodModifierRequestData));
 
         return $response;
     }

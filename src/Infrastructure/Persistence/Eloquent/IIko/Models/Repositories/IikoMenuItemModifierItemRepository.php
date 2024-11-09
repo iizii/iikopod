@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Repositories;
 
 use Domain\Iiko\Entities\Menu\Item;
+use Domain\Iiko\Entities\Menu\ItemSize;
 use Domain\Iiko\Repositories\IikoMenuItemModifierItemRepositoryInterface;
+use Domain\Iiko\ValueObjects\Menu\ItemCollection;
+use Illuminate\Database\Eloquent\Builder;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
@@ -16,6 +19,26 @@ use Shared\Persistence\Repositories\AbstractPersistenceRepository;
  */
 final class IikoMenuItemModifierItemRepository extends AbstractPersistenceRepository implements IikoMenuItemModifierItemRepositoryInterface
 {
+    public function findFor(ItemSize $itemSize): ItemCollection
+    {
+        $result = $this
+            ->query()
+            ->whereHas('modifierGroup', static function (Builder $builder) use ($itemSize) {
+                return $builder->whereHas('itemSize', static function (Builder $builder) use ($itemSize) {
+                    return $builder->where('id', $itemSize->id->id);
+                });
+            })
+            ->get();
+
+        return new ItemCollection(
+            $result->map(
+                static fn (IikoMenuItemModifierItem $modifierItem): Item => IikoMenuItemModifierItem::toDomainEntity(
+                    $modifierItem,
+                ),
+            ),
+        );
+    }
+
     public function findByMenuIdAndExternalId(IntegerId $iikoMenuItemModifierGroupId, StringId $externalId): ?Item
     {
         $result = $this->findEloquentByMenuIdAndExternalId($iikoMenuItemModifierGroupId, $externalId);
@@ -31,7 +54,7 @@ final class IikoMenuItemModifierItemRepository extends AbstractPersistenceReposi
     {
         $iikoMenuItemModifierItem = $this->findEloquentByMenuIdAndExternalId(
             $item->itemGroupId,
-            $item->externalId
+            $item->externalId,
         ) ?? new IikoMenuItemModifierItem();
 
         $iikoMenuItemModifierItem->fromDomainEntity($item);

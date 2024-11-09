@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Repositories;
 
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
+use Domain\Iiko\Entities\Menu\ItemSize;
 use Domain\Iiko\Repositories\IikoMenuItemModifierGroupRepositoryInterface;
+use Domain\Iiko\ValueObjects\Menu\ItemModifierGroupCollection;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierGroup;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
@@ -16,6 +18,23 @@ use Shared\Persistence\Repositories\AbstractPersistenceRepository;
  */
 final class IikoMenuItemModifierGroupRepository extends AbstractPersistenceRepository implements IikoMenuItemModifierGroupRepositoryInterface
 {
+    public function findFor(ItemSize $itemSize): ItemModifierGroupCollection
+    {
+        $result = $this
+            ->query()
+            ->where('iiko_menu_item_size_id', $itemSize->id->id)
+            ->get();
+
+        return new ItemModifierGroupCollection(
+            $result->map(
+                static fn (IikoMenuItemModifierGroup $iikoMenuItemModifierGroup,
+                ): ItemModifierGroup => IikoMenuItemModifierGroup::toDomainEntity(
+                    $iikoMenuItemModifierGroup,
+                ),
+            ),
+        );
+    }
+
     public function findByMenuIdAndExternalId(IntegerId $iikoMenuItemSizeId, StringId $externalId): ?ItemModifierGroup
     {
         $result = $this->findEloquentByMenuIdAndExternalId($iikoMenuItemSizeId, $externalId);
@@ -31,7 +50,7 @@ final class IikoMenuItemModifierGroupRepository extends AbstractPersistenceRepos
     {
         $iikoMenuItemModifierGroup = $this->findEloquentByMenuIdAndExternalId(
             $itemModifierGroup->itemSizeId,
-            $itemModifierGroup->externalId
+            $itemModifierGroup->externalId,
         ) ?? new IikoMenuItemModifierGroup();
 
         $iikoMenuItemModifierGroup->fromDomainEntity($itemModifierGroup);
@@ -40,8 +59,10 @@ final class IikoMenuItemModifierGroupRepository extends AbstractPersistenceRepos
         return IikoMenuItemModifierGroup::toDomainEntity($iikoMenuItemModifierGroup);
     }
 
-    private function findEloquentByMenuIdAndExternalId(IntegerId $iikoMenuItemSizeId, StringId $externalId): ?IikoMenuItemModifierGroup
-    {
+    private function findEloquentByMenuIdAndExternalId(
+        IntegerId $iikoMenuItemSizeId,
+        StringId $externalId,
+    ): ?IikoMenuItemModifierGroup {
         return $this
             ->query()
             ->where('iiko_menu_item_size_id', $iikoMenuItemSizeId->id)

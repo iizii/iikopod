@@ -6,9 +6,11 @@ namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 
 use Domain\Iiko\Entities\Menu\ItemGroup;
 use Domain\Iiko\ValueObjects\Menu\ItemCollection;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Infrastructure\Observers\Iiko\ItemGroupObserver;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -39,6 +41,7 @@ use Shared\Domain\ValueObjects\StringId;
  *
  * @mixin \Eloquent
  */
+#[ObservedBy([ItemGroupObserver::class])]
 final class IikoMenuItemGroup extends Model
 {
     protected $fillable = [

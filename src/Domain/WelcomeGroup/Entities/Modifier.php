@@ -11,10 +11,10 @@ final class Modifier extends DomainEntity
 {
     public function __construct(
         public readonly IntegerId $id,
-        public readonly IntegerId $modifierType,
+        public readonly IntegerId $internalModifierTypeId,
+        public readonly IntegerId $externalId,
+        public readonly IntegerId $externalModifierTypeId,
         public readonly string $name,
-        public readonly bool $defaultOption,
-        public readonly \DateTimeInterface $createdAt,
-        public readonly \DateTimeInterface $updatedAt
+        public readonly bool $isDefault,
     ) {}
 }

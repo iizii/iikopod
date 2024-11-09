@@ -17,6 +17,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property int $id
  * @property int $iiko_menu_item_size_id
  * @property string $external_id
+ * @property int $max_quantity
  * @property string $name
  * @property string $sku
  * @property string|null $description
@@ -39,6 +40,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereIikoMenuItemSizeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereIsHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereMaxQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereSku($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereSplittable($value)
@@ -51,6 +53,7 @@ final class IikoMenuItemModifierGroup extends Model
     protected $fillable = [
         'iiko_menu_item_size_id',
         'external_id',
+        'max_quantity',
         'name',
         'sku',
         'description',
@@ -78,6 +81,7 @@ final class IikoMenuItemModifierGroup extends Model
             'is_hidden' => 'boolean',
             'splittable' => 'boolean',
             'child_modifiers_have_min_max_restrictions' => 'boolean',
+            'max_quantity' => 'integer',
         ];
     }
 
@@ -86,6 +90,7 @@ final class IikoMenuItemModifierGroup extends Model
         return $this->fill([
             'iiko_menu_item_size_id' => $itemModifierGroup->itemSizeId->id,
             'external_id' => $itemModifierGroup->externalId->id,
+            'max_quantity' => $itemModifierGroup->maxQuantity,
             'name' => $itemModifierGroup->name,
             'sku' => $itemModifierGroup->sku,
             'description' => $itemModifierGroup->description,
@@ -101,6 +106,7 @@ final class IikoMenuItemModifierGroup extends Model
             new IntegerId($iikoMenuItemModifierGroup->id),
             new IntegerId($iikoMenuItemModifierGroup->iiko_menu_item_size_id),
             new StringId($iikoMenuItemModifierGroup->external_id),
+            $iikoMenuItemModifierGroup->max_quantity,
             $iikoMenuItemModifierGroup->name,
             $iikoMenuItemModifierGroup->description,
             $iikoMenuItemModifierGroup->splittable,

@@ -114,6 +114,7 @@ final class IikoMenuItem extends Model
             $iikoMenuItem->measure_unit,
             $iikoMenuItem->payment_subject,
             $iikoMenuItem->is_hidden,
+            null,
             new PriceCollection(),
             new ItemSizeCollection(),
         );

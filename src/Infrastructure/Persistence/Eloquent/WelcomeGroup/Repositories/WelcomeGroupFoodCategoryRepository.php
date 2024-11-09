@@ -40,11 +40,11 @@ final class WelcomeGroupFoodCategoryRepository extends AbstractPersistenceReposi
         return WelcomeGroupFoodCategory::toDomainEntity($welcomeGroupFoodCategory);
     }
 
-    public function findByIikoProductCategoryId(IntegerId $id): ?FoodCategory
+    public function findByIikoMenuItemGroupId(IntegerId $id): ?FoodCategory
     {
         $welcomeGroupFoodCategory = $this
             ->query()
-            ->where('iiko_menu_product_category_id', $id->id)
+            ->where('iiko_menu_item_group_id', $id->id)
             ->first();
 
         if (! $welcomeGroupFoodCategory) {

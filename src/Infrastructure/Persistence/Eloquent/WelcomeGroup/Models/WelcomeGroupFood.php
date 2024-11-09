@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\WelcomeGroup\Models;
 
+use Domain\WelcomeGroup\Entities\Food;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Shared\Domain\ValueObjects\IntegerId;
 
 /**
  * @property int $id
@@ -20,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodCategory $foodCategory
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood newQuery()
@@ -42,5 +46,54 @@ use Illuminate\Database\Eloquent\Model;
  */
 final class WelcomeGroupFood extends Model
 {
-    //
+    protected $fillable = [
+        'iiko_menu_item_id',
+        'welcome_group_food_category_id',
+        'external_id',
+        'external_food_category_id',
+        'workshop_id',
+        'name',
+        'description',
+        'weight',
+        'caloricity',
+        'price',
+    ];
+
+    public function foodCategory(): BelongsTo
+    {
+        return $this->belongsTo(WelcomeGroupFoodCategory::class, 'welcome_group_food_category_id', 'id');
+    }
+
+    public function fromDomainEntity(Food $foodCategory): self
+    {
+        return $this->fill([
+            'iiko_menu_item_id' => $foodCategory->iikoItemId->id,
+            'welcome_group_food_category_id' => $foodCategory->internalFoodCategoryId->id,
+            'external_id' => $foodCategory->externalId->id,
+            'external_food_category_id' => $foodCategory->externalFoodCategoryId->id,
+            'workshop_id' => $foodCategory->workshopId->id,
+            'name' => $foodCategory->name,
+            'description' => $foodCategory->description,
+            'weight' => $foodCategory->weight,
+            'caloricity' => $foodCategory->caloricity,
+            'price' => $foodCategory->price,
+        ]);
+    }
+
+    public static function toDomainEntity(self $iikoMenuItemModifierGroup): Food
+    {
+        return new Food(
+            new IntegerId($iikoMenuItemModifierGroup->id),
+            new IntegerId($iikoMenuItemModifierGroup->iiko_menu_item_id),
+            new IntegerId($iikoMenuItemModifierGroup->welcome_group_food_category_id),
+            new IntegerId($iikoMenuItemModifierGroup->external_id),
+            new IntegerId($iikoMenuItemModifierGroup->external_food_category_id),
+            new IntegerId($iikoMenuItemModifierGroup->workshop_id),
+            $iikoMenuItemModifierGroup->name,
+            $iikoMenuItemModifierGroup->description,
+            $iikoMenuItemModifierGroup->weight,
+            $iikoMenuItemModifierGroup->caloricity,
+            $iikoMenuItemModifierGroup->price,
+        );
+    }
 }

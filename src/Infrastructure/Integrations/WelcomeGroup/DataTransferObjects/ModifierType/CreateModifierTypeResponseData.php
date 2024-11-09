@@ -6,6 +6,7 @@ namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierT
 
 use Carbon\CarbonImmutable;
 use Domain\WelcomeGroup\Entities\ModifierType;
+use Domain\WelcomeGroup\Enums\ModifierTypeBehaviour;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\MapInputName;
@@ -27,11 +28,10 @@ final class CreateModifierTypeResponseData extends ResponseData
     public function toDomainEntity(): ModifierType
     {
         return new ModifierType(
+            new IntegerId(),
             new IntegerId($this->id),
             $this->name,
-            $this->behaviour,
-            $this->created,
-            $this->updated
+            ModifierTypeBehaviour::from($this->behaviour),
         );
     }
 }

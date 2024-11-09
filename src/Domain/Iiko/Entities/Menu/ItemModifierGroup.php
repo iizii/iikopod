@@ -18,6 +18,7 @@ final class ItemModifierGroup extends DomainEntity
         public readonly IntegerId $id,
         public readonly IntegerId $itemSizeId,
         public readonly StringId $externalId,
+        public readonly int $maxQuantity,
         public readonly string $name,
         public readonly ?string $description,
         public readonly bool $splittable,

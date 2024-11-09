@@ -27,8 +27,8 @@ final class CreateFoodCategoryResponseData extends ResponseData
     {
         return new FoodCategory(
             new IntegerId(),
-            new IntegerId($this->id),
             new IntegerId(),
+            new IntegerId($this->id),
             $this->name,
         );
     }

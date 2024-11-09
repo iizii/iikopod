@@ -10,9 +10,6 @@ use Shared\Infrastructure\Integrations\ResponseData;
 
 final class Nutrition extends ResponseData
 {
-    /**
-     * @param  array<array-key, string>  $organizations
-     */
     public function __construct(
         public readonly float $fats,
         public readonly float $proteins,

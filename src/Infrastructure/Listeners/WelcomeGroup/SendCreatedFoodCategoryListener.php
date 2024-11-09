@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Listeners\WelcomeGroup;
 
-use Domain\Iiko\Events\ProductCategoryCreatedEvent;
-use Domain\WelcomeGroup\Entities\FoodCategory;
+use Application\WelcomeGroup\Builders\FoodCategoryBuilder;
+use Domain\Iiko\Events\ItemGroupCreatedEvent;
 use Illuminate\Bus\Dispatcher;
 use Infrastructure\Jobs\WelcomeGroup\CreateFoodCategoryJob;
-use Shared\Domain\ValueObjects\IntegerId;
 
 final readonly class SendCreatedFoodCategoryListener
 {
@@ -23,19 +22,11 @@ final readonly class SendCreatedFoodCategoryListener
     /**
      * Handle the event.
      */
-    public function handle(ProductCategoryCreatedEvent $event): void
+    public function handle(ItemGroupCreatedEvent $event): void
     {
-        $iikoProductCategory = $event->category;
+        $iikoItemGroup = $event->itemGroup;
+        $foodCategoryBuilder = FoodCategoryBuilder::fromIikoItemGroup($iikoItemGroup);
 
-        $this->dispatcher->dispatch(
-            new CreateFoodCategoryJob(
-                new FoodCategory(
-                    new IntegerId(),
-                    new IntegerId(),
-                    $iikoProductCategory->id,
-                    $iikoProductCategory->name,
-                ),
-            ),
-        );
+        $this->dispatcher->dispatch(new CreateFoodCategoryJob($foodCategoryBuilder->build()));
     }
 }

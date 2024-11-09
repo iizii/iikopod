@@ -37,6 +37,7 @@ final class ItemModifierGroup extends ResponseData
             new IntegerId(),
             new IntegerId(),
             new StringId($this->id),
+            $this->restrictions->maxQuantity,
             $this->name,
             $this->description,
             $this->splittable,

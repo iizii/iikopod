@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Repositories;
 
+use Domain\Iiko\Entities\Menu\ItemSize;
 use Domain\Iiko\Entities\Menu\Nutrition;
 use Domain\Iiko\Repositories\IikoMenuItemNutritionRepositoryInterface;
+use Domain\Iiko\ValueObjects\Menu\NutritionCollection;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemNutrition;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
@@ -15,6 +17,22 @@ use Shared\Persistence\Repositories\AbstractPersistenceRepository;
  */
 final class IikoMenuItemNutritionRepository extends AbstractPersistenceRepository implements IikoMenuItemNutritionRepositoryInterface
 {
+    public function findFor(ItemSize $itemSize): NutritionCollection
+    {
+        $result = $this
+            ->query()
+            ->where('iiko_menu_item_size_id', $itemSize->id->id)
+            ->get();
+
+        return new NutritionCollection(
+            $result->map(
+                static fn (IikoMenuItemNutrition $iikoMenuItemNutrition): Nutrition => IikoMenuItemNutrition::toDomainEntity(
+                    $iikoMenuItemNutrition,
+                ),
+            ),
+        );
+    }
+
     public function findByExternalId(IntegerId $iikoMenuItemSizeId): ?Nutrition
     {
         $result = $this->findEloquentByExternalId($iikoMenuItemSizeId);

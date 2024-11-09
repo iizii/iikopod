@@ -34,6 +34,7 @@ return new class() extends Migration
             $table
                 ->string('type')
                 ->nullable();
+            $table->unsignedInteger('weight');
             $table
                 ->string('measure_unit')
                 ->nullable();

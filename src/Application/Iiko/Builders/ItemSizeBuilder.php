@@ -55,7 +55,7 @@ final class ItemSizeBuilder
         $clone = clone $this;
         $this->itemId = $itemId;
 
-        return $this;
+        return $clone;
     }
 
     public function setExternalId(?StringId $externalId): ItemSizeBuilder
@@ -63,7 +63,7 @@ final class ItemSizeBuilder
         $clone = clone $this;
         $this->externalId = $externalId;
 
-        return $this;
+        return $clone;
     }
 
     public function setSku(string $sku): ItemSizeBuilder
@@ -71,7 +71,7 @@ final class ItemSizeBuilder
         $clone = clone $this;
         $this->sku = $sku;
 
-        return $this;
+        return $clone;
     }
 
     public function setIsDefault(?bool $isDefault): ItemSizeBuilder

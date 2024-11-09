@@ -6,7 +6,6 @@ namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse;
 
 use Domain\Iiko\Entities\Menu\ItemModifierGroup as DomainItemModifierGroup;
 use Domain\Iiko\Entities\Menu\ItemSize as DomainItemSize;
-use Domain\Iiko\Entities\Menu\Nutrition as DomainNutrition;
 use Domain\Iiko\Entities\Menu\Price as DomainPrice;
 use Domain\Iiko\ValueObjects\Menu\ItemModifierGroupCollection;
 use Domain\Iiko\ValueObjects\Menu\NutritionCollection;
@@ -61,12 +60,7 @@ final class ItemSize extends ResponseData
                     ->toCollection()
                     ->map(static fn (Price $price): DomainPrice => $price->toDomainEntity()),
             ),
-            new NutritionCollection(
-                $this
-                    ->nutritions
-                    ->toCollection()
-                    ->map(static fn (Nutrition $nutrition): DomainNutrition => $nutrition->toDomainEntity())
-            ),
+            new NutritionCollection([$this->nutritionPerHundredGrams->toDomainEntity()]),
         );
     }
 }

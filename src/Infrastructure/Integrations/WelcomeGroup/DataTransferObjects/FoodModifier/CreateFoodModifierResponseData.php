@@ -17,9 +17,9 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 final class CreateFoodModifierResponseData extends ResponseData
 {
     public function __construct(
-        public readonly int $id, //id
-        public readonly int $food, //id
-        public readonly int $modifier, //id
+        public readonly int $id,
+        public readonly int $food,
+        public readonly int $modifier,
         public readonly int $weight,
         public readonly int $caloricity,
         public readonly float $price,
@@ -27,7 +27,6 @@ final class CreateFoodModifierResponseData extends ResponseData
         public readonly ModifierObject $modifierObject,
         public readonly string $status,
         public readonly ?string $statusComment,
-        //        public readonly string $foodName, Почему-то в доке описано, но не получается в ответе от ПОД
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
     ) {}
@@ -35,19 +34,16 @@ final class CreateFoodModifierResponseData extends ResponseData
     public function toDomainEntity(): FoodModifier
     {
         return new FoodModifier(
+            new IntegerId(),
+            new IntegerId(),
+            new IntegerId(),
             new IntegerId($this->id),
             new IntegerId($this->food),
             new IntegerId($this->modifier),
-            $this->status,
-            $this->statusComment,
             $this->weight,
             $this->caloricity,
-            $this->price,
+            (int) $this->price,
             $this->duration,
-            $this->modifierObject,
-            $this->created,
-            $this->updated
-
         );
     }
 }

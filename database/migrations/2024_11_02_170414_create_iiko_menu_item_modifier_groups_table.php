@@ -22,6 +22,7 @@ return new class() extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->string('external_id');
+            $table->unsignedInteger('max_quantity');
             $table->string('name');
             $table->string('sku');
             $table
