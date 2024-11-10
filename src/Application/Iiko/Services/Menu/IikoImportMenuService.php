@@ -36,6 +36,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\IikoAuthenticator;
+use Shared\Domain\ValueObjects\StringId;
 
 final readonly class IikoImportMenuService
 {
@@ -104,6 +105,7 @@ final readonly class IikoImportMenuService
                 $itemGroupBuilder = ItemGroupBuilder::fromExisted($itemGroup);
                 $itemGroupBuilder = $itemGroupBuilder
                     ->setIikoMenuId($menu->id)
+                    ->setExternalId(new StringId(sprintf('%s:%s', $priceCategory->prefix, $itemGroup->externalId->id)))
                     ->setName(sprintf('%s %s', $priceCategory->prefix, $itemGroup->name));
 
                 $createdGroup = $this->iikoMenuItemGroupRepository->createOrUpdate($itemGroupBuilder->build());
@@ -136,7 +138,7 @@ final readonly class IikoImportMenuService
             ->itemSizes
             ->each(function (ItemSize $itemSize) use ($item) {
                 $itemSizeBuilder = ItemSizeBuilder::fromExisted($itemSize);
-                $itemSizeBuilder->setItemId($item->id);
+                $itemSizeBuilder = $itemSizeBuilder->setItemId($item->id);
 
                 $createdItemSize = $this->iikoMenuItemSizeRepository->createOrUpdate($itemSizeBuilder->build());
 

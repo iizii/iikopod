@@ -90,7 +90,7 @@ final class ItemBuilder
     public function setDescription(?string $description): ItemBuilder
     {
         $clone = clone $this;
-        $this->description = $description;
+        $clone->description = $description;
 
         return $clone;
     }

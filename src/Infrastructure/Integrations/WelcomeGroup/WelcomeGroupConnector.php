@@ -11,7 +11,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
-use Illuminate\Log\Context\Repository as LogContext;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
@@ -34,9 +33,9 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\UpdateFoodCat
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\CreateFoodModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
-use Psr\Log\LoggerInterface;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
+use Shared\Infrastructure\Integrations\ConnectorLogger;
 use Shared\Infrastructure\Integrations\RequestInterface;
 
 final readonly class WelcomeGroupConnector extends AbstractConnector implements WelcomeGroupConnectorInterface
@@ -44,11 +43,10 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     public function __construct(
         PendingRequest $pendingRequest,
         Dispatcher $eventDispatcher,
-        LogContext $logContext,
-        LoggerInterface $logger,
+        ConnectorLogger $logger,
         private SignatureCompiler $signatureCompiler,
     ) {
-        parent::__construct($pendingRequest, $eventDispatcher, $logContext, $logger);
+        parent::__construct($pendingRequest, $eventDispatcher, $logger);
     }
 
     /**

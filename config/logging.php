@@ -75,6 +75,22 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'iiko_connector' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/iiko/connector.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
+        'welcome_group_connector' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/welcome_group/connector.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

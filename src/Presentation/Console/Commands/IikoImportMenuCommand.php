@@ -19,6 +19,10 @@ final class IikoImportMenuCommand extends Command
      */
     public function handle(IikoImportMenuService $iikoImportMenuService): void
     {
+        $this->info('Starting import menu');
+
         $iikoImportMenuService->handle();
+
+        $this->info('Finished import menu, all jobs are running');
     }
 }

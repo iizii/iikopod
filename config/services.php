@@ -40,6 +40,7 @@ return [
     'iiko' => [
         'base_url' => env('IIKO_BASE_URL', 'https://api-ru.iiko.services'),
         'timeout_seconds' => env('IIKO_TIMEOUT_SECONDS', 20),
+        'log_channel' => 'iiko_connector',
     ],
 
     'welcome_group' => [
@@ -47,5 +48,6 @@ return [
         'timeout_seconds' => env('WELCOME_GROUP_TIMEOUT_SECONDS', 20),
         'username' => env('WELCOME_GROUP_USERNAME'),
         'password' => env('WELCOME_GROUP_PASSWORD'),
+        'log_channel' => 'welcome_group_connector',
     ],
 ];

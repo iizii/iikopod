@@ -14,17 +14,21 @@ services:
             - php
             - application
     
-    php-queue:
-        container_name: ${COMPOSE_PROJECT_NAME}-php-queue
-        image: ${COMPOSE_PROJECT_NAME}-php-queue
+    php-horizon:
+        container_name: ${COMPOSE_PROJECT_NAME}-php-horizon
+        image: ${COMPOSE_PROJECT_NAME}-php-horizon
         build:
-            context: php/queue
+            context: php/horizon
             dockerfile: Dockerfile
             args:
                 WORK_DIR: ${WORK_DIR}
                 BASE_IMAGE: ${COMPOSE_PROJECT_NAME}-php-base
         environment:
             BASE_IMAGE: ${COMPOSE_PROJECT_NAME}-php-base
+        volumes:
+            - ./php/horizon/configs:/etc/supervisor/conf.d
+            - ${LOGS_DIR}/supervisor:/var/log/supervisor
+            - ${CODE_DIR}:${WORK_DIR}
         profiles:
             - php
             - application

@@ -53,7 +53,7 @@ final class ItemSizeBuilder
     public function setItemId(IntegerId $itemId): ItemSizeBuilder
     {
         $clone = clone $this;
-        $this->itemId = $itemId;
+        $clone->itemId = $itemId;
 
         return $clone;
     }
@@ -61,7 +61,7 @@ final class ItemSizeBuilder
     public function setExternalId(?StringId $externalId): ItemSizeBuilder
     {
         $clone = clone $this;
-        $this->externalId = $externalId;
+        $clone->externalId = $externalId;
 
         return $clone;
     }
@@ -69,7 +69,7 @@ final class ItemSizeBuilder
     public function setSku(string $sku): ItemSizeBuilder
     {
         $clone = clone $this;
-        $this->sku = $sku;
+        $clone->sku = $sku;
 
         return $clone;
     }

@@ -68,6 +68,14 @@ final class AdminPanelProvider extends PanelProvider
                     ->label('Telescope')
                     ->url(static fn (): string => route('telescope'), true)
                     ->icon('heroicon-m-chart-pie'),
+                MenuItem::make()
+                    ->label('Horizon')
+                    ->url(static fn (): string => route('horizon.index'), true)
+                    ->icon('heroicon-c-qr-code'),
+                MenuItem::make()
+                    ->label('Pulse')
+                    ->url(static fn (): string => route('pulse'), true)
+                    ->icon('heroicon-m-signal'),
             ])
             ->middleware([
                 EncryptCookies::class,

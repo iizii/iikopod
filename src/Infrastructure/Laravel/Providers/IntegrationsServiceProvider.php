@@ -10,12 +10,12 @@ use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Events\Dispatcher as EventDispatcher;
 use Illuminate\Http\Client\Factory as HttpClientFactory;
-use Illuminate\Log\Context\Repository as LogContext;
+use Illuminate\Log\LogManager;
 use Illuminate\Support\ServiceProvider;
 use Infrastructure\Integrations\IIko\IIkoConnector;
 use Infrastructure\Integrations\WelcomeGroup\SignatureCompiler;
 use Infrastructure\Integrations\WelcomeGroup\WelcomeGroupConnector;
-use Psr\Log\LoggerInterface;
+use Shared\Infrastructure\Integrations\ConnectorLogger;
 
 final class IntegrationsServiceProvider extends ServiceProvider
 {
@@ -27,16 +27,18 @@ final class IntegrationsServiceProvider extends ServiceProvider
         $this->app->scoped(IikoConnectorInterface::class, static function (Application $application): IIkoConnector {
             $pendingRequest = $application->make(HttpClientFactory::class);
 
-            /** @var array{base_url: string, timeout_seconds: int} $config */
+            /** @var array{base_url: string, timeout_seconds: int, log_channel: string} $config */
             $config = $application->make(ConfigRepository::class)->get('services.iiko');
+
+            $logger = $application->make(LogManager::class);
+            $logger = $logger->driver($config['log_channel']);
 
             return new IIkoConnector(
                 $pendingRequest
                     ->baseUrl($config['base_url'])
                     ->timeout((int) $config['timeout_seconds']),
                 $application->make(EventDispatcher::class),
-                $application->make(LogContext::class),
-                $application->make(LoggerInterface::class),
+                new ConnectorLogger($logger),
             );
         });
 
@@ -45,17 +47,19 @@ final class IntegrationsServiceProvider extends ServiceProvider
             static function (Application $application): WelcomeGroupConnector {
                 $pendingRequest = $application->make(HttpClientFactory::class);
 
-                /** @var array{base_url: string, timeout_seconds: int, username: string, password: string} $config */
+                /** @var array{base_url: string, timeout_seconds: int, username: string, password: string, log_channel: string} $config */
                 $config = $application->make(ConfigRepository::class)->get('services.welcome_group');
+
+                $logger = $application->make(LogManager::class);
+                $logger = $logger->driver($config['log_channel']);
 
                 return new WelcomeGroupConnector(
                     $pendingRequest
                         ->baseUrl($config['base_url'])
                         ->timeout((int) $config['timeout_seconds']),
                     $application->make(EventDispatcher::class),
-                    $application->make(LogContext::class),
-                    $application->make(LoggerInterface::class),
-                    new SignatureCompiler($config['username'], $config['password'])
+                    new ConnectorLogger($logger),
+                    new SignatureCompiler($config['username'], $config['password']),
                 );
             },
         );
