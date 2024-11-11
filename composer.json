@@ -16,7 +16,8 @@
         "opcodesio/log-viewer": "^3.11",
         "spatie/laravel-data": "^4.10",
         "spatie/laravel-route-attributes": "^1.23",
-        "spatie/laravel-settings": "^3.4"
+        "spatie/laravel-settings": "^3.4",
+        "symfony/error-handler": "^7.1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.1",
