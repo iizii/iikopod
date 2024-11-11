@@ -29,9 +29,9 @@ final readonly class ItemObserver implements ShouldHandleEventsAfterCommit
      */
     public function updated(IikoMenuItem $iikoMenuItem): void
     {
-        /*$this
+        $this
             ->dispatcher
-            ->dispatch(new ItemUpdatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem)));*/
+            ->dispatch(new ItemUpdatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem)));
     }
 
     /**

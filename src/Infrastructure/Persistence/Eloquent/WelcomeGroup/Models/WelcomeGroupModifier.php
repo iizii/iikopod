@@ -20,17 +20,17 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType $modifierType
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereExternalModifierTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereIsDefault($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereWelcomeGroupModifierTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier query()
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereExternalModifierTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereIsDefault($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupModifier whereWelcomeGroupModifierTypeId($value)
  *
  * @mixin \Eloquent
  */

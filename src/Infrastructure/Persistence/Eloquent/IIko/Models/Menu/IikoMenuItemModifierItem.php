@@ -31,22 +31,22 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItemPrice> $prices
  * @property-read int|null $prices_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereIikoMenuItemModifierGroupId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereIsHidden($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereMeasureUnit($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem wherePaymentSubject($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereSku($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereWeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereIikoMenuItemModifierGroupId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereIsHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereMeasureUnit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem wherePaymentSubject($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItem whereWeight($value)
  *
  * @mixin \Eloquent
  */

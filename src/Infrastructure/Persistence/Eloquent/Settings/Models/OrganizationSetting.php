@@ -28,21 +28,21 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereExternalMenuId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereIikoApiKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereIikoRestaurantId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereOrderDeliveryTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereOrderPickupTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting wherePaymentTypes($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting wherePriceCategories($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereWelcomeGroupDefaultWorkshopId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereWelcomeGroupRestaurantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting query()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereExternalMenuId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereIikoApiKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereIikoRestaurantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereOrderDeliveryTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereOrderPickupTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting wherePaymentTypes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting wherePriceCategories($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereWelcomeGroupDefaultWorkshopId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganizationSetting whereWelcomeGroupRestaurantId($value)
  *
  * @mixin \Eloquent
  */

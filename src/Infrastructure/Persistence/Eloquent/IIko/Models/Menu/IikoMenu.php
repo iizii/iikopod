@@ -23,17 +23,17 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup> $itemGroups
  * @property-read int|null $item_groups_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereOrganizationSettingId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereRevision($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu query()
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereOrganizationSettingId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereRevision($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|IikoMenu whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */
