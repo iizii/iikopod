@@ -12,6 +12,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryRequestData;
+use Infrastructure\Queue\Queue;
 
 final class CreateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
 {
@@ -20,7 +21,10 @@ final class CreateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public readonly FoodCategory $foodCategory) {}
+    public function __construct(public readonly FoodCategory $foodCategory)
+    {
+        $this->queue = Queue::INTEGRATIONS->value;
+    }
 
     /**
      * Execute the job.

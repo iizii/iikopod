@@ -31,6 +31,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFood
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
+use Infrastructure\Queue\Queue;
 use Shared\Domain\ValueObjects\IntegerId;
 
 final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
@@ -40,7 +41,10 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public readonly Item $item) {}
+    public function __construct(public readonly Item $item)
+    {
+        $this->queue = Queue::INTEGRATIONS->value;
+    }
 
     /**
      * Execute the job.

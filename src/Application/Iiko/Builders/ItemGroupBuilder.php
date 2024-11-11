@@ -37,7 +37,6 @@ final class ItemGroupBuilder
     public function setId(IntegerId $id): ItemGroupBuilder
     {
         $clone = clone $this;
-
         $clone->id = $id;
 
         return $clone;
@@ -46,7 +45,6 @@ final class ItemGroupBuilder
     public function setIikoMenuId(IntegerId $iikoMenuId): ItemGroupBuilder
     {
         $clone = clone $this;
-
         $clone->iikoMenuId = $iikoMenuId;
 
         return $clone;
@@ -55,8 +53,7 @@ final class ItemGroupBuilder
     public function setExternalId(StringId $externalId): ItemGroupBuilder
     {
         $clone = clone $this;
-
-        $this->externalId = $externalId;
+        $clone->externalId = $externalId;
 
         return $clone;
     }
@@ -64,7 +61,6 @@ final class ItemGroupBuilder
     public function setName(string $name): ItemGroupBuilder
     {
         $clone = clone $this;
-
         $clone->name = $name;
 
         return $clone;
@@ -73,7 +69,6 @@ final class ItemGroupBuilder
     public function setDescription(?string $description): ItemGroupBuilder
     {
         $clone = clone $this;
-
         $clone->description = $description;
 
         return $clone;
@@ -82,7 +77,6 @@ final class ItemGroupBuilder
     public function setIsHidden(bool $isHidden): ItemGroupBuilder
     {
         $clone = clone $this;
-
         $clone->isHidden = $isHidden;
 
         return $clone;
@@ -91,7 +85,6 @@ final class ItemGroupBuilder
     public function setItems(ItemCollection $items): ItemGroupBuilder
     {
         $clone = clone $this;
-
         $clone->items = $items;
 
         return $clone;

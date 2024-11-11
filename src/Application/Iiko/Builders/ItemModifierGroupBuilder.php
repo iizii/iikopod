@@ -125,7 +125,7 @@ final class ItemModifierGroupBuilder
     public function setMaxQuantity(int $maxQuantity): ItemModifierGroupBuilder
     {
         $clone = clone $this;
-        $this->maxQuantity = $maxQuantity;
+        $clone->maxQuantity = $maxQuantity;
 
         return $clone;
     }

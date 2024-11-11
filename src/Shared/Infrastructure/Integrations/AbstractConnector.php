@@ -11,8 +11,6 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
-use Illuminate\Log\Context\Repository as LogContext;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 abstract readonly class AbstractConnector
@@ -20,8 +18,7 @@ abstract readonly class AbstractConnector
     public function __construct(
         public PendingRequest $pendingRequest,
         public Dispatcher $eventDispatcher,
-        public LogContext $logContext,
-        public LoggerInterface $logger,
+        public ConnectorLogger $logger,
     ) {}
 
     /**
@@ -32,6 +29,8 @@ abstract readonly class AbstractConnector
      */
     public function send(RequestInterface $request): Response|ResponseData|iterable
     {
+        $this->logger->logPendingRequest($request);
+
         $response = $this
             ->pendingRequest
             ->send(
@@ -39,6 +38,8 @@ abstract readonly class AbstractConnector
                 $request->endpoint(),
                 $this->buildParams($request),
             );
+
+        $this->logger->logRawResponse($response);
 
         $response = $this->handleResponse($request, $response);
 
@@ -136,6 +137,12 @@ abstract readonly class AbstractConnector
                     $response,
                 );
 
+                $this->logger->logThrowResponse(
+                    $request,
+                    $response,
+                    $exception,
+                );
+
                 throw $this->getRequestException($response, $exception);
             });
     }
@@ -145,6 +152,8 @@ abstract readonly class AbstractConnector
      */
     private function createResponse(Response $response, RequestInterface $request): Response|ResponseData|iterable
     {
+        $this->logger->logResponse($response);
+
         if (! $request instanceof ResponseDataInterface) {
             return $response;
         }
