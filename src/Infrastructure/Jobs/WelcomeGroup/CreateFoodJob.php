@@ -6,36 +6,31 @@ namespace Infrastructure\Jobs\WelcomeGroup;
 
 use Application\Iiko\Builders\ItemBuilder;
 use Application\WelcomeGroup\Builders\FoodBuilder;
-use Application\WelcomeGroup\Builders\FoodModifierBuilder;
-use Application\WelcomeGroup\Builders\ModifierBuilder;
+use Carbon\CarbonImmutable;
 use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
 use Domain\Iiko\Entities\Menu\ItemSize;
-use Domain\Iiko\Exceptions\PriceNotLoadedException;
 use Domain\Iiko\Repositories\IikoMenuItemSizeRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
-use Domain\Iiko\ValueObjects\Menu\ItemModifierGroupCollection;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Enums\ModifierTypeBehaviour;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepositoryInterface;
-use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
-use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierRepositoryInterface;
-use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierTypeRepositoryInterface;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
 use Infrastructure\Queue\Queue;
 use Shared\Domain\ValueObjects\IntegerId;
 
 final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
 {
+    use InteractsWithQueue;
     use Queueable;
 
     /**
@@ -50,15 +45,14 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
      * Execute the job.
      */
     public function handle(
+        QueueingDispatcher $dispatcher,
+        CarbonImmutable $now,
         IikoMenuRepositoryInterface $iikoMenuRepository,
         IikoMenuItemSizeRepositoryInterface $iikoMenuItemSizeRepository,
         OrganizationSettingRepositoryInterface $organizationSettingRepository,
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodCategoryRepositoryInterface $welcomeGroupFoodCategoryRepository,
         WelcomeGroupFoodRepositoryInterface $welcomeGroupFoodRepository,
-        WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
-        WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
-        WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
     ): void {
         $iikoItem = $this->item;
 
@@ -72,19 +66,21 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         $foodCategory = $welcomeGroupFoodCategoryRepository->findByIikoMenuItemGroupId($iikoItemBuilder->itemGroupId);
 
         if (! $foodCategory) {
+            $this->release($now->addMinute());
+
             return;
         }
 
         $iikoMenu = $iikoMenuRepository->findforItem($iikoItemBuilder);
 
         if (! $iikoMenu) {
-            return;
+            throw new \RuntimeException('Iiko menu not found');
         }
 
         $organizationSetting = $organizationSettingRepository->findById($iikoMenu->organizationSettingId);
 
         if (! $organizationSetting) {
-            return;
+            throw new \RuntimeException('Organization Setting not found');
         }
 
         $foodBuilder = FoodBuilder::fromIikoItem($iikoItemBuilder)
@@ -114,119 +110,48 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ->setId($createdFood->id)
             ->build();
 
-        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use (
-            $welcomeGroupFoodModifierRepository,
-            $food,
-            $welcomeGroupModifierRepository,
-            $welcomeGroupModifierTypeRepository,
-            $welcomeGroupConnector
-        ): void {
-            $this->handleModifierGroups(
-                $food,
-                $itemSize->itemModifierGroups,
-                $welcomeGroupConnector,
-                $welcomeGroupModifierTypeRepository,
-                $welcomeGroupModifierRepository,
-                $welcomeGroupFoodModifierRepository,
+        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use ($dispatcher, $food): void {
+            $itemSize->itemModifierGroups->each(
+                function (ItemModifierGroup $itemModifierGroup) use ($dispatcher, $food): void {
+                    $this->handleModifierGroup($dispatcher, $food, $itemModifierGroup);
+                },
             );
         });
     }
 
-    private function handleModifierGroups(
-        Food $food,
-        ItemModifierGroupCollection $modifierGroupCollection,
-        WelcomeGroupConnectorInterface $welcomeGroupConnector,
-        WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
-        WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
-        WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
-    ): void {
-        $modifierGroupCollection->each(
-            function (ItemModifierGroup $itemModifierGroup) use (
-                $welcomeGroupFoodModifierRepository,
-                $food,
-                $welcomeGroupModifierRepository,
-                $welcomeGroupModifierTypeRepository,
-                $welcomeGroupConnector
-            ): void {
-                $this->handleModifierGroup(
-                    $food,
-                    $itemModifierGroup,
-                    $welcomeGroupConnector,
-                    $welcomeGroupModifierTypeRepository,
-                    $welcomeGroupModifierRepository,
-                    $welcomeGroupFoodModifierRepository,
-                );
-            },
-        );
+    /**
+     * Determine number of times the job may be attempted.
+     */
+    public function tries(): int
+    {
+        return 3;
+    }
+
+    /**
+     * Calculate the number of seconds to wait before retrying the job.
+     */
+    public function backoff(): int
+    {
+        return 60;
     }
 
     private function handleModifierGroup(
+        QueueingDispatcher $dispatcher,
         Food $food,
         ItemModifierGroup $modifierGroup,
-        WelcomeGroupConnectorInterface $welcomeGroupConnector,
-        WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
-        WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
-        WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
     ): void {
         $maxQuantity = $modifierGroup->maxQuantity;
 
         for ($i = 0; $i < $maxQuantity; $i++) {
-            $modifierTypeResponse = $welcomeGroupConnector->createModifierType(
-                new CreateModifierTypeRequestData(
-                    $modifierGroup->name,
-                    ModifierTypeBehaviour::fromValue($maxQuantity)->value,
-                ),
-            );
-
-            $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeResponse->toDomainEntity());
-
-            $modifierGroup->items->each(
-                static function (Item $item) use (
-                    $welcomeGroupFoodModifierRepository,
+            $dispatcher->dispatch(
+                new CreateModifierTypeJob(
                     $food,
-                    $modifierType,
-                    $welcomeGroupModifierRepository,
-                    $modifierTypeResponse,
-                    $welcomeGroupConnector
-                ) {
-                    $modifierResponse = $welcomeGroupConnector->createModifier(
-                        new CreateModifierRequestData(
-                            $item->name,
-                            $modifierTypeResponse->id,
-                        ),
-                    );
-
-                    $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
-                    $modifier = $modifierBuilder
-                        ->setInternalModifierTypeId($modifierType->id)
-                        ->build();
-
-                    $createdModifier = $welcomeGroupModifierRepository->save($modifier);
-
-                    $itemPrice = $item->prices->first();
-
-                    if (! $itemPrice) {
-                        throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
-                    }
-
-                    $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
-                        new CreateFoodModifierRequestData(
-                            $food->externalId->id,
-                            $modifier->externalId->id,
-                            $item->weight,
-                            $itemPrice->price ?? 0,
-                        ),
-                    );
-
-                    $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-                        $createFoodModifierResponse->toDomainEntity(),
-                    );
-                    $foodModifierBuilder = $foodModifierBuilder
-                        ->setInternalModifierId($createdModifier->id)
-                        ->setInternalFoodId($food->id);
-
-                    $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
-                },
+                    new CreateModifierTypeRequestData(
+                        $modifierGroup->name,
+                        ModifierTypeBehaviour::fromValue($maxQuantity)->value,
+                    ),
+                    $modifierGroup,
+                ),
             );
         }
     }
