@@ -19,15 +19,15 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood> $foods
  * @property-read int|null $foods_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory query()
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory whereIikoMenuItemGroupId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodCategory whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereIikoMenuItemGroupId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */

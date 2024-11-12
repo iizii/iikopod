@@ -27,17 +27,17 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem> $items
  * @property-read int|null $items_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereIikoMenuId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereIsHidden($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemGroup whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereIikoMenuId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereIsHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */

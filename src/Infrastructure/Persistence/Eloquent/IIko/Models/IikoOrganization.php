@@ -17,18 +17,18 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereInn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereLatitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereLongitude($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereOrganizationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoOrganization whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereInn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereLatitude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereLongitude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereOrganizationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */

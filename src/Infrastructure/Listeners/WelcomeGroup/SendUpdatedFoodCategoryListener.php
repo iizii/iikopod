@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Infrastructure\Listeners\WelcomeGroup;
 
-use Domain\Iiko\Events\ProductCategoryUpdatedEvent;
-use Domain\WelcomeGroup\Entities\FoodCategory;
-use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepositoryInterface;
+use Application\WelcomeGroup\Builders\FoodCategoryBuilder;
+use Domain\Iiko\Events\ItemGroupUpdatedEvent;
 use Illuminate\Bus\Dispatcher;
 use Infrastructure\Jobs\WelcomeGroup\UpdateFoodCategoryJob;
 
@@ -17,7 +16,6 @@ final readonly class SendUpdatedFoodCategoryListener
      */
     public function __construct(
         private Dispatcher $dispatcher,
-        private WelcomeGroupFoodCategoryRepositoryInterface $welcomeGroupFoodCategoryRepository,
     ) {
         //
     }
@@ -25,17 +23,11 @@ final readonly class SendUpdatedFoodCategoryListener
     /**
      * Handle the event.
      */
-    public function handle(ProductCategoryUpdatedEvent $event): void
+    public function handle(ItemGroupUpdatedEvent $event): void
     {
-        $foodCategory = $this->welcomeGroupFoodCategoryRepository->findByIikoProductCategoryId($event->category->id);
+        $iikoItemGroup = $event->itemGroup;
+        $foodCategoryBuilder = FoodCategoryBuilder::fromIikoItemGroup($iikoItemGroup);
 
-        if (! $foodCategory) {
-            return;
-        }
-
-        $this->dispatcher->dispatch(new UpdateFoodCategoryJob(FoodCategory::withName(
-            $foodCategory,
-            $event->category->name
-        )));
+        $this->dispatcher->dispatch(new UpdateFoodCategoryJob($foodCategoryBuilder->build()));
     }
 }

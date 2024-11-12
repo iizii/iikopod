@@ -23,20 +23,20 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize $itemSize
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereCarbs($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereEnergy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereFats($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereIikoMenuItemSizeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereProteins($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereSalt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereSaturatedFattyAcid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereSugar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemNutrition whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereCarbs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereEnergy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereFats($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereIikoMenuItemSizeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereProteins($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereSalt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereSaturatedFattyAcid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereSugar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */

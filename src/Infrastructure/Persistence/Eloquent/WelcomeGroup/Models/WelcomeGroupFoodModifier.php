@@ -27,21 +27,21 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood $food
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier|null $modifier
  *
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier query()
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereCaloricity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereDuration($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereExternalFoodId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereExternalModifierId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereWeight($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereWelcomeGroupFoodId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WelcomeGroupFoodModifier whereWelcomeGroupModifierId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereCaloricity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereDuration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereExternalFoodId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereExternalModifierId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereWeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereWelcomeGroupFoodId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereWelcomeGroupModifierId($value)
  *
  * @mixin \Eloquent
  */

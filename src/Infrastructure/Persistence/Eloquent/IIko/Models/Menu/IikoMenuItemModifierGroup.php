@@ -30,21 +30,21 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem> $items
  * @property-read int|null $items_count
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereChildModifiersHaveMinMaxRestrictions($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereIikoMenuItemSizeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereIsHidden($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereMaxQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereSku($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereSplittable($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierGroup whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereChildModifiersHaveMinMaxRestrictions($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereIikoMenuItemSizeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereIsHidden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereMaxQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereSplittable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */

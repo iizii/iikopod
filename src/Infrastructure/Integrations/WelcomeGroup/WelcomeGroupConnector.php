@@ -23,6 +23,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\Create
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeResponseData;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEvent;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
@@ -33,6 +35,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\UpdateFoodCat
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\CreateFoodModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\EditModifierTypeRequest;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\ConnectorLogger;
@@ -105,6 +108,18 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var CreateModifierTypeResponseData $response */
         $response = $this->send(new CreateModifierTypeRequest($createModifierTypeRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateModifierType(EditModifierTypeRequestData $editModifierTypeRequestData, IntegerId $id): EditModifierTypeResponseData
+    {
+        /** @var EditModifierTypeResponseData $response */
+        $response = $this->send(new EditModifierTypeRequest($id->id, $editModifierTypeRequestData));
 
         return $response;
     }

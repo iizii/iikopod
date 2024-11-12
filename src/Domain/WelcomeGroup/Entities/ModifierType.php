@@ -13,6 +13,7 @@ final class ModifierType extends DomainEntity
     public function __construct(
         public readonly IntegerId $id,
         public readonly IntegerId $externalId,
+        public readonly IntegerId $iikoMenuItemModifierGroupId,
         public readonly string $name,
         public readonly ModifierTypeBehaviour $behaviour,
     ) {}

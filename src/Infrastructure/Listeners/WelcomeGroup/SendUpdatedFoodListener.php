@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Listeners\WelcomeGroup;
 
-use Domain\Iiko\Events\ItemCreatedEvent;
+use Domain\Iiko\Events\ItemUpdatedEvent;
 use Illuminate\Bus\Dispatcher;
 use Infrastructure\Jobs\WelcomeGroup\UpdateFoodJob;
 
@@ -22,7 +22,7 @@ final readonly class SendUpdatedFoodListener
     /**
      * Handle the event.
      */
-    public function handle(ItemCreatedEvent $event): void
+    public function handle(ItemUpdatedEvent $event): void
     {
         $this->dispatcher->dispatch(new UpdateFoodJob($event->item));
     }

@@ -17,14 +17,14 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem $itemSize
  *
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice query()
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice whereIikoMenuItemModifierItemId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IikoMenuItemModifierItemPrice whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice whereIikoMenuItemModifierItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice whereUpdatedAt($value)
  *
  * @mixin \Eloquent
  */
