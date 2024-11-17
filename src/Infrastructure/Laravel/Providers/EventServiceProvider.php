@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Infrastructure\Laravel\Providers;
 
-use Domain\Iiko\Events\DeliveryOrderErrorEvent;
-use Domain\Iiko\Events\DeliveryOrderUpdateEvent;
+use Application\Iiko\Events\DeliveryOrderErrorEvent;
+use Application\Iiko\Events\DeliveryOrderUpdateEvent;
+use Application\Iiko\Events\StopListUpdateEvent;
 use Domain\Iiko\Events\ItemCreatedEvent;
 use Domain\Iiko\Events\ItemGroupCreatedEvent;
-use Domain\Iiko\Events\StopListUpdateEvent;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as LaravelEventServiceProvider;
 use Infrastructure\Listeners\Iiko\DeliveryOrderErrorListener;
 use Infrastructure\Listeners\Iiko\DeliveryOrderUpdateListener;

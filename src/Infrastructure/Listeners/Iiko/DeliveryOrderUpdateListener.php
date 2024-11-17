@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Listeners\Iiko;
 
-use Domain\Iiko\Events\DeliveryOrderUpdateEvent;
+use Application\Iiko\Events\DeliveryOrderUpdateEvent;
 
 final class DeliveryOrderUpdateListener
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\Events;
+namespace Application\Iiko\Events;
 
 use Domain\Iiko\Interfaces\WebhookEventInterface;
 

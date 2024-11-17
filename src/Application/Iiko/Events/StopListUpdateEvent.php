@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\Events;
+namespace Application\Iiko\Events;
 
 use Domain\Iiko\Interfaces\WebhookEventInterface;
 
-final class DeliveryOrderUpdateEvent implements WebhookEventInterface
+final class StopListUpdateEvent implements WebhookEventInterface
 {
     public function __construct() {}
 }

@@ -11,7 +11,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 final readonly class WebhookEventFactory
 {
-    public function __construct(private Dispatcher $dispatcher) {}
+    public function __construct(private Dispatcher $dispatcher, private WebhookEventDataFactory $dataFactory) {}
 
     /**
      * @param  iterable<IikoWebhookRequest>  $events
@@ -31,6 +31,10 @@ final readonly class WebhookEventFactory
             throw new IikoEventTypeNotFountException();
         }
 
-        $this->dispatcher->dispatch(new $eventMap[$request->eventType->value]());
+        $this->dispatcher->dispatch(
+            new $eventMap[$request->eventType->value](
+                $this->dataFactory->fromRequest($request),
+            ),
+        );
     }
 }
