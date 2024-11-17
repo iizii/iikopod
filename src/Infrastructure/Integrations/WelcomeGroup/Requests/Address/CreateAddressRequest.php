@@ -6,7 +6,7 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests\Address;
 
 use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateFoodResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
