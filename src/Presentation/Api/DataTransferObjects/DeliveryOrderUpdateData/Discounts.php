@@ -11,13 +11,13 @@ use Spatie\LaravelData\DataCollection;
 final class Discounts extends Data
 {
     /**
-     * @param  DataCollection<array-key, SelectivePositionsWithSum>  $selectivePositionsWithSum
+     * @param  null|DataCollection<array-key, SelectivePositionsWithSum>  $selectivePositionsWithSum
      */
     public function __construct(
         public readonly DiscountType $discountType,
         public readonly int $sum,
         public readonly ?array $selectivePositions,
         #[DataCollectionOf(SelectivePositionsWithSum::class)]
-        public readonly DataCollection $selectivePositionsWithSum,
+        public readonly ?DataCollection $selectivePositionsWithSum,
     ) {}
 }
