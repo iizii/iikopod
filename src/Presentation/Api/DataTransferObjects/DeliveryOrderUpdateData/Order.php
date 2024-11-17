@@ -19,7 +19,7 @@ final class Order extends Data
      */
     public function __construct(
         public readonly ?string $parentDeliveryId,
-        public readonly Customer $customer,
+        public readonly ?Customer $customer,
         public readonly string $phone,
         public readonly ?DeliveryPoint $deliveryPoint,
         public readonly string $status,
