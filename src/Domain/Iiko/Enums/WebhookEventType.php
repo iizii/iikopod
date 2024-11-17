@@ -16,6 +16,8 @@ enum WebhookEventType: string
 
     case STOP_LIST_UPDATE = 'StopListUpdate';
 
+    case RESERVE_UPDATE = 'ReserveUpdate';
+
     /**
      * @return array<non-empty-string, class-string>
      */

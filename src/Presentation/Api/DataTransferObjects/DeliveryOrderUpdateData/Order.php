@@ -34,7 +34,7 @@ final class Order extends Data
         public readonly ?string $whenDelivered,
         public readonly string $comment,
         public readonly ?Problem $problem,
-        public readonly Operator $operator,
+        public readonly ?Operator $operator,
         public readonly ?MarketingSource $marketingSource,
         public readonly int $deliveryDuration,
         public readonly ?int $indexInCourierRoute,
@@ -58,7 +58,7 @@ final class Order extends Data
         public readonly string $sourceKey,
         public readonly ?string $whenBillPrinted,
         public readonly ?string $whenClosed,
-        public readonly Conception $conception,
+        public readonly ?Conception $conception,
         public readonly GuestsInfo $guestsInfo,
         #[DataCollectionOf(Items::class)]
         public readonly DataCollection $items,

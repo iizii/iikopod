@@ -23,7 +23,7 @@ final class Items extends Data
         public readonly string $status,
         public readonly int $amount,
         public readonly ?string $comment,
-        public readonly string $whenPrinted,
+        public readonly ?string $whenPrinted,
         public readonly ?Size $size,
         public readonly ?ComboInformation $comboInformation
     ) {}
