@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Application\Iiko\Factories;
 
-use Application\Iiko\DataTransferObjects\DeliveryOrderUpdateData\EventData;
-use Application\Iiko\Requests\IikoWebhookRequest;
 use Domain\Iiko\Enums\WebhookEventType;
 use Domain\Iiko\Exceptions\IikoEventTypeNotFountException;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\EventData;
+use Presentation\Api\Requests\IikoWebhookRequest;
 use Spatie\LaravelData\Data;
 
 final readonly class WebhookEventDataFactory

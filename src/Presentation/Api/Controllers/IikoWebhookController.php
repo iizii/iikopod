@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Presentation\Api\Controllers;
 
 use Application\Iiko\Factories\WebhookEventFactory;
-use Application\Iiko\Requests\IikoWebhookRequest;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Presentation\Api\Requests\IikoWebhookRequest;
 use Spatie\RouteAttributes\Attributes\Route;
 
 final readonly class IikoWebhookController

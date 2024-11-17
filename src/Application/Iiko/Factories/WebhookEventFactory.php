@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Application\Iiko\Factories;
 
-use Application\Iiko\Requests\IikoWebhookRequest;
 use Domain\Iiko\Enums\WebhookEventType;
 use Domain\Iiko\Exceptions\IikoEventTypeNotFountException;
 use Illuminate\Contracts\Events\Dispatcher;
+use Presentation\Api\Requests\IikoWebhookRequest;
 
 final readonly class WebhookEventFactory
 {
