@@ -117,7 +117,7 @@ return [
         //'livewire*',
         'nova-api*',
         'pulse*',
-        'logs*'
+        'logs*',
     ],
 
     'ignore_commands' => [
