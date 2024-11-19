@@ -19,12 +19,22 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\Cr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodCategory\CreateFoodCategoryResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\EditFoodModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\EditFoodModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\EditRestaurantModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\EditRestaurantModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEvent;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
@@ -33,9 +43,14 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Food\EditFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\UpdateFoodCategoryRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\CreateFoodModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\EditFoodModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\EditModifierTypeRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\CreateRestaurantFoodRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\EditRestaurantFoodRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantModifier\CreateRestaurantModifierRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantModifier\EditRestaurantModifierRequest;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\ConnectorLogger;
@@ -131,9 +146,9 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     public function createModifier(CreateModifierRequestData $createModifierRequestData): CreateModifierResponseData
     {
         /** @var CreateModifierResponseData $respone */
-        $respone = $this->send(new CreateModifierRequest($createModifierRequestData));
+        $response = $this->send(new CreateModifierRequest($createModifierRequestData));
 
-        return $respone;
+        return $response;
     }
 
     /**
@@ -144,6 +159,66 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var CreateFoodModifierResponseData $response */
         $response = $this->send(new CreateFoodModifierRequest($createFoodModifierRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateFoodModifier(EditFoodModifierRequestData $editFoodModifierRequestData, IntegerId $id): DataTransferObjects\FoodModifier\EditFoodModifierResponseData
+    {
+        /** @var EditFoodModifierResponseData $response */
+        $response = $this->send(new EditFoodModifierRequest($id->id, $editFoodModifierRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createRestaurantFood(CreateRestaurantFoodRequestData $createRestaurantFoodRequestData): CreateRestaurantFoodResponseData
+    {
+        /** @var CreateRestaurantFoodResponseData $response */
+        $response = $this->send(new CreateRestaurantFoodRequest($createRestaurantFoodRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createRestaurantModifier(CreateRestaurantModifierRequestData $createRestaurantModifierRequestData): CreateRestaurantModifierResponseData
+    {
+        /** @var CreateRestaurantModifierResponseData $response */
+        $response = $this->send(new CreateRestaurantModifierRequest($createRestaurantModifierRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateRestaurantModifier(EditRestaurantModifierRequestData $editRestaurantModifierRequestData, IntegerId $id): DataTransferObjects\RestaurantModifier\EditRestaurantModifierResponseData
+    {
+        /** @var EditRestaurantModifierResponseData $response */
+        $response = $this->send(new EditRestaurantModifierRequest($id->id, $editRestaurantModifierRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateRestaurantFood(EditRestaurantFoodRequestData $editRestaurantFoodRequestData, IntegerId $id): DataTransferObjects\RestaurantFood\EditRestaurantFoodResponseData
+    {
+        /** @var EditRestaurantFoodResponseData $response */
+        $response = $this->send(new EditRestaurantFoodRequest($id->id, $editRestaurantFoodRequestData));
 
         return $response;
     }

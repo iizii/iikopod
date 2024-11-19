@@ -14,7 +14,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapInputName(SnakeCaseMapper::class)]
 #[MapOutputName(SnakeCaseMapper::class)]
-final class CreateRestaurantFoodResponseData extends ResponseData
+final class EditRestaurantFoodResponseData extends ResponseData
 {
     public function __construct(
         public readonly int $id,
@@ -29,14 +29,13 @@ final class CreateRestaurantFoodResponseData extends ResponseData
     public function toDomainEntity(): RestaurantFood
     {
         return new RestaurantFood(
-            new IntegerId(), // id в системе, ставится через set в билдере
+            new IntegerId($this->id),
             new IntegerId($this->restaurant),
             new IntegerId($this->food),
-            new IntegerId($this->id),
-            new IntegerId(), // id в системе, ставится через set в билдере
-            new IntegerId(), // id в системе, ставится через set в билдере
             $this->statusComment,
             $this->status,
+            $this->created,
+            $this->updated
         );
     }
 }

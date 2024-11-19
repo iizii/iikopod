@@ -18,6 +18,9 @@ final readonly class IikoWebhookController
     #[Route(methods: 'POST', uri: '/iiko/webhook', name: 'iiko.webhook')]
     public function __invoke(Request $request): JsonResponse
     {
+        logger()->channel('iiko_webhook')->info('Полученный реквест', [
+            $request,
+        ]);
         $this->webhookEventFactory->fromEventCollection(IikoWebhookRequest::collect($request->all()));
 
         return $this->responseFactory->json();

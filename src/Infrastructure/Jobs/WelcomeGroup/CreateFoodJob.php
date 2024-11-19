@@ -8,6 +8,8 @@ use Application\Iiko\Builders\ItemBuilder;
 use Application\WelcomeGroup\Builders\FoodBuilder;
 use Application\WelcomeGroup\Builders\FoodModifierBuilder;
 use Application\WelcomeGroup\Builders\ModifierBuilder;
+use Application\WelcomeGroup\Builders\RestaurantFoodBuilder;
+use Application\WelcomeGroup\Builders\RestaurantModifierBuilder;
 use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
 use Domain\Iiko\Entities\Menu\ItemSize;
@@ -17,6 +19,7 @@ use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
 use Domain\Iiko\ValueObjects\Menu\ItemModifierGroupCollection;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
+use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Enums\ModifierTypeBehaviour;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepositoryInterface;
@@ -24,6 +27,7 @@ use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepositoryInterface
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierTypeRepositoryInterface;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantModifierRepositoryInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,6 +35,9 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFood
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierRequestData;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepository;
 use Infrastructure\Queue\Queue;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -59,6 +66,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
         WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
+        WelcomeGroupRestaurantFoodRepository $welcomeGroupRestaurantFoodRepository,
+        WelcomeGroupRestaurantModifierRepositoryInterface $welcomeGroupRestaurantModifierRepository,
     ): void {
         $iikoItem = $this->item;
 
@@ -94,7 +103,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
 
         $foodRequest = $foodBuilder->build();
 
-        $response = $welcomeGroupConnector->createFood(
+        $foodResponse = $welcomeGroupConnector->createFood(
             new CreateFoodRequestData(
                 $foodRequest->externalFoodCategoryId->id,
                 $foodRequest->workshopId->id,
@@ -106,9 +115,29 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ),
         );
 
-        $foodBuilder = $foodBuilder->setExternalId(new IntegerId($response->id));
+        $foodBuilder = $foodBuilder->setExternalId(new IntegerId($foodResponse->id));
 
         $createdFood = $welcomeGroupFoodRepository->save($foodBuilder->build());
+
+        $restaurantFoodResponse = $welcomeGroupConnector->createRestaurantFood(
+            new CreateRestaurantFoodRequestData(
+                $organizationSetting->welcomeGroupRestaurantId->id,
+                $createdFood->id->id,
+            )
+        );
+
+        $restaurantFoodBuilder = RestaurantFoodBuilder::fromExisted(
+            $restaurantFoodResponse->toDomainEntity()
+        )
+            ->setWelcomeGroupFoodId($createdFood->id)
+            ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId)
+            ->setExternalId(new IntegerId($restaurantFoodResponse->id));
+
+        $createdRestaurantFood = $welcomeGroupRestaurantFoodRepository->save($restaurantFoodBuilder->build());
+
+        $restaurantFood = $restaurantFoodBuilder
+            ->setId($createdRestaurantFood->id)
+            ->build();
 
         $food = $foodBuilder
             ->setId($createdFood->id)
@@ -119,7 +148,9 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             $food,
             $welcomeGroupModifierRepository,
             $welcomeGroupModifierTypeRepository,
-            $welcomeGroupConnector
+            $welcomeGroupConnector,
+            $organizationSetting,
+            $welcomeGroupRestaurantModifierRepository
         ): void {
             $this->handleModifierGroups(
                 $food,
@@ -128,6 +159,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                 $welcomeGroupModifierTypeRepository,
                 $welcomeGroupModifierRepository,
                 $welcomeGroupFoodModifierRepository,
+                $organizationSetting,
+                $welcomeGroupRestaurantModifierRepository,
             );
         });
     }
@@ -139,6 +172,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
         WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
+        OrganizationSetting $organizationSetting,
+        WelcomeGroupRestaurantModifierRepositoryInterface $welcomeGroupRestaurantModifierRepository
     ): void {
         $modifierGroupCollection->each(
             function (ItemModifierGroup $itemModifierGroup) use (
@@ -146,7 +181,9 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                 $food,
                 $welcomeGroupModifierRepository,
                 $welcomeGroupModifierTypeRepository,
-                $welcomeGroupConnector
+                $welcomeGroupConnector,
+                $organizationSetting,
+                $welcomeGroupRestaurantModifierRepository
             ): void {
                 $this->handleModifierGroup(
                     $food,
@@ -155,6 +192,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                     $welcomeGroupModifierTypeRepository,
                     $welcomeGroupModifierRepository,
                     $welcomeGroupFoodModifierRepository,
+                    $organizationSetting,
+                    $welcomeGroupRestaurantModifierRepository
                 );
             },
         );
@@ -167,6 +206,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
         WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
+        OrganizationSetting $organizationSetting,
+        WelcomeGroupRestaurantModifierRepositoryInterface $welcomeGroupRestaurantModifierRepository
     ): void {
         $maxQuantity = $modifierGroup->maxQuantity;
 
@@ -187,7 +228,9 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                     $modifierType,
                     $welcomeGroupModifierRepository,
                     $modifierTypeResponse,
-                    $welcomeGroupConnector
+                    $welcomeGroupConnector,
+                    $organizationSetting,
+                    $welcomeGroupRestaurantModifierRepository
                 ) {
                     $modifierResponse = $welcomeGroupConnector->createModifier(
                         new CreateModifierRequestData(
@@ -202,6 +245,22 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                         ->build();
 
                     $createdModifier = $welcomeGroupModifierRepository->save($modifier);
+
+                    $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+                        new CreateRestaurantModifierRequestData(
+                            $organizationSetting->welcomeGroupRestaurantId->id,
+                            $createdModifier->externalId->id
+                        )
+                    );
+
+                    $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                    $restaurantModifier = $restaurantModifierBuilder
+                        ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId)
+                        ->setWelcomeGroupModifierId($createdModifier->id);
+
+                    $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+
+                    $restaurantModifier->setExternalId($createdRestaurantModifier->id);
 
                     $itemPrice = $item->prices->first();
 

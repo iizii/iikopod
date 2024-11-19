@@ -9,7 +9,7 @@ use Domain\WelcomeGroup\Entities\RestaurantModifier;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
 
-final class CreateRestaurantModifierResponseData extends ResponseData
+final class EditRestaurantModifierResponseData extends ResponseData
 {
     public function __construct(
         public readonly int $id,
