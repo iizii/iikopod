@@ -32,7 +32,7 @@ final class Order extends Data
         public readonly ?string $whenCookingCompleted,
         public readonly ?string $whenSended,
         public readonly ?string $whenDelivered,
-        public readonly string $comment,
+        public readonly ?string $comment,
         public readonly ?Problem $problem,
         public readonly ?Operator $operator,
         public readonly ?MarketingSource $marketingSource,
