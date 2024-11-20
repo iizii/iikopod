@@ -40,7 +40,7 @@ final class Order extends Data
         public readonly ?int $indexInCourierRoute,
         public readonly string $cookingStartTime,
         public readonly bool $isDeleted,
-        public readonly string $whenReceivedByApi,
+        public readonly ?string $whenReceivedByApi,
         public readonly string $whenReceivedFromFront,
         public readonly ?string $movedFromDeliveryId,
         public readonly ?string $movedFromTerminalGroupId,
