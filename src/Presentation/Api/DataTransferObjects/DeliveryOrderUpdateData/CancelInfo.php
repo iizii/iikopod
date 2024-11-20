@@ -11,6 +11,6 @@ final class CancelInfo extends Data
     public function __construct(
         public readonly string $whenCancelled,
         public readonly Cause $cause,
-        public readonly string $comment
+        public readonly ?string $comment
     ) {}
 }
