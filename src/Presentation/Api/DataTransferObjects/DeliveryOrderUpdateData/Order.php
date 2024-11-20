@@ -55,7 +55,7 @@ final class Order extends Data
         public readonly ?string $whenPacked,
         public readonly int $sum,
         public readonly int $number,
-        public readonly string $sourceKey,
+        public readonly ?string $sourceKey,
         public readonly ?string $whenBillPrinted,
         public readonly ?string $whenClosed,
         public readonly ?Conception $conception,
