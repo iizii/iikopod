@@ -24,7 +24,7 @@ final class FoodBuilder
         private IntegerId $externalFoodCategoryId,
         private IntegerId $workshopId,
         private string $name,
-        private string $description,
+        private ?string $description,
         private int $weight,
         private int $caloricity,
         private ?int $price,

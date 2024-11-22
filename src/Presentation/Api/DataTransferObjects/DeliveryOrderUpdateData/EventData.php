@@ -11,7 +11,7 @@ final class EventData extends Data
     public function __construct(
         public readonly string $id,
         public readonly string $posId,
-        public readonly string $externalNumber,
+        public readonly ?string $externalNumber,
         public readonly string $organizationId,
         public readonly int $timestamp,
         public readonly string $creationStatus,

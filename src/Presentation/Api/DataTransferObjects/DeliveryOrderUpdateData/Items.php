@@ -10,6 +10,9 @@ use Spatie\LaravelData\DataCollection;
 
 final class Items extends Data
 {
+    /**
+     * @param  DataCollection<array-key, Modifiers>  $modifiers
+     */
     public function __construct(
         public readonly string $type,
         public readonly Product $product,
@@ -25,6 +28,6 @@ final class Items extends Data
         public readonly ?string $comment,
         public readonly ?string $whenPrinted,
         public readonly ?Size $size,
-        public readonly ?ComboInformation $comboInformation
+        public readonly ?ComboInformation $comboInformation,
     ) {}
 }

@@ -44,6 +44,9 @@ final class WelcomeGroupModifier extends Model
         'is_default',
     ];
 
+    /**
+     * @return BelongsTo<WelcomeGroupModifierType>
+     */
     public function modifierType(): BelongsTo
     {
         return $this->belongsTo(WelcomeGroupModifierType::class, 'welcome_group_modifier_type_id', 'id');
