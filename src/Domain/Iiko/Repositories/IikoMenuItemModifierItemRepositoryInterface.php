@@ -14,6 +14,8 @@ interface IikoMenuItemModifierItemRepositoryInterface
 {
     public function findFor(ItemSize $itemSize): ItemCollection;
 
+    public function findByExternalId(StringId $id): ?Item;
+
     public function findByMenuIdAndExternalId(IntegerId $iikoMenuItemModifierGroupId, StringId $externalId): ?Item;
 
     public function createOrUpdate(Item $item): Item;

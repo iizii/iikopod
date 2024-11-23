@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Infrastructure\Listeners\Iiko;
 
 use Application\Iiko\Events\DeliveryOrderUpdateEvent;
+use Application\Iiko\Services\Order\CreateOrderFromWebhook;
 
-final class DeliveryOrderUpdateListener
+final readonly class DeliveryOrderUpdateListener
 {
     /**
      * Create the event listener.
      */
-    public function __construct()
+    public function __construct(private CreateOrderFromWebhook $createOrderFromWebhook)
     {
         //
     }
@@ -21,6 +22,6 @@ final class DeliveryOrderUpdateListener
      */
     public function handle(DeliveryOrderUpdateEvent $event): void
     {
-        logger()->channel('delivery_order_update')->info('Listener data', [$event]);
+        $this->createOrderFromWebhook->handle($event->eventData);
     }
 }

@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\ValueObjects\Order;
+namespace Domain\Orders\ValueObjects;
 
-use Domain\Iiko\Entities\Order\Item;
 use Shared\Domain\ValueObjects\ValueObjectCollection;
 
 /**

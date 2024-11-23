@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Domain\Iiko\Enums;
+namespace Domain\Orders\Enums;
 
-enum CustomerType: string
+enum OrderStatus: string
 {
     case NEW = 'new';
 }

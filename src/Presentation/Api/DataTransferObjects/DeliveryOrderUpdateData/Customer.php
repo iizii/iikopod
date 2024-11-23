@@ -8,5 +8,5 @@ use Spatie\LaravelData\Data;
 
 final class Customer extends Data
 {
-    public function __construct(public readonly string $type) {}
+    public function __construct(public readonly ?string $name, public readonly string $type) {}
 }
