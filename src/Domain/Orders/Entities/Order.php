@@ -18,6 +18,7 @@ final class Order extends DomainEntity
 {
     public function __construct(
         public readonly IntegerId $id,
+        public readonly IntegerId $organizationId,
         public readonly OrderSource $source,
         public readonly OrderStatus $status,
         public readonly StringId $iikoExternalId,

@@ -11,6 +11,10 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
@@ -23,9 +27,17 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\Create
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEvent;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Address\CreateAddressRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Client\CreateClientRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Food\CreateFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Food\EditFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
@@ -33,6 +45,9 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\UpdateFoodCat
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\CreateFoodModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\ConnectorLogger;
@@ -65,8 +80,10 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function updateFoodCategory(CreateFoodCategoryRequestData $createFoodCategoryRequestData, IntegerId $id): CreateFoodCategoryResponseData
-    {
+    public function updateFoodCategory(
+        CreateFoodCategoryRequestData $createFoodCategoryRequestData,
+        IntegerId $id,
+    ): CreateFoodCategoryResponseData {
         /** @var CreateFoodCategoryResponseData $response */
         $response = $this->send(new UpdateFoodCategoryRequest($createFoodCategoryRequestData, $id));
 
@@ -125,10 +142,70 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function createFoodModifier(CreateFoodModifierRequestData $createFoodModifierRequestData): CreateFoodModifierResponseData
-    {
+    public function createFoodModifier(CreateFoodModifierRequestData $createFoodModifierRequestData,
+    ): CreateFoodModifierResponseData {
         /** @var CreateFoodModifierResponseData $response */
         $response = $this->send(new CreateFoodModifierRequest($createFoodModifierRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createClient(CreateClientRequestData $createClientRequestData): CreateClientResponseData
+    {
+        /** @var CreateClientResponseData $response */
+        $response = $this->send(new CreateClientRequest($createClientRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createPhone(CreatePhoneRequestData $createPhoneRequestData): CreatePhoneResponseData
+    {
+        /** @var CreatePhoneResponseData $response */
+        $response = $this->send(new CreatePhoneRequest($createPhoneRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createAddress(CreateAddressRequestData $createAddressRequestData): CreateAddressResponseData
+    {
+        /** @var CreateAddressResponseData $response */
+        $response = $this->send(new CreateAddressRequest($createAddressRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createOrder(CreateOrderRequestData $createOrderData): CreateOrderResponseData
+    {
+        /** @var CreateOrderResponseData $response */
+        $response = $this->send(new CreateOrderRequest($createOrderData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createOrderItem(CreateOrderItemRequestData $createOrderItemRequestData): CreateOrderItemResponseData
+    {
+        /** @var CreateOrderItemResponseData $response */
+        $response = $this->send(new CreateOrderItemRequest($createOrderItemRequestData));
 
         return $response;
     }

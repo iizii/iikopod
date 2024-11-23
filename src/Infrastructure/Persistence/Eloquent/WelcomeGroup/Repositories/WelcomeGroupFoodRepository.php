@@ -6,7 +6,9 @@ namespace Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories;
 
 use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
 
 /**
@@ -16,11 +18,28 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
 {
     public function save(Food $food): Food
     {
-        $welcomeGroupFoodCategory = new WelcomeGroupFood();
+        $welcomeGroupFood = new WelcomeGroupFood();
 
-        $welcomeGroupFoodCategory->fromDomainEntity($food);
-        $welcomeGroupFoodCategory->save();
+        $welcomeGroupFood->fromDomainEntity($food);
+        $welcomeGroupFood->save();
 
-        return WelcomeGroupFood::toDomainEntity($welcomeGroupFoodCategory);
+        return WelcomeGroupFood::toDomainEntity($welcomeGroupFood);
+    }
+
+    public function findByIikoId(IntegerId $id): ?Food
+    {
+        $welcomeGroupFood = $this
+            ->query()
+            ->whereHas(
+                'iikoMenuItem',
+                static fn (Builder $builder): Builder => $builder->where('id', $id->id),
+            )
+            ->first();
+
+        if (! $welcomeGroupFood) {
+            return null;
+        }
+
+        return WelcomeGroupFood::toDomainEntity($welcomeGroupFood);
     }
 }

@@ -14,6 +14,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Queue\Queue;
@@ -36,7 +38,8 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * @throws ConnectionException
+     * @throws RequestException
      */
     public function handle(
         QueueingDispatcher $dispatcher,
@@ -46,7 +49,9 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         $modifierResponse = $welcomeGroupConnector->createModifier($this->createModifierRequestData);
 
         $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
-        $modifierBuilder = $modifierBuilder->setInternalModifierTypeId($this->modifierType->id);
+        $modifierBuilder = $modifierBuilder
+            ->setInternalIikoItemId($this->item->id)
+            ->setInternalModifierTypeId($this->modifierType->id);
 
         $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
         $modifier = $modifierBuilder->setId($createdModifier->id);

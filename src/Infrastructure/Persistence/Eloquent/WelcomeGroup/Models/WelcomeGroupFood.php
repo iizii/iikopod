@@ -7,6 +7,7 @@ namespace Infrastructure\Persistence\Eloquent\WelcomeGroup\Models;
 use Domain\WelcomeGroup\Entities\Food;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
@@ -17,13 +18,14 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property int $external_food_category_id
  * @property int $workshop_id
  * @property string $name
- * @property string $description
+ * @property string|null $description
  * @property int $weight
  * @property int $caloricity
  * @property int $price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodCategory $foodCategory
+ * @property-read IikoMenuItem $iikoMenuItem
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood newQuery()
@@ -58,6 +60,11 @@ final class WelcomeGroupFood extends Model
         'caloricity',
         'price',
     ];
+
+    public function iikoMenuItem(): BelongsTo
+    {
+        return $this->belongsTo(IikoMenuItem::class, 'iiko_menu_item_id', 'id');
+    }
 
     public function foodCategory(): BelongsTo
     {

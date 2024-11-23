@@ -6,7 +6,7 @@ namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order;
 
 use Spatie\LaravelData\Data;
 
-final class CreateOrderData extends Data
+final class CreateOrderRequestData extends Data
 {
     /**
      * @param  array<array-key, int>  $promotions
@@ -20,7 +20,7 @@ final class CreateOrderData extends Data
         public readonly string $status,
         public readonly int $duration,
         public readonly int $discount,
-        public readonly string $comment,
+        public readonly ?string $comment,
         public readonly int $source,
         public readonly bool $isPreorder = false,
     ) {}

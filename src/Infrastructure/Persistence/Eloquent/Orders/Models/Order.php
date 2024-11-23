@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\Orders\Models;
 
+use Domain\Iiko\Enums\CustomerType;
 use Domain\Orders\Entities\Order as DomainOrder;
+use Domain\Orders\Enums\OrderSource;
+use Domain\Orders\Enums\OrderStatus;
+use Domain\Orders\ValueObjects\Customer;
+use Domain\Orders\ValueObjects\ItemCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
+ * @property int $organization_setting_id
  * @property string $source
  * @property string $status
  * @property string|null $iiko_external_id
- * @property string|null $welcome_group_external_id
+ * @property int|null $welcome_group_external_id
  * @property string|null $comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -30,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereIikoExternalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrganizationSettingId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
@@ -40,6 +49,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 final class Order extends Model
 {
     protected $fillable = [
+        'organization_setting_id',
         'source',
         'status',
         'iiko_external_id',
@@ -71,14 +81,43 @@ final class Order extends Model
         return $this->hasMany(OrderItem::class, 'order_id', 'id');
     }
 
+    public function casts(): array
+    {
+        return [
+            'organization_setting_id' => 'integer',
+            'welcome_group_external_id' => 'integer',
+        ];
+    }
+
     public function fromDomainEntity(DomainOrder $order): self
     {
         return $this->fill([
+            'organization_setting_id' => $order->organizationId->id,
             'source' => $order->source,
             'status' => $order->status->value,
             'iiko_external_id' => $order->iikoExternalId->id,
             'welcome_group_external_id' => $order->welcomeGroupExternalId->id,
             'comment' => $order->comment,
         ]);
+    }
+
+    public static function toDomainEntity(self $order): DomainOrder
+    {
+        return new DomainOrder(
+            new IntegerId($order->id),
+            new IntegerId($order->organization_setting_id),
+            OrderSource::from($order->source),
+            OrderStatus::from($order->status),
+            new StringId($order->iiko_external_id),
+            new IntegerId($order->welcome_group_external_id),
+            $order->comment,
+            null,
+            new Customer(
+                $order->customer->name,
+                CustomerType::from($order->customer->type),
+                $order->customer->phone,
+            ),
+            new ItemCollection(),
+        );
     }
 }

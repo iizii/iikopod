@@ -16,14 +16,15 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierIte
  * @property int $iiko_menu_item_modifier_item_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read IikoMenuItemModifierItem $modifier
+ * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem $orderItem
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static >|OrderItemModifier
- *     whereIikoMenuItemModifierItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereIikoMenuItemModifierItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereOrderItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereUpdatedAt($value)
  *

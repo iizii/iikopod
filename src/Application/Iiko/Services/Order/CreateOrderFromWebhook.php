@@ -17,6 +17,8 @@ use Domain\Orders\ValueObjects\ItemCollection;
 use Domain\Orders\ValueObjects\ItemModifierCollection;
 use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
+use Domain\Settings\Exceptions\OrganizationNotFoundException;
+use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Illuminate\Support\ItemNotFoundException;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\EventData;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Items;
@@ -30,6 +32,7 @@ final readonly class CreateOrderFromWebhook
         private StoreOrder $storeOrder,
         private IikoMenuItemRepositoryInterface $menuItemRepository,
         private IikoMenuItemModifierItemRepositoryInterface $menuItemModifierItemRepository,
+        private OrganizationSettingRepositoryInterface $organizationSettingRepository,
     ) {}
 
     /**
@@ -50,8 +53,15 @@ final readonly class CreateOrderFromWebhook
             )
             : null;
 
+        $organization = $this->organizationSettingRepository->findByIIkoId(new StringId($eventData->organizationId));
+
+        if (! $organization) {
+            throw new OrganizationNotFoundException();
+        }
+
         $order = new Order(
             new IntegerId(),
+            $organization->id,
             OrderSource::IIKO,
             OrderStatus::NEW,
             new StringId($eventData->id),

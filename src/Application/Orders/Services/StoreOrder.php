@@ -36,7 +36,7 @@ final readonly class StoreOrder
         } catch (\Throwable $exception) {
             $this->databaseManager->rollBack();
 
-            throw new OrderStoreException($exception->getMessage());
+            throw new OrderStoreException($exception->getMessage(), 500, $exception);
         }
 
         return $order;

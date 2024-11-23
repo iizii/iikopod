@@ -6,14 +6,15 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests\Order;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
-use Shared\Infrastructure\Integrations\ResponseData;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final class CreateOrderRequest implements RequestInterface, ResponseDataInterface
+final readonly class CreateOrderRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct() {}
+    public function __construct(private CreateOrderRequestData $createOrderData) {}
 
     public function method(): RequestMethod
     {
@@ -22,7 +23,7 @@ final class CreateOrderRequest implements RequestInterface, ResponseDataInterfac
 
     public function endpoint(): string
     {
-        return '/order';
+        return '/api/order';
     }
 
     public function headers(): array|Arrayable
@@ -32,11 +33,11 @@ final class CreateOrderRequest implements RequestInterface, ResponseDataInterfac
 
     public function data(): array|Arrayable
     {
-        // TODO: Implement data() method.
+        return $this->createOrderData;
     }
 
-    public function createDtoFromResponse(Response $response): ResponseData|iterable
+    public function createDtoFromResponse(Response $response): CreateOrderResponseData
     {
-        // TODO: Implement createDtoFromResponse() method.
+        return CreateOrderResponseData::from($response->json());
     }
 }
