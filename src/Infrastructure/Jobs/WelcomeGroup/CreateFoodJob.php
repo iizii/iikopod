@@ -241,7 +241,9 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
 
                     $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
                     $modifier = $modifierBuilder
+                        ->setExternalId(new IntegerId($modifierResponse->id))
                         ->setInternalModifierTypeId($modifierType->id)
+                        ->setIikoExternalModifierId($item->externalId)
                         ->build();
 
                     $createdModifier = $welcomeGroupModifierRepository->save($modifier);

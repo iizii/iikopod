@@ -17,12 +17,12 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
 {
     public function save(Food $food): Food
     {
-        $welcomeGroupFoodCategory = new WelcomeGroupFood();
+        $welcomeGroupFood = new WelcomeGroupFood();
 
-        $welcomeGroupFoodCategory->fromDomainEntity($food);
-        $welcomeGroupFoodCategory->save();
+        $welcomeGroupFood->fromDomainEntity($food);
+        $welcomeGroupFood->save();
 
-        return WelcomeGroupFood::toDomainEntity($welcomeGroupFoodCategory);
+        return WelcomeGroupFood::toDomainEntity($welcomeGroupFood);
     }
 
     public function findById(IntegerId $integerId): ?Food
@@ -40,5 +40,21 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
             ->where('iiko_menu_item_id', $integerId->id)
             ->first()
             ?->toDomainEntity();
+    }
+
+    public function update(Food $food): Food
+    {
+        /** @var WelcomeGroupFood $currentFood */
+        $currentFood = $this
+            ->query()
+            ->find($food->id);
+
+        $newFood = $currentFood
+            ->fromDomainEntity($food);
+
+        $newFood->id = $food->id;
+        $newFood->save();
+
+        return WelcomeGroupFood::toDomainEntity($newFood);
     }
 }

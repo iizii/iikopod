@@ -11,5 +11,11 @@ interface WelcomeGroupRestaurantModifierRepositoryInterface
 {
     public function save(RestaurantModifier $restaurantModifier): RestaurantModifier;
 
+    public function update(RestaurantModifier $restaurantModifier): RestaurantModifier;
+
     public function findById(IntegerId $integerId): ?RestaurantModifier;
+
+    public function findByInternalRestaurantAndModifierId(IntegerId $internalRestaurantId, IntegerId $internalModifierId): ?RestaurantModifier;
+
+    public function deleteByInternalId(IntegerId $id): bool;
 }

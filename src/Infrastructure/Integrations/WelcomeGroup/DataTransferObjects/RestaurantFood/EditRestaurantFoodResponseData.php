@@ -32,10 +32,11 @@ final class EditRestaurantFoodResponseData extends ResponseData
             new IntegerId($this->id),
             new IntegerId($this->restaurant),
             new IntegerId($this->food),
+            new IntegerId(),
+            new IntegerId(),
+            new IntegerId(),
             $this->statusComment,
             $this->status,
-            $this->created,
-            $this->updated
         );
     }
 }

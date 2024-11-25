@@ -6,6 +6,7 @@ namespace Application\WelcomeGroup\Builders;
 
 use Domain\WelcomeGroup\Entities\Modifier;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 final class ModifierBuilder
 {
@@ -14,6 +15,7 @@ final class ModifierBuilder
         private IntegerId $internalModifierTypeId,
         private IntegerId $externalId,
         private IntegerId $externalModifierTypeId,
+        private StringId $iikoExternalModifierId,
         private string $name,
         private bool $isDefault,
     ) {}
@@ -25,6 +27,7 @@ final class ModifierBuilder
             $modifier->internalModifierTypeId,
             $modifier->externalId,
             $modifier->externalModifierTypeId,
+            $modifier->iikoExternalModifierId,
             $modifier->name,
             $modifier->isDefault,
         );
@@ -78,6 +81,14 @@ final class ModifierBuilder
         return $clone;
     }
 
+    public function setIikoExternalModifierId(StringId $iikoExternalModifierId): ModifierBuilder
+    {
+        $clone = clone $this;
+        $clone->iikoExternalModifierId = $iikoExternalModifierId;
+
+        return $clone;
+    }
+
     public function build(): Modifier
     {
         return new Modifier(
@@ -85,6 +96,7 @@ final class ModifierBuilder
             $this->internalModifierTypeId,
             $this->externalId,
             $this->externalModifierTypeId,
+            $this->iikoExternalModifierId,
             $this->name,
             $this->isDefault,
         );

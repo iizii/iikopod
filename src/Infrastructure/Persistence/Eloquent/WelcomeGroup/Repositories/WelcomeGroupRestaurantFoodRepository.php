@@ -32,4 +32,21 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
             ->find($integerId->id)
             ?->toDomainEntity();
     }
+
+    public function findByInternalFoodId(IntegerId $id): ?RestaurantFood
+    {
+        return $this
+            ->query()
+            ->where('welcome_group_food_id', $id)
+            ->first();
+    }
+
+    public function findByInternalFoodAndRestaurantId(IntegerId $internalFoodid, IntegerId $internalRestaurantId): ?RestaurantFood
+    {
+        return $this
+            ->query()
+            ->where('welcome_group_food_id', $internalFoodid)
+            ->where('welcome_group_restaurant_id', $internalRestaurantId)
+            ->first();
+    }
 }

@@ -12,5 +12,7 @@ interface WelcomeGroupModifierTypeRepositoryInterface
 {
     public function save(ModifierType $modifierType): ModifierType;
 
+    public function update(ModifierType $modifierType): ModifierType;
+
     public function getByIikoModifierGroupIdAndName(IntegerId $iikoModifierGroupId, string $groupName): Collection;
 }

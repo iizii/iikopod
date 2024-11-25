@@ -32,4 +32,33 @@ final class WelcomeGroupRestaurantModifierRepository extends AbstractPersistence
             ->find($integerId->id)
             ?->toDomainEntity();
     }
+
+    public function findByInternalRestaurantAndModifierId(IntegerId $internalRestaurantId, IntegerId $internalModifierId): ?RestaurantModifier
+    {
+        return $this
+            ->query()
+            ->where('welcome_group_restaurant_id', $internalRestaurantId)
+            ->where('welcome_group_modifier_id', $internalModifierId)
+            ->first()
+            ?->toDomainEntity();
+    }
+
+    public function deleteByInternalId(IntegerId $id): bool
+    {
+        return $this
+            ->query()
+            ->find($id->id)
+            ->delete();
+    }
+
+    public function update(RestaurantModifier $restaurantModifier): RestaurantModifier
+    {
+        $welcomeGroupRestaurantModifier = new WelcomeGroupRestaurantModifier();
+
+        $welcomeGroupRestaurantModifier->fromDomainEntity($restaurantModifier);
+        $welcomeGroupRestaurantModifier->id = $restaurantModifier->id->id;
+        $welcomeGroupRestaurantModifier->save();
+
+        return WelcomeGroupRestaurantModifier::toDomainEntity($welcomeGroupRestaurantModifier);
+    }
 }

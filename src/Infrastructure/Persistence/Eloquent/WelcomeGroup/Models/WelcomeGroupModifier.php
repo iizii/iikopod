@@ -8,6 +8,7 @@ use Domain\WelcomeGroup\Entities\Modifier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
@@ -18,6 +19,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property bool $is_default
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $iiko_external_modifier_id
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType $modifierType
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier newModelQuery()
@@ -27,6 +29,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereExternalId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereExternalModifierTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereIikoExternalModifierId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereIsDefault($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereUpdatedAt($value)
@@ -62,6 +65,7 @@ final class WelcomeGroupModifier extends Model
             'welcome_group_modifier_type_id' => $modifier->internalModifierTypeId->id,
             'external_id' => $modifier->externalId->id,
             'external_modifier_type_id' => $modifier->externalModifierTypeId->id,
+            'iiko_external_modifier_id' => $modifier->iikoExternalModifierId->id,
             'name' => $modifier->name,
             'is_default' => $modifier->isDefault,
         ]);
@@ -74,6 +78,7 @@ final class WelcomeGroupModifier extends Model
             new IntegerId($modifier->welcome_group_modifier_type_id),
             new IntegerId($modifier->external_id),
             new IntegerId($modifier->external_modifier_type_id),
+            new StringId($modifier->iiko_external_modifier_id),
             $modifier->name,
             $modifier->is_default,
         );

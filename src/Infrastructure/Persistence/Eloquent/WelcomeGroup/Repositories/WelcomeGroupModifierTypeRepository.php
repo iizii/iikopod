@@ -27,6 +27,17 @@ final class WelcomeGroupModifierTypeRepository extends AbstractPersistenceReposi
         return WelcomeGroupModifierType::toDomainEntity($welcomeGroupModifierType);
     }
 
+    public function update(ModifierType $modifierType): ModifierType
+    {
+        $welcomeGroupModifierType = new WelcomeGroupModifierType();
+
+        $welcomeGroupModifierType->fromDomainEntity($modifierType);
+        $welcomeGroupModifierType->id = $modifierType->id->id;
+        $welcomeGroupModifierType->save();
+
+        return WelcomeGroupModifierType::toDomainEntity($welcomeGroupModifierType);
+    }
+
     public function getByIikoModifierGroupIdAndName(IntegerId $iikoModifierGroupId, string $groupName): Collection
     {
         // TODO: Implement getByIikoGroupIdAndName() method.

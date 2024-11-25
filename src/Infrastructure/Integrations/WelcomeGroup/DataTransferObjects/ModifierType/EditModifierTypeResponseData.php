@@ -30,6 +30,7 @@ final class EditModifierTypeResponseData extends ResponseData
         return new ModifierType(
             new IntegerId(),
             new IntegerId($this->id),
+            new IntegerId(),
             $this->name,
             ModifierTypeBehaviour::from($this->behaviour),
         );

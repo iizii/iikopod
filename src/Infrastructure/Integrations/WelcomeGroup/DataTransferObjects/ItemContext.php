@@ -9,6 +9,7 @@ use Domain\Iiko\Entities\Menu\Item;
 use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Entities\FoodCategory;
+use Domain\WelcomeGroup\Entities\RestaurantFood;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
 
 final class ItemContext
@@ -19,6 +20,7 @@ final class ItemContext
         public readonly Food $food,
         public readonly OrganizationSetting $organizationSetting,
         public readonly FoodCategory $category,
-        public readonly WelcomeGroupFoodRepositoryInterface $foodRepo
+        public readonly WelcomeGroupFoodRepositoryInterface $foodRepo,
+        public readonly RestaurantFood $restaurantFood,
     ) {}
 }
