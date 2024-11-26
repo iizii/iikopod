@@ -7,6 +7,7 @@ namespace Domain\Integrations\WelcomeGroup;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
@@ -29,6 +30,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\Creat
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneResponseData;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
@@ -90,6 +93,14 @@ interface WelcomeGroupConnectorInterface
      * @throws ConnectionException
      */
     public function createClient(CreateClientRequestData $createClientRequestData): CreateClientResponseData;
+
+    /**
+     * @return LazyCollection<array-key, FindPhoneResponseData>
+     *
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function findPhone(FindPhoneRequestData $findPhoneRequestData): LazyCollection;
 
     /**
      * @throws RequestException

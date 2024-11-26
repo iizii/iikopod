@@ -21,6 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
 use Infrastructure\Queue\Queue;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -57,15 +58,19 @@ final class CreateOrderJob implements ShouldBeUnique, ShouldQueue
             throw new OrganizationNotFoundException();
         }
 
+        $orderPhone = $order->customer->phone;
+
+        $phone = $welcomeGroupConnector->findPhone(new FindPhoneRequestData($orderPhone))->first();
+
+        if (! $phone) {
+            $phone = $welcomeGroupConnector->createPhone(
+                new CreatePhoneRequestData($orderPhone),
+            );
+        }
+
         $client = $welcomeGroupConnector->createClient(
             new CreateClientRequestData(
                 $order->customer->name ?? 'Не указано',
-            ),
-        );
-
-        $phone = $welcomeGroupConnector->createPhone(
-            new CreatePhoneRequestData(
-                $order->customer->phone,
             ),
         );
 

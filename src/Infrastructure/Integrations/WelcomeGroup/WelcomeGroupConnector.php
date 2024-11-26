@@ -11,10 +11,13 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\FindClientRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\FindClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
@@ -33,11 +36,14 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\Creat
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEvent;
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Address\CreateAddressRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Client\CreateClientRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Client\FindClientRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Food\CreateFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Food\EditFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
@@ -48,6 +54,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifie
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\FindPhoneRequest;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\ConnectorLogger;
@@ -68,8 +75,8 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function createFoodCategory(CreateFoodCategoryRequestData $createFoodCategoryRequestData): CreateFoodCategoryResponseData
-    {
+    public function createFoodCategory(CreateFoodCategoryRequestData $createFoodCategoryRequestData,
+    ): CreateFoodCategoryResponseData {
         /** @var CreateFoodCategoryResponseData $response */
         $response = $this->send(new CreateFoodCategoryRequest($createFoodCategoryRequestData));
 
@@ -118,8 +125,8 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function createModifierType(CreateModifierTypeRequestData $createModifierTypeRequestData): CreateModifierTypeResponseData
-    {
+    public function createModifierType(CreateModifierTypeRequestData $createModifierTypeRequestData,
+    ): CreateModifierTypeResponseData {
         /** @var CreateModifierTypeResponseData $response */
         $response = $this->send(new CreateModifierTypeRequest($createModifierTypeRequestData));
 
@@ -151,6 +158,20 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     }
 
     /**
+     * @return LazyCollection<array-key, FindClientResponseData>
+     *
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function findClient(FindClientRequestData $findClientRequestData): LazyCollection
+    {
+        /** @var LazyCollection<array-key, FindClientResponseData> $response */
+        $response = $this->send(new FindClientRequest($findClientRequestData));
+
+        return $response;
+    }
+
+    /**
      * @throws RequestException
      * @throws ConnectionException
      */
@@ -158,6 +179,20 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var CreateClientResponseData $response */
         $response = $this->send(new CreateClientRequest($createClientRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @return LazyCollection<array-key, FindPhoneResponseData>
+     *
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function findPhone(FindPhoneRequestData $findPhoneRequestData): LazyCollection
+    {
+        /** @var LazyCollection<array-key, FindPhoneResponseData> $response */
+        $response = $this->send(new FindPhoneRequest($findPhoneRequestData));
 
         return $response;
     }
