@@ -35,8 +35,6 @@ final readonly class FindClientRequest implements RequestInterface, ResponseData
     }
 
     /**
-     * @param  Response  $response
-     *
      * @return LazyCollection<array-key, FindClientResponseData>
      */
     public function createDtoFromResponse(Response $response): LazyCollection

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone;
 
 use Carbon\CarbonImmutable;
-use Domain\WelcomeGroup\Entities\Phone;
-use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapOutputName;

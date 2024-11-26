@@ -6,8 +6,6 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests\Phone;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
@@ -37,8 +35,6 @@ final readonly class FindPhoneRequest implements RequestInterface, ResponseDataI
     }
 
     /**
-     * @param  Response  $response
-     *
      * @return LazyCollection<array-key, FindPhoneResponseData>
      */
     public function createDtoFromResponse(Response $response): LazyCollection
