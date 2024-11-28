@@ -39,7 +39,7 @@ enum OrderStatus: string
             IIkoOrderStatus::CANCELLED => self::CANCELLED,
             IIkoOrderStatus::READY_FOR_COOKING => self::PRODUCE_WAITING,
             IIkoOrderStatus::COOKING_STARTED => self::PRODUCING,
-            IIkoOrderStatus::WAITING => self::DELIVERY_WAITING,
+            IIkoOrderStatus::COOKING_COMPLETED, IIkoOrderStatus::WAITING => self::DELIVERY_WAITING,
             IIkoOrderStatus::ON_WAY => self::DELIVERING,
             IIkoOrderStatus::DELIVERED => self::DELIVERED,
             IIkoOrderStatus::CLOSED => self::FINISHED,
