@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData;
 
+use Domain\Iiko\Enums\OrderStatus;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
@@ -22,7 +23,7 @@ final class Order extends Data
         public readonly ?Customer $customer,
         public readonly string $phone,
         public readonly ?DeliveryPoint $deliveryPoint,
-        public readonly string $status,
+        public readonly OrderStatus $status,
         public readonly ?CancelInfo $cancelInfo,
         public readonly ?CourierInfo $courierInfo,
         public readonly ?string $completeBefore,

@@ -14,6 +14,8 @@ enum OrderStatus: string
 
     case PRODUCE_WAITING = 'produce_waiting';
 
+    case PRODUCING = 'producing';
+
     case DELIVERY_WAITING = 'delivery_waiting';
 
     case DELIVERING = 'delivering';

@@ -7,11 +7,11 @@ namespace Infrastructure\Jobs\WelcomeGroup;
 use Application\Orders\Builders\OrderBuilder;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Orders\Entities\Order;
+use Domain\Orders\Enums\OrderStatus;
 use Domain\Orders\Repositories\OrderRepositoryInterface;
 use Domain\Settings\Exceptions\OrganizationNotFoundException;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\WelcomeGroup\Enums\OrderSource;
-use Domain\WelcomeGroup\Enums\OrderStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -81,7 +81,7 @@ final class CreateOrderJob implements ShouldBeUnique, ShouldQueue
                 $phone->id,
                 1,
                 [],
-                OrderStatus::NEW->value,
+                OrderStatus::toWelcomeGroupStatus($order->status),
                 100,
                 0,
                 $order->comment,

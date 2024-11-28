@@ -93,7 +93,7 @@ final class Order extends Model
     {
         return $this->fill([
             'organization_setting_id' => $order->organizationId->id,
-            'source' => $order->source,
+            'source' => $order->source->value,
             'status' => $order->status->value,
             'iiko_external_id' => $order->iikoExternalId->id,
             'welcome_group_external_id' => $order->welcomeGroupExternalId->id,

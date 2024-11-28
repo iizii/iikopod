@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Application\Iiko\Services\Order;
 
+use Application\Orders\Builders\OrderBuilder;
 use Application\Orders\Services\StoreOrder;
+use Application\Orders\Services\UpdateOrder;
 use Domain\Iiko\Enums\CustomerType;
 use Domain\Iiko\Repositories\IikoMenuItemModifierItemRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemRepositoryInterface;
 use Domain\Orders\Entities\Order;
 use Domain\Orders\Enums\OrderSource;
 use Domain\Orders\Enums\OrderStatus;
+use Domain\Orders\Repositories\OrderRepositoryInterface;
 use Domain\Orders\ValueObjects\Customer;
 use Domain\Orders\ValueObjects\Item;
 use Domain\Orders\ValueObjects\ItemCollection;
@@ -30,9 +33,11 @@ final readonly class CreateOrderFromWebhook
 {
     public function __construct(
         private StoreOrder $storeOrder,
+        private UpdateOrder $updateOrder,
         private IikoMenuItemRepositoryInterface $menuItemRepository,
         private IikoMenuItemModifierItemRepositoryInterface $menuItemModifierItemRepository,
         private OrganizationSettingRepositoryInterface $organizationSettingRepository,
+        private OrderRepositoryInterface $orderRepository,
     ) {}
 
     /**
@@ -63,7 +68,7 @@ final readonly class CreateOrderFromWebhook
             new IntegerId(),
             $organization->id,
             OrderSource::IIKO,
-            OrderStatus::NEW,
+            OrderStatus::fromIikoOrderStatus($eventData->order->status),
             new StringId($eventData->id),
             new IntegerId(),
             $eventData->order->comment,
@@ -118,6 +123,19 @@ final readonly class CreateOrderFromWebhook
 
                 $order->addItem($item);
             });
+
+        $existedOrder = $this->orderRepository->findByIikoId(new StringId($eventData->id));
+
+        if ($existedOrder) {
+            $orderBuilder = OrderBuilder::fromExisted($order);
+            $order = $orderBuilder
+                ->setId($existedOrder->id)
+                ->setWelcomeGroupExternalId($existedOrder->welcomeGroupExternalId);
+
+            $this->updateOrder->update($order->build());
+
+            return;
+        }
 
         $this->storeOrder->store($order);
     }

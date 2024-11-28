@@ -32,6 +32,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Cr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
@@ -53,6 +55,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierReq
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\UpdateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\FindPhoneRequest;
 use Shared\Domain\ValueObjects\IntegerId;
@@ -229,6 +232,18 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var CreateOrderResponseData $response */
         $response = $this->send(new CreateOrderRequest($createOrderData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateOrder(IntegerId $orderId, UpdateOrderRequestData $updateOrderRequestData): UpdateOrderResponseData
+    {
+        /** @var UpdateOrderResponseData $response */
+        $response = $this->send(new UpdateOrderRequest($orderId, $updateOrderRequestData));
 
         return $response;
     }
