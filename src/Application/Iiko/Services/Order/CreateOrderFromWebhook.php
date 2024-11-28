@@ -89,7 +89,7 @@ final readonly class CreateOrderFromWebhook
                 $iikoItem = $this->menuItemRepository->findByExternalId(new StringId($items->product->id));
 
                 if (! $iikoItem) {
-                    throw new ItemNotFoundException('Webhook item not found');
+                    throw new ItemNotFoundException(sprintf('Iiko item not found for %s', $items->product->name));
                 }
 
                 $item = new Item(
@@ -110,7 +110,7 @@ final readonly class CreateOrderFromWebhook
                         );
 
                         if (! $modifier) {
-                            throw new ItemNotFoundException('Webhook item not found');
+                            throw new ItemNotFoundException(sprintf('Iiko modifier not found for %s', $modifier->name));
                         }
 
                         $item->addModifier(
