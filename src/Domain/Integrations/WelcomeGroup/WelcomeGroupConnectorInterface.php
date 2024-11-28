@@ -26,6 +26,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Cr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
@@ -119,6 +121,12 @@ interface WelcomeGroupConnectorInterface
      * @throws ConnectionException
      */
     public function createOrder(CreateOrderRequestData $createOrderData): CreateOrderResponseData;
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateOrder(IntegerId $orderId, UpdateOrderRequestData $updateOrderRequestData): UpdateOrderResponseData;
 
     /**
      * @throws RequestException
