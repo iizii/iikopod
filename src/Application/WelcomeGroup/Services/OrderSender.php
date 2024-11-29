@@ -8,8 +8,9 @@ use Domain\Orders\Entities\Order;
 use Domain\Orders\ValueObjects\Item;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Collection;
-use Infrastructure\Jobs\WelcomeGroup\CreateOrderItemJob;
-use Infrastructure\Jobs\WelcomeGroup\CreateOrderJob;
+use Infrastructure\Jobs\WelcomeGroup\Order\CreateOrderItemJob;
+use Infrastructure\Jobs\WelcomeGroup\Order\CreateOrderJob;
+use Infrastructure\Jobs\WelcomeGroup\Order\CreateOrderPaymentJob;
 
 final readonly class OrderSender
 {
@@ -23,6 +24,8 @@ final readonly class OrderSender
         $order
             ->items
             ->each(static fn (Item $item) => $jobCollection->add(new CreateOrderItemJob($order, $item)));
+
+        $jobCollection->add(new CreateOrderPaymentJob($order));
 
         $this
             ->dispatcher

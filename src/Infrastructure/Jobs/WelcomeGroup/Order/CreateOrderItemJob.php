@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Jobs\WelcomeGroup;
+namespace Infrastructure\Jobs\WelcomeGroup\Order;
 
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Orders\Entities\Order;
@@ -15,7 +15,6 @@ use Domain\WelcomeGroup\Exceptions\FoodNotFoundException;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierRepositoryInterface;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -24,7 +23,7 @@ use Illuminate\Support\Collection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Queue\Queue;
 
-final class CreateOrderItemJob implements ShouldBeUnique, ShouldQueue
+final class CreateOrderItemJob implements ShouldQueue
 {
     use InteractsWithQueue;
     use Queueable;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Jobs\WelcomeGroup;
+namespace Infrastructure\Jobs\WelcomeGroup\Order;
 
 use Application\Orders\Builders\OrderBuilder;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
@@ -13,7 +13,6 @@ use Domain\Settings\Exceptions\OrganizationNotFoundException;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\WelcomeGroup\Enums\OrderSource;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -25,7 +24,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhone
 use Infrastructure\Queue\Queue;
 use Shared\Domain\ValueObjects\IntegerId;
 
-final class CreateOrderJob implements ShouldBeUnique, ShouldQueue
+final class CreateOrderJob implements ShouldQueue
 {
     use InteractsWithQueue;
     use Queueable;

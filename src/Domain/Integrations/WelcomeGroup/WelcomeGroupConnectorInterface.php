@@ -30,6 +30,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrd
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
@@ -133,4 +135,10 @@ interface WelcomeGroupConnectorInterface
      * @throws ConnectionException
      */
     public function createOrderItem(CreateOrderItemRequestData $createOrderItemRequestData): CreateOrderItemResponseData;
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createPayment(CreateOrderPaymentRequestData $createOrderPaymentRequestData): CreateOrderPaymentResponseData;
 }

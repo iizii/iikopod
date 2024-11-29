@@ -36,6 +36,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrd
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
@@ -54,6 +56,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\FoodModifier\CreateFoodMod
 use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\UpdateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
@@ -256,6 +259,18 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var CreateOrderItemResponseData $response */
         $response = $this->send(new CreateOrderItemRequest($createOrderItemRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function createPayment(CreateOrderPaymentRequestData $createOrderPaymentRequestData): CreateOrderPaymentResponseData
+    {
+        /** @var CreateOrderPaymentResponseData $response */
+        $response = $this->send(new CreateOrderPaymentRequest($createOrderPaymentRequestData));
 
         return $response;
     }
