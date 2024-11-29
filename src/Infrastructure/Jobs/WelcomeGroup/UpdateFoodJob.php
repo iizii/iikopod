@@ -47,6 +47,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModif
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\EditRestaurantModifierRequestData;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupRestaurantFood;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepository;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -211,14 +212,12 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 
         $existedModifierTypeCollection = WelcomeGroupModifierType::query()
             ->where('iiko_menu_item_modifier_group_id', $modifierGroup->id)
-//            ->where('name', $modifierGroup->name)
             ->get();
 
-        //        $existedModifierTypeCollectionCount = $existedModifierTypeCollection->count();
         for ($i = 0; $i < $maxQuantity; $i++) {
             // Проверяем максимальное количество модификатора
             if ($maxQuantity === 1) {
-                // Проверяем, вдруг у нас в проекте modifierType больше, чем 1 (например сущность обновилась в iiko)
+                // Проверяем, вдруг у нас в проекте modifierType больше, чем 1 (например сущность обновилась в iiko), а должно быть 1, ведь maxQuantity=1
                 if ($existedModifierTypeCollection->count() > 1) {
                     $existedModifierTypeCollection->each(
                         static function (WelcomeGroupModifierType $modifierType, int $i) use (
@@ -229,8 +228,8 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                             $welcomeGroupModifierTypeRepository,
                             $itemContext,
                             $welcomeGroupModifierRepository,
-                            $welcomeGroupRestaurantModifierRepository,
-                            $food
+                            $welcomeGroupRestaurantModifierRepository
+
                         ) {
                             // После запуска перебора, проверяем, первый ли элемент, ибо его мы не удаляем, а обновляем, если maxQuantity = 1
                             if ($i === 1) {
@@ -247,8 +246,10 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                 $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
                                 $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
 
+                                // Закончили обновление типа модификатора
                                 $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
 
+                                // Начали перебирать сами модификаторы чтобы прикрепить их к modifierType
                                 $modifierGroup->items->each(
                                     static function (Item $item) use (
                                         $welcomeGroupFoodModifierRepository,
@@ -261,6 +262,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                     ) {
                                         $modifierType = $modifierTypeBuilder->build();
 
+                                        // Ищем существует ли модификатор
                                         $modifier = $welcomeGroupModifierRepository
                                             ->findByInternalModifierTypeIdAndIikoExternalId(
                                                 $modifierType->id,
@@ -288,54 +290,6 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                             $modifier = $modifierBuilder->build();
                                             // Обновляем модификатор в нашей базе
                                             $updatedModifier = $welcomeGroupModifierRepository->update($modifier);
-                                            // Ищем связь ресторана с модификатором в нашей базе.
-                                            $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
-                                            // При отсутствии связи создаём её в WG
-                                            if (! $restaurantModifier) {
-                                                $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
-                                                    new CreateRestaurantModifierRequestData(
-                                                        $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                                        $modifier->externalId->id
-                                                    )
-                                                );
-
-                                                $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
-                                                $restaurantModifier = $restaurantModifierBuilder
-                                                    ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
-                                                    ->setWelcomeGroupModifierId($modifier->id);
-                                                // Создаём связь модификатора с рестораном в нашей базе
-                                                $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
-
-                                                $restaurantModifier->setExternalId($createdRestaurantModifier->id);
-
-                                                $itemPrice = $item->prices->first();
-
-                                                if (! $itemPrice) {
-                                                    throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
-                                                }
-                                                // Ищем связь блюда с модификатором в нашей базе
-                                                $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($itemContext->food->id, $modifier->id);
-                                                // Если связь блюда с модификатором отсутствует в нашей базе, то создаём её в WG
-                                                if (! $foodModifier) {
-                                                    $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
-                                                        new CreateFoodModifierRequestData(
-                                                            $itemContext->food->externalId->id,
-                                                            $modifier->externalId->id,
-                                                            $item->weight,
-                                                            $itemPrice->price ?? 0,
-                                                        ),
-                                                    );
-
-                                                    $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-                                                        $createFoodModifierResponse->toDomainEntity(),
-                                                    );
-                                                    $foodModifierBuilder = $foodModifierBuilder
-                                                        ->setInternalModifierId($modifier->id)
-                                                        ->setInternalFoodId($itemContext->food->id);
-                                                    // Созданяем связь блюда с модификатором в нашу БД
-                                                    $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
-                                                }
-                                            }
                                         } else {
                                             // Обработка кейса, если модификатор не найден
                                             // Создаём модификатор в базе WG
@@ -351,67 +305,249 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                                 ->setInternalModifierTypeId($modifierType->id)
                                                 ->setIikoExternalModifierId($item->externalId);
                                             // Сохраняем модификатор в нашу базу
-                                            $createdModifier = $welcomeGroupModifierRepository->save($modifier);
+                                            $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
+                                            $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
+                                            $modifier = $modifierBuilder->build();
+                                        }
+                                        // Ищем связь ресторана с модификатором в нашей базе.
+                                        $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
+                                        // При отсутствии связи создаём её в WG. Кстати обновления связи не делал, пока показалось, что не требуется
+                                        if (! $restaurantModifier) {
+                                            $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+                                                new CreateRestaurantModifierRequestData(
+                                                    $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                                    $modifier->externalId->id
+                                                )
+                                            );
+
+                                            $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                                            $restaurantModifier = $restaurantModifierBuilder
+                                                ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
+                                                ->setWelcomeGroupModifierId($modifier->id);
+                                            // Создаём связь модификатора с рестораном в нашей базе
+                                            $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+
+                                            $restaurantModifier = $createdRestaurantModifier;
+                                        }
+
+                                        $itemPrice = $item->prices->first();
+
+                                        if (! $itemPrice) {
+                                            throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
+                                        }
+                                        // Ищем связь блюда с модификатором в нашей базе
+                                        $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($itemContext->food->id, $modifier->id);
+                                        // Если связь блюда с модификатором отсутствует в нашей базе, то создаём её в WG
+                                        if (! $foodModifier) {
+                                            $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
+                                                new CreateFoodModifierRequestData(
+                                                    $itemContext->food->externalId->id,
+                                                    $modifier->externalId->id,
+                                                    $item->weight,
+                                                    $itemPrice->price ?? 0,
+                                                ),
+                                            );
+
+                                            $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                                                $createFoodModifierResponse->toDomainEntity(),
+                                            );
+                                            $foodModifierBuilder = $foodModifierBuilder
+                                                ->setInternalModifierId($modifier->id)
+                                                ->setInternalFoodId($itemContext->food->id);
+                                            // Созданяем связь блюда с модификатором в нашу БД
+                                            $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
                                         }
                                     }
                                 );
-
-                                //                                $modifierType
-                                //                                    ->modifiers
-                                //                                    ->each(static function (WelcomeGroupModifier $modifier) use ($welcomeGroupConnector, $itemContext): void {
-                                //                                        $welcomeGroupConnector->updateRestaurantModifier(
-                                //                                            new EditRestaurantModifierRequestData(
-                                //                                                $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                //                                                $modifier->external_id,
-                                //                                                'active'
-                                //                                            ),
-                                //                                            new IntegerId($modifier->id),
-                                //                                        );
-                                //                                    });
-                                //                            $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, )
                             } else {
                                 /*
                                  * Удаляем остальные типы модификаторов. При maxQuantity=1 может быть только 1 тип модификатора
                                  * Собственно т.к. не первая итерация перебора, то все данные кроме первой итерации должны быть устранены
                                  */
-                                $modifiers = $modifierType->modifiers;
-                                $modifiers->each(static function (WelcomeGroupModifier $modifier) use (
-                                    $welcomeGroupConnector,
-                                    $itemContext,
-                                    $welcomeGroupRestaurantModifierRepository,
-                                    $food,
-                                    $welcomeGroupFoodModifierRepository
+                                $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($modifierType->toDomainEntity($modifierType));
 
-                                ): void {
-                                    $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, new IntegerId($modifier->id));
+                                $modifierGroup->items->each(
+                                    static function (Item $item) use (
 
-                                    $updatedRestaurantModifier = $welcomeGroupConnector->updateRestaurantModifier(
-                                        new EditRestaurantModifierRequestData(
-                                            $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                            $modifier->external_id,
-                                            'blocked'
-                                        ),
-                                        new IntegerId($restaurantModifier->externalId->id),
-                                    );
+                                        $welcomeGroupRestaurantModifierRepository,
+                                        $modifierTypeBuilder,
+                                        $welcomeGroupModifierRepository,
+                                        $welcomeGroupConnector,
+                                        $itemContext
+                                    ) {
+                                        $modifierType = $modifierTypeBuilder->build();
 
-                                    $welcomeGroupRestaurantModifierRepository->deleteByInternalId($restaurantModifier->id);
+                                        // Ищем существует ли модификатор
+                                        $modifier = $welcomeGroupModifierRepository
+                                            ->findByInternalModifierTypeIdAndIikoExternalId(
+                                                $modifierType->id,
+                                                $item->externalId
+                                            );
 
-                                    $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($food->id, new IntegerId($modifier->id));
+                                        // Если модификатор найден, то обновляем существующий модификатор в WG
+                                        if (! $modifier) {
+                                            return;
+                                        }
+                                        // Ищем связь ресторана с модификатором в нашей базе.
+                                        $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
+                                        // При отсутствии связи создаём её в WG. Кстати обновления связи не делал, пока показалось, что не требуется
+                                        $updatedRestaurantModifier = $welcomeGroupConnector->updateRestaurantModifier(
+                                            new EditRestaurantModifierRequestData(
+                                                $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                                $modifier->externalId->id,
+                                                'blocked'
+                                            ),
+                                            new IntegerId($restaurantModifier->externalId->id),
+                                        );
 
-                                    $updatedFoodModifier = $welcomeGroupConnector->updateFoodModifier(
-                                        new EditFoodModifierRequestData(
-                                            $food->externalId->id,
-                                            $modifier->external_id->id
-                                        ),
-                                        $foodModifier->externalId
-                                    );
-
-                                    $welcomeGroupFoodModifierRepository->deleteByInternalId($foodModifier->id);
-                                });
+                                        $welcomeGroupRestaurantModifierRepository->deleteByInternalId($restaurantModifier->id);
+                                    }
+                                );
 
                                 // Удаление данных с проекта
                                 $modifierType->delete();
                             }
+                        });
+                } else {
+                    $existedModifierTypeCollection->each(
+                        static function (WelcomeGroupModifierType $modifierType, int $i) use (
+                            $welcomeGroupFoodModifierRepository,
+                            $welcomeGroupConnector,
+                            $modifierGroup,
+                            $maxQuantity,
+                            $welcomeGroupModifierTypeRepository,
+                            $itemContext,
+                            $welcomeGroupModifierRepository,
+                            $welcomeGroupRestaurantModifierRepository
+
+                        ) {
+                            // После запуска перебора, проверяем, первый ли элемент, ибо его мы не удаляем, а обновляем, если maxQuantity = 1
+                            $updatedModifierTypeResponse = $welcomeGroupConnector
+                                ->updateModifierType(
+                                    new EditModifierTypeRequestData(
+                                        $modifierGroup->name,
+                                        ModifierTypeBehaviour::fromValue($maxQuantity)->value,
+                                    ),
+                                    new IntegerId($modifierType->external_id)
+                                );
+
+                            $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity());
+                            $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
+                            $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
+
+                            // Закончили обновление типа модификатора
+                            $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
+
+                            // Начали перебирать сами модификаторы чтобы прикрепить их к modifierType
+                            $modifierGroup->items->each(
+                                static function (Item $item) use (
+                                    $welcomeGroupFoodModifierRepository,
+                                    $welcomeGroupRestaurantModifierRepository,
+                                    $updatedModifierTypeResponse,
+                                    $modifierTypeBuilder,
+                                    $welcomeGroupModifierRepository,
+                                    $welcomeGroupConnector,
+                                    $itemContext
+                                ) {
+                                    $modifierType = $modifierTypeBuilder->build();
+
+                                    // Ищем существует ли модификатор
+                                    $modifier = $welcomeGroupModifierRepository
+                                        ->findByInternalModifierTypeIdAndIikoExternalId(
+                                            $modifierType->id,
+                                            $item->externalId
+                                        );
+                                    // Если модификатор найден, то обновляем существующий модификатор в WG
+                                    if ($modifier) {
+                                        $updateModifierResponse = $welcomeGroupConnector->updateModifier(
+                                            new EditModifierRequestData(
+                                                $item->name,
+                                                (int) $modifierType
+                                                    ->externalId
+                                                    ->id,
+                                                false
+                                            ),
+                                            $modifier->externalId
+                                        );
+
+                                        $modifierBuilder = ModifierBuilder::fromExisted($updateModifierResponse->toDomainEntity())
+                                            ->setExternalId(new IntegerId($updateModifierResponse->id))
+                                            ->setIikoExternalModifierId($item->externalId)
+                                            ->setInternalModifierTypeId($modifierType->id)
+                                            ->setId($modifier->id);
+
+                                        $modifier = $modifierBuilder->build();
+                                        // Обновляем модификатор в нашей базе
+                                        $updatedModifier = $welcomeGroupModifierRepository->update($modifier);
+                                    } else {
+                                        // Обработка кейса, если модификатор не найден
+                                        // Создаём модификатор в базе WG
+                                        $modifierResponse = $welcomeGroupConnector->createModifier(
+                                            new CreateModifierRequestData(
+                                                $item->name,
+                                                $updatedModifierTypeResponse->id,
+                                            ),
+                                        );
+
+                                        $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity())
+                                            ->setExternalId(new IntegerId($modifierResponse->id))
+                                            ->setInternalModifierTypeId($modifierType->id)
+                                            ->setIikoExternalModifierId($item->externalId);
+                                        // Сохраняем модификатор в нашу базу
+                                        $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
+                                        $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
+                                        $modifier = $modifierBuilder->build();
+                                    }
+                                    // Ищем связь ресторана с модификатором в нашей базе.
+                                    $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
+                                    // При отсутствии связи создаём её в WG. Кстати обновления связи не делал, пока показалось, что не требуется
+                                    if (! $restaurantModifier) {
+                                        $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+                                            new CreateRestaurantModifierRequestData(
+                                                $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                                $modifier->externalId->id
+                                            )
+                                        );
+
+                                        $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                                        $restaurantModifier = $restaurantModifierBuilder
+                                            ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
+                                            ->setWelcomeGroupModifierId($modifier->id);
+                                        // Создаём связь модификатора с рестораном в нашей базе
+                                        $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+
+                                        $restaurantModifier = $createdRestaurantModifier;
+                                    }
+
+                                    $itemPrice = $item->prices->first();
+
+                                    if (! $itemPrice) {
+                                        throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
+                                    }
+                                    // Ищем связь блюда с модификатором в нашей базе
+                                    $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($itemContext->food->id, $modifier->id);
+                                    // Если связь блюда с модификатором отсутствует в нашей базе, то создаём её в WG
+                                    if (! $foodModifier) {
+                                        $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
+                                            new CreateFoodModifierRequestData(
+                                                $itemContext->food->externalId->id,
+                                                $modifier->externalId->id,
+                                                $item->weight,
+                                                $itemPrice->price ?? 0,
+                                            ),
+                                        );
+
+                                        $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                                            $createFoodModifierResponse->toDomainEntity(),
+                                        );
+                                        $foodModifierBuilder = $foodModifierBuilder
+                                            ->setInternalModifierId($modifier->id)
+                                            ->setInternalFoodId($itemContext->food->id);
+                                        // Созданяем связь блюда с модификатором в нашу БД
+                                        $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
+                                    }
+                                }
+                            );
                         });
                 }
             } else {
@@ -419,6 +555,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                 // Проверяем сколько modifierType'ов не хватает в системе или наоборот сколько лишних, если число отрицительное
                 $missingCount = $maxQuantity - $existedModifierTypeCollection->count();
 
+                // Отсутствует больше 0 необходимых модификаторов. Нужно создать столько сколько не хватает
                 if ($missingCount > 0) {
                     // Сначала перебираем старые и обновляем в соответствии с обновлениями
                     $existedModifierTypeCollection->each(static function (WelcomeGroupModifierType $modifierType) use (
@@ -481,7 +618,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                     );
 
                                     $modifierBuilder = ModifierBuilder::fromExisted($updateModifierResponse->toDomainEntity())
-                                        ->setExternalId(new IntegerId($updateModifierResponse->id))
+//                                        ->setExternalId(new IntegerId($updateModifierResponse->id))
                                         ->setIikoExternalModifierId($item->externalId)
                                         ->setInternalModifierTypeId($modifierType->id)
                                         ->setId($modifier->id);
@@ -489,101 +626,6 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                     $modifier = $modifierBuilder->build();
                                     // Сохраняем обновлённый модификатор во внутреннюю таблицу WG
                                     $updatedModifier = $welcomeGroupModifierRepository->update($modifier);
-
-                                    // Ищем связь модификатора с рестораном во внутренней БД
-                                    $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
-
-                                    // При отсутствии связи модификатора с рестораном -- создаём, при наличии обновляем
-                                    if (! $restaurantModifier) {
-                                        $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
-                                            new CreateRestaurantModifierRequestData(
-                                                $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                                $modifier->externalId->id
-                                            )
-                                        );
-
-                                        $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
-                                        $restaurantModifier = $restaurantModifierBuilder
-                                            ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
-                                            ->setWelcomeGroupModifierId($modifier->id)
-                                            ->setExternalId(new IntegerId($restaurantModifierResponse->id));
-
-                                        $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
-                                    } else {
-                                        $restaurantModifierResponse = $welcomeGroupConnector->updateRestaurantModifier(
-                                            new EditRestaurantModifierRequestData(
-                                                $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                                $modifier->externalId->id
-                                            ),
-                                            $restaurantModifier->id
-                                        );
-
-                                        $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
-                                        $restaurantModifier = $restaurantModifierBuilder
-                                            ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
-                                            ->setWelcomeGroupModifierId($modifier->id)
-                                            ->setId($restaurantModifier->id)
-                                            ->setExternalId(new IntegerId($restaurantModifierResponse->id));
-
-                                        $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->update($restaurantModifier->build());
-
-                                    }
-
-                                    // Получаем стоимость товара. В теории нам кажется, что прайса может быть больше чем 1, но
-                                    // ни айка (CHICKO), ни WG не умеют работать с разными размерами товаров и их прайсами
-                                    $itemPrice = $item->prices->first();
-
-                                    if (! $itemPrice) {
-                                        throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
-                                    }
-
-                                    // Ищем во внутренней БД связь модификатора с блюдом
-                                    $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($itemContext->food->id, $modifier->id);
-
-                                    // Если не нашли связь модификатора с блюдом, то создаём её в WG и во внутренней базе
-                                    if (! $foodModifier) {
-                                        $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
-                                            new CreateFoodModifierRequestData(
-                                                $itemContext->food->externalId->id,
-                                                $modifier->externalId->id,
-                                                $item->weight,
-                                                $itemPrice->price ?? 0,
-                                            ),
-                                        );
-
-                                        $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-                                            $createFoodModifierResponse->toDomainEntity(),
-                                        );
-                                        $foodModifierBuilder = $foodModifierBuilder
-                                            ->setInternalModifierId($modifier->id)
-                                            ->setInternalFoodId($itemContext->food->id);
-
-                                        // Процесс создания связи во внутренней базе
-                                        $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
-                                    } else {
-                                        $createFoodModifierResponse = $welcomeGroupConnector->updateFoodModifier(
-                                            new EditFoodModifierRequestData(
-                                                $itemContext->food->externalId->id,
-                                                $modifier->externalId->id,
-                                                $item->weight,
-                                                0,
-                                                $itemPrice->price ?? 0,
-                                                0
-                                            ),
-                                            $foodModifier->id
-                                        );
-
-                                        $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-                                            $createFoodModifierResponse->toDomainEntity(),
-                                        );
-                                        $foodModifierBuilder = $foodModifierBuilder
-                                            ->setInternalModifierId($modifier->id)
-                                            ->setInternalFoodId($itemContext->food->id);
-
-                                        // Процесс создания связи во внутренней базе
-                                        $welcomeGroupFoodModifierRepository->update($foodModifierBuilder->build());
-                                    }
-                                    //                                    }
                                 } else {
                                     // Если модификатор не был найден, то создаём его в вг и внутренней базе
                                     $modifierResponse = $welcomeGroupConnector->createModifier(
@@ -594,119 +636,111 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                     );
 
                                     $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity())
-                                        ->setExternalId(new IntegerId($modifierResponse->id))
+//                                        ->setExternalId(new IntegerId($modifierResponse->id))
                                         ->setInternalModifierTypeId($modifierType->id)
                                         ->setIikoExternalModifierId($item->externalId);
 
-                                    $createdModifier = $welcomeGroupModifierRepository->save($modifier);
+                                    $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
+                                    $modifier = $modifierBuilder->setId($createdModifier->id);
+                                }
+                                // Ищем связь модификатора с рестораном во внутренней БД
+                                $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
 
-                                    $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
+                                // При отсутствии связи модификатора с рестораном -- создаём, при наличии обновляем
+                                if (! $restaurantModifier) {
+                                    $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+                                        new CreateRestaurantModifierRequestData(
+                                            $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                            $modifier->externalId->id
+                                        )
+                                    );
 
-                                    $modifier = $modifierBuilder->build();
+                                    $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                                    $restaurantModifier = $restaurantModifierBuilder
+                                        ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
+                                        ->setWelcomeGroupModifierId($modifier->id);
 
-                                    // Ищем связь модификатора с рестораном во внутренней БД
-                                    $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
+                                    $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+                                    $restaurantModifier = $restaurantModifier->setId($createdRestaurantModifier->id);
+                                } else {
+                                    $restaurantModifierResponse = $welcomeGroupConnector->updateRestaurantModifier(
+                                        new EditRestaurantModifierRequestData(
+                                            $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                            $modifier->externalId->id
+                                        ),
+                                        $restaurantModifier->id
+                                    );
 
-                                    // При отсутствии связи модификатора с рестораном -- создаём, при наличии обновляем
-                                    if (! $restaurantModifier) {
-                                        $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
-                                            new CreateRestaurantModifierRequestData(
-                                                $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                                $modifier->externalId->id
-                                            )
-                                        );
+                                    $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                                    $restaurantModifier = $restaurantModifierBuilder
+                                        ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
+                                        ->setWelcomeGroupModifierId($modifier->id);
 
-                                        $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
-                                        $restaurantModifier = $restaurantModifierBuilder
-                                            ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
-                                            ->setWelcomeGroupModifierId($modifier->id)
-                                            ->setExternalId(new IntegerId($restaurantModifierResponse->id));
+                                    $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->update($restaurantModifier->build());
+                                    $restaurantModifier = $restaurantModifier->setId($createdRestaurantModifier->id);
 
-                                        $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
-                                    } else {
-                                        $restaurantModifierResponse = $welcomeGroupConnector->updateRestaurantModifier(
-                                            new EditRestaurantModifierRequestData(
-                                                $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                                $modifier->externalId->id
-                                            ),
-                                            $restaurantModifier->id
-                                        );
+                                }
 
-                                        $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
-                                        $restaurantModifier = $restaurantModifierBuilder
-                                            ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
-                                            ->setWelcomeGroupModifierId($modifier->id)
-                                            ->setId($restaurantModifier->id)
-                                            ->setExternalId(new IntegerId($restaurantModifierResponse->id));
+                                // Получаем стоимость товара. В теории нам кажется, что прайса может быть больше чем 1, но
+                                // ни айка (CHICKO), ни WG не умеют работать с разными размерами товаров и их прайсами
+                                $itemPrice = $item->prices->first();
 
-                                        $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->update($restaurantModifier->build());
+                                if (! $itemPrice) {
+                                    throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
+                                }
 
-                                    }
+                                // Ищем во внутренней БД связь модификатора с блюдом
+                                $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($itemContext->food->id, $modifier->id);
 
-                                    // Получаем стоимость товара. В теории нам кажется, что прайса может быть больше чем 1, но
-                                    // ни айка (CHICKO), ни WG не умеют работать с разными размерами товаров и их прайсами
-                                    $itemPrice = $item->prices->first();
+                                // Если не нашли связь модификатора с блюдом, то создаём её в WG и во внутренней базе
+                                if (! $foodModifier) {
+                                    $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
+                                        new CreateFoodModifierRequestData(
+                                            $itemContext->food->externalId->id,
+                                            $modifier->externalId->id,
+                                            $item->weight,
+                                            $itemPrice->price ?? 0,
+                                        ),
+                                    );
 
-                                    if (! $itemPrice) {
-                                        throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
-                                    }
+                                    $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                                        $createFoodModifierResponse->toDomainEntity(),
+                                    );
+                                    $foodModifierBuilder = $foodModifierBuilder
+                                        ->setInternalModifierId($modifier->id)
+                                        ->setInternalFoodId($itemContext->food->id);
 
-                                    // Ищем во внутренней БД связь модификатора с блюдом
-                                    $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($itemContext->food->id, $modifier->id);
+                                    // Процесс создания связи во внутренней базе
+                                    $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
+                                } else {
+                                    $createFoodModifierResponse = $welcomeGroupConnector->updateFoodModifier(
+                                        new EditFoodModifierRequestData(
+                                            $itemContext->food->externalId->id,
+                                            $modifier->externalId->id,
+                                            $item->weight,
+                                            0,
+                                            $itemPrice->price ?? 0,
+                                            0
+                                        ),
+                                        $foodModifier->id
+                                    );
 
-                                    // Если не нашли связь модификатора с блюдом, то создаём её в WG и во внутренней базе
-                                    if (! $foodModifier) {
-                                        $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
-                                            new CreateFoodModifierRequestData(
-                                                $itemContext->food->externalId->id,
-                                                $modifier->externalId->id,
-                                                $item->weight,
-                                                $itemPrice->price ?? 0,
-                                            ),
-                                        );
+                                    $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                                        $createFoodModifierResponse->toDomainEntity(),
+                                    );
+                                    $foodModifierBuilder = $foodModifierBuilder
+                                        ->setInternalModifierId($modifier->id)
+                                        ->setInternalFoodId($itemContext->food->id)
+                                        ->setId($foodModifier->id);
 
-                                        $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-                                            $createFoodModifierResponse->toDomainEntity(),
-                                        );
-                                        $foodModifierBuilder = $foodModifierBuilder
-                                            ->setInternalModifierId($modifier->id)
-                                            ->setInternalFoodId($itemContext->food->id);
-
-                                        // Процесс создания связи во внутренней базе
-                                        $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
-                                    } else {
-                                        $createFoodModifierResponse = $welcomeGroupConnector->updateFoodModifier(
-                                            new EditFoodModifierRequestData(
-                                                $itemContext->food->externalId->id,
-                                                $modifier->externalId->id,
-                                                $item->weight,
-                                                0,
-                                                $itemPrice->price ?? 0,
-                                                0
-                                            ),
-                                            $foodModifier->id
-                                        );
-
-                                        $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-                                            $createFoodModifierResponse->toDomainEntity(),
-                                        );
-                                        $foodModifierBuilder = $foodModifierBuilder
-                                            ->setInternalModifierId($modifier->id)
-                                            ->setInternalFoodId($itemContext->food->id);
-
-                                        // Процесс создания связи во внутренней базе
-                                        $welcomeGroupFoodModifierRepository->update($foodModifierBuilder->build());
-                                    }
+                                    // Процесс создания связи во внутренней базе
+                                    $welcomeGroupFoodModifierRepository->update($foodModifierBuilder->build());
                                 }
                             }
                         );
-
-                        // ***********\\
-
                     });
 
                     // т.к. по итогу вычислений выявлено, что модификаторов не хватает, то создаём недостающие по количеству = $count
-
                     for ($i = 0; $i < $missingCount; $i++) {
                         $modifierTypeResponse = $welcomeGroupConnector->createModifierType(
                             new CreateModifierTypeRequestData(
@@ -716,11 +750,90 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                         );
 
                         $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeResponse->toDomainEntity());
+
+                        $modifierGroup->items->each(
+                            static function (Item $item) use (
+                                $itemContext,
+                                $welcomeGroupFoodModifierRepository,
+                                $food,
+                                $modifierType,
+                                $welcomeGroupModifierRepository,
+                                $modifierTypeResponse,
+                                $welcomeGroupConnector,
+                                $welcomeGroupRestaurantModifierRepository
+                            ) {
+                                $modifierResponse = $welcomeGroupConnector->createModifier(
+                                    new CreateModifierRequestData(
+                                        $item->name,
+                                        $modifierTypeResponse->id,
+                                    ),
+                                );
+
+                                $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
+                                $modifier = $modifierBuilder
+                                    ->setExternalId(new IntegerId($modifierResponse->id))
+                                    ->setInternalModifierTypeId($modifierType->id)
+                                    ->setIikoExternalModifierId($item->externalId)
+                                    ->build();
+
+                                $createdModifier = $welcomeGroupModifierRepository->save($modifier);
+
+                                $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+                                    new CreateRestaurantModifierRequestData(
+                                        $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                        $createdModifier->externalId->id
+                                    )
+                                );
+
+                                $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                                $restaurantModifier = $restaurantModifierBuilder
+                                    ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
+                                    ->setWelcomeGroupModifierId($createdModifier->id);
+
+                                $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+
+                                $restaurantModifier->setExternalId($createdRestaurantModifier->id);
+
+                                $itemPrice = $item->prices->first();
+
+                                if (! $itemPrice) {
+                                    throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
+                                }
+
+                                $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
+                                    new CreateFoodModifierRequestData(
+                                        $food->externalId->id,
+                                        $modifier->externalId->id,
+                                        $item->weight,
+                                        $itemPrice->price ?? 0,
+                                    ),
+                                );
+
+                                $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                                    $createFoodModifierResponse->toDomainEntity(),
+                                );
+                                $foodModifierBuilder = $foodModifierBuilder
+                                    ->setInternalModifierId($createdModifier->id)
+                                    ->setInternalFoodId($food->id);
+
+                                $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
+                            },
+                        );
                     }
                 } elseif ($missingCount === 0) {
                     // Данный кейс выявил, что новых типов модификаторов создавать не требуется, а вот обновить существуещие необходимо
-                    $existedModifierTypeCollection->each(static function (WelcomeGroupModifierType $modifierType) use ($welcomeGroupConnector, $modifierGroup, $maxQuantity, $welcomeGroupModifierTypeRepository) {
-                        $response = $welcomeGroupConnector
+                    $existedModifierTypeCollection->each(static function (WelcomeGroupModifierType $modifierType) use (
+                        $itemContext,
+                        $welcomeGroupModifierRepository,
+                        //                        $updatedModifierTypeResponse,
+                        $welcomeGroupRestaurantModifierRepository,
+                        $welcomeGroupFoodModifierRepository,
+                        $welcomeGroupConnector,
+                        $modifierGroup,
+                        $maxQuantity,
+                        $welcomeGroupModifierTypeRepository
+                    ) {
+                        $updatedModifierTypeResponse = $welcomeGroupConnector
                             ->updateModifierType(
                                 new EditModifierTypeRequestData(
                                     $modifierGroup->name,
@@ -729,31 +842,210 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                 new IntegerId($modifierType->external_id)
                             );
 
-                        $modifierBuilder = ModifierTypeBuilder::fromExisted($response->toDomainEntity());
-                        $modifierBuilder->setId(new IntegerId($modifierType->id));
-                        $modifierBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
+                        $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity());
+                        $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
+                        $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
 
-                        $welcomeGroupModifierTypeRepository->save($modifierBuilder->build());
+                        // Обновили тип модификатора
+                        $welcomeGroupModifierTypeRepository->update($modifierTypeBuilder->build());
+
+                        // Перебираем айтемы группы модификаторов из IIKO
+                        $modifierGroup->items->each(
+                            static function (Item $item) use (
+                                $welcomeGroupFoodModifierRepository,
+                                $welcomeGroupRestaurantModifierRepository,
+                                $updatedModifierTypeResponse,
+                                $modifierTypeBuilder,
+                                $welcomeGroupModifierRepository,
+                                $welcomeGroupConnector,
+                                $itemContext
+                            ) {
+                                $modifierType = $modifierTypeBuilder->build();
+
+                                // Получаем модификатор из нашей БД
+                                $modifier = $welcomeGroupModifierRepository
+                                    ->findByInternalModifierTypeIdAndIikoExternalId(
+                                        $modifierType->id,
+                                        $item->externalId
+                                    );
+                                // Если модификтор найден, то просто обновляем его в WG
+                                if ($modifier) {
+                                    $updateModifierResponse = $welcomeGroupConnector->updateModifier(
+                                        new EditModifierRequestData(
+                                            $item->name,
+                                            (int) $modifierType
+                                                ->externalId
+                                                ->id,
+                                            false
+                                        ),
+                                        $modifier->externalId
+                                    );
+
+                                    $modifierBuilder = ModifierBuilder::fromExisted($updateModifierResponse->toDomainEntity())
+//                                        ->setExternalId(new IntegerId($updateModifierResponse->id))
+                                        ->setIikoExternalModifierId($item->externalId)
+                                        ->setInternalModifierTypeId($modifierType->id)
+                                        ->setId($modifier->id);
+
+                                    $modifier = $modifierBuilder->build();
+                                    // Сохраняем обновлённый модификатор во внутреннюю таблицу WG
+                                    $updatedModifier = $welcomeGroupModifierRepository->update($modifier);
+                                } else {
+                                    // Если модификатор не был найден, то создаём его в вг и внутренней базе
+                                    $modifierResponse = $welcomeGroupConnector->createModifier(
+                                        new CreateModifierRequestData(
+                                            $item->name,
+                                            $updatedModifierTypeResponse->id,
+                                        ),
+                                    );
+
+                                    $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity())
+//                                        ->setExternalId(new IntegerId($modifierResponse->id))
+                                        ->setInternalModifierTypeId($modifierType->id)
+                                        ->setIikoExternalModifierId($item->externalId);
+
+                                    $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
+                                    $modifier = $modifierBuilder->setId($createdModifier->id);
+                                }
+                                // Ищем связь модификатора с рестораном во внутренней БД
+                                $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, $modifier->id);
+
+                                // При отсутствии связи модификатора с рестораном -- создаём, при наличии обновляем
+                                if (! $restaurantModifier) {
+                                    $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+                                        new CreateRestaurantModifierRequestData(
+                                            $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                            $modifier->externalId->id
+                                        )
+                                    );
+
+                                    $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                                    $restaurantModifier = $restaurantModifierBuilder
+                                        ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
+                                        ->setWelcomeGroupModifierId($modifier->id);
+
+                                    $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+                                    $restaurantModifier = $restaurantModifier->setId($createdRestaurantModifier->id);
+                                } else {
+                                    $restaurantModifierResponse = $welcomeGroupConnector->updateRestaurantModifier(
+                                        new EditRestaurantModifierRequestData(
+                                            $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                            $modifier->externalId->id
+                                        ),
+                                        $restaurantModifier->id
+                                    );
+
+                                    $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+                                    $restaurantModifier = $restaurantModifierBuilder
+                                        ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
+                                        ->setWelcomeGroupModifierId($modifier->id);
+
+                                    $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->update($restaurantModifier->build());
+                                    $restaurantModifier = $restaurantModifier->setId($createdRestaurantModifier->id);
+
+                                }
+
+                                // Получаем стоимость товара. В теории нам кажется, что прайса может быть больше чем 1, но
+                                // ни айка (CHICKO), ни WG не умеют работать с разными размерами товаров и их прайсами
+                                $itemPrice = $item->prices->first();
+
+                                if (! $itemPrice) {
+                                    throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
+                                }
+
+                                // Ищем во внутренней БД связь модификатора с блюдом
+                                $foodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($itemContext->food->id, $modifier->id);
+
+                                // Если не нашли связь модификатора с блюдом, то создаём её в WG и во внутренней базе
+                                if (! $foodModifier) {
+                                    $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
+                                        new CreateFoodModifierRequestData(
+                                            $itemContext->food->externalId->id,
+                                            $modifier->externalId->id,
+                                            $item->weight,
+                                            $itemPrice->price ?? 0,
+                                        ),
+                                    );
+
+                                    $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                                        $createFoodModifierResponse->toDomainEntity(),
+                                    );
+                                    $foodModifierBuilder = $foodModifierBuilder
+                                        ->setInternalModifierId($modifier->id)
+                                        ->setInternalFoodId($itemContext->food->id);
+
+                                    // Процесс создания связи во внутренней базе
+                                    $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
+                                } else {
+                                    $createFoodModifierResponse = $welcomeGroupConnector->updateFoodModifier(
+                                        new EditFoodModifierRequestData(
+                                            $itemContext->food->externalId->id,
+                                            $modifier->externalId->id,
+                                            $item->weight,
+                                            0,
+                                            $itemPrice->price ?? 0,
+                                            0
+                                        ),
+                                        $foodModifier->id
+                                    );
+
+                                    $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                                        $createFoodModifierResponse->toDomainEntity(),
+                                    );
+                                    $foodModifierBuilder = $foodModifierBuilder
+                                        ->setInternalModifierId($modifier->id)
+                                        ->setInternalFoodId($itemContext->food->id)
+                                        ->setId($foodModifier->id);
+
+                                    // Процесс создания связи во внутренней базе
+                                    $welcomeGroupFoodModifierRepository->update($foodModifierBuilder->build());
+                                }
+                            }
+                        );
                     });
                 } elseif ($missingCount < 0) {
                     // Кейс выявил, что есть лишние типы модификаторов, необходимо удалить то количество, которое указано в $count
                     // Получаем коллекцию из последних $excessCount элементов для удаления
-                    $modifiersToDelete = $existedModifierTypeCollection->slice($missingCount);
+                    $modifiersTypesToDelete = $existedModifierTypeCollection->slice($missingCount);
 
                     // Удаляем лишние модификаторы
-                    $modifiersToDelete->each(static function (WelcomeGroupModifierType $modifierType) {
-                        // Удаляем тип модификатора через коннектор
-                        // Запрос на удаление данных в WG (надо добавить)
+                    $modifiersTypesToDelete->each(static function (WelcomeGroupModifierType $modifierType) use (
+                        $welcomeGroupRestaurantModifierRepository,
+                        $welcomeGroupConnector,
+                        $itemContext
+
+                    ) {
+                        $modifierType
+                            ->modifiers
+                            ->each(static function (WelcomeGroupModifier $modifier) use (
+                                $welcomeGroupRestaurantModifierRepository,
+                                $welcomeGroupConnector,
+                                $itemContext
+                            ) {
+                                $restaurantModifier = $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, new IntegerId($modifier->id));
+                                // При отсутствии связи создаём её в WG. Кстати обновления связи не делал, пока показалось, что не требуется
+                                $updatedRestaurantModifier = $welcomeGroupConnector->updateRestaurantModifier(
+                                    new EditRestaurantModifierRequestData(
+                                        $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                                        $modifier->external_id,
+                                        'blocked'
+                                    ),
+                                    new IntegerId($restaurantModifier->externalId->id),
+                                );
+
+                                WelcomeGroupRestaurantFood::query()->find($restaurantModifier->id->id)->delete();
+                                $modifier->delete();
+                            });
 
                         // Удаляем тип модификатора из системы
                         $modifierType->delete();
                     });
 
                     // Оставшиеся модификаторы
-                    $remainingModifiers = $modifierTypeCollection->slice(0, $modifierTypeCollection->count() - abs($count));
+                    $remainingModifierTypes = $existedModifierTypeCollection->slice(0, $existedModifierTypeCollection->count() - abs($missingCount));
 
                     // Обновляем оставшиеся модификаторы
-                    $remainingModifiers->each(static function (WelcomeGroupModifierType $modifierType) use ($welcomeGroupConnector, $modifierGroup, $maxQuantity, $welcomeGroupModifierTypeRepository) {
+                    $remainingModifierTypes->each(static function (WelcomeGroupModifierType $modifierType) use ($welcomeGroupConnector, $modifierGroup, $maxQuantity, $welcomeGroupModifierTypeRepository) {
                         $response = $welcomeGroupConnector
                             ->updateModifierType(
                                 new EditModifierTypeRequestData(
@@ -770,243 +1062,6 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                         $welcomeGroupModifierTypeRepository->save($modifierBuilder->build());
                     });
                 }
-            }
-
-            $modifierTypeResponse = $welcomeGroupConnector->createModifierType(
-                new CreateModifierTypeRequestData(
-                    $modifierGroup->name,
-                    ModifierTypeBehaviour::fromValue($maxQuantity)->value,
-                ),
-            );
-
-            $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeResponse->toDomainEntity());
-
-            $modifierGroup->items->each(
-                static function (Item $item) use (
-                    $welcomeGroupFoodModifierRepository,
-                    $food,
-                    $modifierType,
-                    $welcomeGroupModifierRepository,
-                    $modifierTypeResponse,
-                    $welcomeGroupConnector,
-                    $organizationSetting,
-                    $welcomeGroupRestaurantModifierRepository
-                ) {
-                    $modifierResponse = $welcomeGroupConnector->createModifier(
-                        new CreateModifierRequestData(
-                            $item->name,
-                            $modifierTypeResponse->id,
-                        ),
-                    );
-
-                    $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
-                    $modifier = $modifierBuilder
-                        ->setInternalModifierTypeId($modifierType->id)
-                        ->build();
-
-                    $createdModifier = $welcomeGroupModifierRepository->save($modifier);
-
-                    $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
-                        new CreateRestaurantModifierRequestData(
-                            $organizationSetting->welcomeGroupRestaurantId->id,
-                            $createdModifier->externalId->id
-                        )
-                    );
-
-                    $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
-                    $restaurantModifier = $restaurantModifierBuilder
-                        ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId)
-                        ->setWelcomeGroupModifierId($createdModifier->id);
-
-                    $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
-
-                    $restaurantModifier->setExternalId($createdRestaurantModifier->id);
-
-                    $itemPrice = $item->prices->first();
-
-                    if (! $itemPrice) {
-                        throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $item->id->id));
-                    }
-
-                    $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
-                        new CreateFoodModifierRequestData(
-                            $food->externalId->id,
-                            $modifier->externalId->id,
-                            $item->weight,
-                            $itemPrice->price ?? 0,
-                        ),
-                    );
-
-                    $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-                        $createFoodModifierResponse->toDomainEntity(),
-                    );
-                    $foodModifierBuilder = $foodModifierBuilder
-                        ->setInternalModifierId($createdModifier->id)
-                        ->setInternalFoodId($food->id);
-
-                    $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
-                },
-            );
-        }
-
-        //        WelcomeGroupModifierType::
-        $maxQuantity = $modifierGroup->maxQuantity;
-        $modifierTypeCollection = WelcomeGroupModifierType::query()
-            ->where('iiko_menu_item_modifier_group_id', $modifierGroup->id)
-            ->where('name', $modifierGroup->name)
-            ->get();
-        // Проверяем максимальное количество модификатора
-        if ($maxQuantity === 1) {
-            // Проверяем, вдруг у нас в проекте modifierType больше, чем 1 (например сущность обновилась в iiko)
-            if ($modifierTypeCollection->count() > 1) {
-                $modifierTypeCollection->each(
-                    static function (WelcomeGroupModifierType $modifierType, int $i) use (
-                        $welcomeGroupConnector,
-                        $modifierGroup,
-                        $maxQuantity,
-                        $welcomeGroupModifierTypeRepository,
-                        $itemContext
-
-                    ) {
-                        // После запуска перебора, проверяем, первый ли элемент, ибо его мы не удаляем, а обновляем, если maxQuantity = 1
-                        if ($i === 1) {
-                            $response = $welcomeGroupConnector
-                                ->updateModifierType(
-                                    new EditModifierTypeRequestData(
-                                        $modifierGroup->name,
-                                        ModifierTypeBehaviour::fromValue($maxQuantity)->value,
-                                    ),
-                                    new IntegerId($modifierType->external_id)
-                                );
-
-                            $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($response->toDomainEntity());
-                            $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
-                            $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
-
-                            $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
-                            $modifierType
-                                ->modifiers
-                                ->each(static function (WelcomeGroupModifier $modifier) use ($welcomeGroupConnector, $itemContext): void {
-                                    $welcomeGroupConnector->updateRestaurantModifier(
-                                        new EditRestaurantModifierRequestData(
-                                            $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                            $modifier->id,
-                                            'blocked'
-                                        ),
-                                        new IntegerId($modifier->id),
-                                    );
-                                });
-                            //                            $welcomeGroupRestaurantModifierRepository->findByInternalRestaurantAndModifierId($itemContext->organizationSetting->id, )
-                        } else {
-                            /*
-                             * Удаляем остальные типы модификаторов. При maxQuantity=1 может быть только 1 тип модификатора
-                             * Собственно т.к. не первая итерация перебора, то все данные кроме первой итерации должны быть устранены
-                             */
-                            $modifiers = $modifierType->modifiers;
-                            $modifiers->each(static function (WelcomeGroupModifier $modifier) use ($welcomeGroupConnector, $itemContext): void {
-                                $welcomeGroupConnector->updateRestaurantModifier(
-                                    new EditRestaurantModifierRequestData(
-                                        $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
-                                        $modifier->id,
-                                        'blocked'
-                                    ),
-                                    new IntegerId($modifier->id),
-                                );
-                            });
-
-                            // Удаление данных с проекта
-                            $modifierType->delete();
-                        }
-                    });
-            }
-        } else {
-            // Начали обрабатывать кейс, когда maxQuantity>1
-            // Проверяем сколько modifierType'ов не хватает в системе или наоборот сколько лишних, если число отрицительное
-            $count = $modifierTypeCollection->count() - $maxQuantity;
-
-            if ($count > 0) {
-                // Сначала перебираем старые и обновляем в соответствии с обновлениями
-                $modifierTypeCollection->each(static function (WelcomeGroupModifierType $modifierType) use ($welcomeGroupConnector, $modifierGroup, $maxQuantity, $welcomeGroupModifierTypeRepository) {
-                    $response = $welcomeGroupConnector
-                        ->updateModifierType(
-                            new EditModifierTypeRequestData(
-                                $modifierGroup->name,
-                                ModifierTypeBehaviour::fromValue($maxQuantity)->value,
-                            ),
-                            new IntegerId($modifierType->external_id)
-                        );
-
-                    $modifierBuilder = ModifierTypeBuilder::fromExisted($response->toDomainEntity());
-                    $modifierBuilder->setId(new IntegerId($modifierType->id));
-                    $modifierBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
-
-                    $welcomeGroupModifierTypeRepository->save($modifierBuilder->build());
-                });
-
-                // т.к. по итогу вычислений выявлено, что модификаторов нехватает, то создаём недостающие по количеству = $count
-
-                for ($i = 0; $i < $maxQuantity; $i++) {
-                    $modifierTypeResponse = $welcomeGroupConnector->createModifierType(
-                        new CreateModifierTypeRequestData(
-                            $modifierGroup->name,
-                            ModifierTypeBehaviour::fromValue($maxQuantity)->value,
-                        ),
-                    );
-
-                    $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeResponse->toDomainEntity());
-                }
-            } elseif ($count === 0) {
-                // Данный кейс выявил, что новых типов модификаторов создавать не требуется, а вот обновить существуещие необходимо
-                $modifierTypeCollection->each(static function (WelcomeGroupModifierType $modifierType) use ($welcomeGroupConnector, $modifierGroup, $maxQuantity, $welcomeGroupModifierTypeRepository) {
-                    $response = $welcomeGroupConnector
-                        ->updateModifierType(
-                            new EditModifierTypeRequestData(
-                                $modifierGroup->name,
-                                ModifierTypeBehaviour::fromValue($maxQuantity)->value,
-                            ),
-                            new IntegerId($modifierType->external_id)
-                        );
-
-                    $modifierBuilder = ModifierTypeBuilder::fromExisted($response->toDomainEntity());
-                    $modifierBuilder->setId(new IntegerId($modifierType->id));
-                    $modifierBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
-
-                    $welcomeGroupModifierTypeRepository->save($modifierBuilder->build());
-                });
-            } elseif ($count < 0) {
-                // Кейс выявил, что есть лишние типы модификаторов, необходимо удалить то количество, которое указано в $count
-                // Получаем коллекцию из последних $excessCount элементов для удаления
-                $modifiersToDelete = $modifierTypeCollection->slice($count);
-
-                // Удаляем лишние модификаторы
-                $modifiersToDelete->each(static function (WelcomeGroupModifierType $modifierType) {
-                    // Удаляем тип модификатора через коннектор
-                    // Запрос на удаление данных в WG (надо добавить)
-
-                    // Удаляем тип модификатора из системы
-                    $modifierType->delete();
-                });
-
-                // Оставшиеся модификаторы
-                $remainingModifiers = $modifierTypeCollection->slice(0, $modifierTypeCollection->count() - abs($count));
-
-                // Обновляем оставшиеся модификаторы
-                $remainingModifiers->each(static function (WelcomeGroupModifierType $modifierType) use ($welcomeGroupConnector, $modifierGroup, $maxQuantity, $welcomeGroupModifierTypeRepository) {
-                    $response = $welcomeGroupConnector
-                        ->updateModifierType(
-                            new EditModifierTypeRequestData(
-                                $modifierGroup->name,
-                                ModifierTypeBehaviour::fromValue($maxQuantity)->value
-                            ),
-                            new IntegerId($modifierType->external_id)
-                        );
-
-                    $modifierBuilder = ModifierTypeBuilder::fromExisted($response->toDomainEntity());
-                    $modifierBuilder->setId(new IntegerId($modifierType->id));
-                    $modifierBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
-
-                    $welcomeGroupModifierTypeRepository->save($modifierBuilder->build());
-                });
             }
         }
     }
