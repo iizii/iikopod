@@ -17,5 +17,6 @@ interface WelcomeGroupModifierRepositoryInterface
     public function findById(IntegerId $id): ?Modifier;
 
     public function findByInternalModifierTypeIdAndIikoExternalId(IntegerId $internalModifierTypeId, StringId $externalIikoModifierId): ?Modifier;
+
     public function findByIikoId(IntegerId $id): ?Modifier;
 }

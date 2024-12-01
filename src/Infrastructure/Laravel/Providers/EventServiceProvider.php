@@ -20,9 +20,9 @@ use Infrastructure\Listeners\Iiko\StopListUpdateListener;
 use Infrastructure\Listeners\WelcomeGroup\SendCreatedFoodCategoryListener;
 use Infrastructure\Listeners\WelcomeGroup\SendCreatedFoodListener;
 use Infrastructure\Listeners\WelcomeGroup\SendOrderListener;
-use Infrastructure\Listeners\WelcomeGroup\UpdateOrderListener;
 use Infrastructure\Listeners\WelcomeGroup\SendUpdatedFoodCategoryListener;
 use Infrastructure\Listeners\WelcomeGroup\SendUpdatedFoodListener;
+use Infrastructure\Listeners\WelcomeGroup\UpdateOrderListener;
 
 final class EventServiceProvider extends LaravelEventServiceProvider
 {
