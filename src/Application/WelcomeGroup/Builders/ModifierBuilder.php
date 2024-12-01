@@ -13,6 +13,7 @@ final class ModifierBuilder
     public function __construct(
         private IntegerId $id,
         private IntegerId $internalModifierTypeId,
+        private IntegerId $internalIikoItemId,
         private IntegerId $externalId,
         private IntegerId $externalModifierTypeId,
         private StringId $iikoExternalModifierId,
@@ -25,6 +26,7 @@ final class ModifierBuilder
         return new self(
             $modifier->id,
             $modifier->internalModifierTypeId,
+            $modifier->internalIikoItemId,
             $modifier->externalId,
             $modifier->externalModifierTypeId,
             $modifier->iikoExternalModifierId,
@@ -89,11 +91,20 @@ final class ModifierBuilder
         return $clone;
     }
 
+    public function setInternalIikoItemId(IntegerId $internalIikoItemId): ModifierBuilder
+    {
+        $clone = clone $this;
+        $clone->internalIikoItemId = $internalIikoItemId;
+
+        return $clone;
+    }
+
     public function build(): Modifier
     {
         return new Modifier(
             $this->id,
             $this->internalModifierTypeId,
+            $this->internalIikoItemId,
             $this->externalId,
             $this->externalModifierTypeId,
             $this->iikoExternalModifierId,

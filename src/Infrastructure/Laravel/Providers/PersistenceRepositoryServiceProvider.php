@@ -13,6 +13,7 @@ use Domain\Iiko\Repositories\IikoMenuItemPriceRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuItemSizeRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
+use Domain\Orders\Repositories\OrderRepositoryInterface;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Users\Models\User;
 use Domain\Users\Repositories\UserRepositoryInterface;
@@ -41,6 +42,8 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemPri
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemRepository;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuItemSizeRepository;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Repositories\IikoMenuRepository;
+use Infrastructure\Persistence\Eloquent\Orders\Models\Order;
+use Infrastructure\Persistence\Eloquent\Orders\Repositories\OrderRepository;
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Infrastructure\Persistence\Eloquent\Settings\Repositories\OrganizationSettingRepository;
 use Infrastructure\Persistence\Eloquent\Users\Repositories\UserRepository;
@@ -155,6 +158,12 @@ final class PersistenceRepositoryServiceProvider extends ServiceProvider
         $this->app->scoped(WelcomeGroupFoodModifierRepositoryInterface::class, static function (Application $application): WelcomeGroupFoodModifierRepository {
             return new WelcomeGroupFoodModifierRepository(
                 $application->make(WelcomeGroupFoodModifier::class),
+            );
+        });
+
+        $this->app->scoped(OrderRepositoryInterface::class, static function (Application $application): OrderRepository {
+            return new OrderRepository(
+                $application->make(Order::class),
             );
         });
     }

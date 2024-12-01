@@ -9,6 +9,7 @@ use Domain\Settings\OrganizationSetting as DomainOrganizationSetting;
 use Illuminate\Support\LazyCollection;
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
 
 /**
@@ -32,6 +33,15 @@ final class OrganizationSettingRepository extends AbstractPersistenceRepository 
         return $this
             ->query()
             ->find($integerId->id)
+            ?->toDomainEntity();
+    }
+
+    public function findByIIkoId(StringId $id): ?DomainOrganizationSetting
+    {
+        return $this
+            ->query()
+            ->where('iiko_restaurant_id', $id->id)
+            ->first()
             ?->toDomainEntity();
     }
 }

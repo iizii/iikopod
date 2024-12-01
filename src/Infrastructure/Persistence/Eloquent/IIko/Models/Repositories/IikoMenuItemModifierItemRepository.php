@@ -39,6 +39,20 @@ final class IikoMenuItemModifierItemRepository extends AbstractPersistenceReposi
         );
     }
 
+    public function findByExternalId(StringId $id): ?Item
+    {
+        $result = $this
+            ->query()
+            ->where('external_id', $id->id)
+            ->first();
+
+        if (! $result) {
+            return null;
+        }
+
+        return IikoMenuItemModifierItem::toDomainEntity($result);
+    }
+
     public function findByMenuIdAndExternalId(IntegerId $iikoMenuItemModifierGroupId, StringId $externalId): ?Item
     {
         $result = $this->findEloquentByMenuIdAndExternalId($iikoMenuItemModifierGroupId, $externalId);

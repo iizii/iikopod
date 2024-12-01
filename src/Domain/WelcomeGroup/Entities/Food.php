@@ -17,7 +17,7 @@ final class Food extends DomainEntity
         public readonly IntegerId $externalFoodCategoryId,
         public readonly IntegerId $workshopId,
         public readonly string $name,
-        public readonly string $description,
+        public readonly ?string $description,
         public readonly int $weight,
         public readonly int $caloricity,
         public readonly ?int $price,

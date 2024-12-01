@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Listeners\Iiko;
 
-use Domain\Iiko\Events\StopListUpdateEvent;
+use Application\Iiko\Events\StopListUpdateEvent;
 
 final class StopListUpdateListener
 {

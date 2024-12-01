@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Application\Iiko\Factories;
 
-use Application\Iiko\Requests\IikoWebhookRequest;
 use Domain\Iiko\Enums\WebhookEventType;
 use Domain\Iiko\Exceptions\IikoEventTypeNotFountException;
 use Illuminate\Contracts\Events\Dispatcher;
+use Presentation\Api\Requests\IikoWebhookRequest;
 
 final readonly class WebhookEventFactory
 {
-    public function __construct(private Dispatcher $dispatcher) {}
+    public function __construct(private Dispatcher $dispatcher, private WebhookEventDataFactory $dataFactory) {}
 
     /**
      * @param  iterable<IikoWebhookRequest>  $events
@@ -31,6 +31,10 @@ final readonly class WebhookEventFactory
             throw new IikoEventTypeNotFountException();
         }
 
-        $this->dispatcher->dispatch(new $eventMap[$request->eventType->value]());
+        $this->dispatcher->dispatch(
+            new $eventMap[$request->eventType->value](
+                $this->dataFactory->fromRequest($request),
+            ),
+        );
     }
 }

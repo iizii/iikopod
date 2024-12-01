@@ -31,7 +31,9 @@ return new class() extends Migration
             $table->unsignedBigInteger('external_food_category_id');
             $table->unsignedBigInteger('workshop_id');
             $table->string('name');
-            $table->string('description');
+            $table
+                ->string('description')
+                ->nullable();
             $table->unsignedInteger('weight');
             $table->unsignedInteger('caloricity');
             $table->unsignedInteger('price');

@@ -16,4 +16,6 @@ interface WelcomeGroupFoodRepositoryInterface
     public function findById(IntegerId $integerId): ?Food;
 
     public function findByIikoItemId(IntegerId $integerId): ?Food;
+
+    public function findByIikoId(IntegerId $id): ?Food;
 }

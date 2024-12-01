@@ -31,6 +31,7 @@ final class CreateModifierResponseData extends ResponseData
         return new Modifier(
             new IntegerId(),
             new IntegerId(),
+            new IntegerId(),
             new IntegerId($this->id),
             new IntegerId($this->modifierType),
             new StringId(),

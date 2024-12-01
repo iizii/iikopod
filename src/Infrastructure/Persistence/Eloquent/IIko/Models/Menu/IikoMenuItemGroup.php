@@ -52,19 +52,25 @@ final class IikoMenuItemGroup extends Model
         'is_hidden',
     ];
 
+    /**
+     * @return BelongsTo<IikoMenu, $this>
+     */
     public function iikoMenu(): BelongsTo
     {
         return $this->belongsTo(IikoMenu::class, 'iiko_menu_id', 'id');
     }
 
     /**
-     * @return HasMany<array-key, IikoMenuItem>
+     * @return HasMany<IikoMenuItem, $this>
      */
     public function items(): HasMany
     {
         return $this->hasMany(IikoMenuItem::class, 'iiko_menu_item_group_id', 'id');
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function casts(): array
     {
         return [

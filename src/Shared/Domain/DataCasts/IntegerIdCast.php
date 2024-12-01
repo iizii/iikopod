@@ -11,7 +11,7 @@ use Spatie\LaravelData\Support\DataProperty;
 
 final class IntegerIdCast implements Cast
 {
-    public function cast(DataProperty $property, mixed $value, array $properties, CreationContext $context): mixed
+    public function cast(DataProperty $property, mixed $value, array $properties, CreationContext $context): IntegerId
     {
         return new IntegerId((int) $value);
     }
