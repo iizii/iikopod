@@ -7,6 +7,7 @@ namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModif
 use Carbon\CarbonImmutable;
 use Domain\WelcomeGroup\Entities\Modifier;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapOutputName;
@@ -34,6 +35,7 @@ final class ModifierObject extends ResponseData
             new IntegerId(),
             new IntegerId($this->id),
             new IntegerId($this->modifierType),
+            new StringId(),
             $this->name,
             $this->defaultOption,
         );

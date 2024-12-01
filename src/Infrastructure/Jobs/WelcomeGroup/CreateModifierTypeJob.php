@@ -7,6 +7,7 @@ namespace Infrastructure\Jobs\WelcomeGroup;
 use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
+use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierTypeRepositoryInterface;
 use Illuminate\Bus\Queueable;
@@ -30,6 +31,7 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
         public readonly Food $food,
         public readonly CreateModifierTypeRequestData $createModifierTypeRequestData,
         public readonly ItemModifierGroup $modifierGroup,
+        public readonly OrganizationSetting $organizationSetting,
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
     }
@@ -59,6 +61,7 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
                             $item->name,
                             $modifierTypeResponse->id,
                         ),
+                        $this->organizationSetting
                     ),
                 );
             });

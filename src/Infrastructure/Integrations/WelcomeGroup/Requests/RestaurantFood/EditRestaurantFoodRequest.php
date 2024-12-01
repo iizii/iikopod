@@ -6,7 +6,7 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood;
 
 use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\GetRestaurantFoodResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
@@ -33,9 +33,9 @@ final readonly class EditRestaurantFoodRequest implements RequestInterface, Resp
         return $this->data->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): GetRestaurantFoodResponseData
+    public function createDtoFromResponse(Response $response): EditRestaurantFoodResponseData
     {
-        return GetRestaurantFoodResponseData::from($response->json());
+        return EditRestaurantFoodResponseData::from($response->json());
     }
 
     /**

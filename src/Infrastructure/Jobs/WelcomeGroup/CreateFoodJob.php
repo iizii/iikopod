@@ -6,6 +6,7 @@ namespace Infrastructure\Jobs\WelcomeGroup;
 
 use Application\Iiko\Builders\ItemBuilder;
 use Application\WelcomeGroup\Builders\FoodBuilder;
+use Application\WelcomeGroup\Builders\RestaurantFoodBuilder;
 use Carbon\CarbonImmutable;
 use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
@@ -14,6 +15,7 @@ use Domain\Iiko\Repositories\IikoMenuItemSizeRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
+use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Enums\ModifierTypeBehaviour;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepositoryInterface;
@@ -25,6 +27,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepository;
 use Infrastructure\Queue\Queue;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -53,6 +57,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodCategoryRepositoryInterface $welcomeGroupFoodCategoryRepository,
         WelcomeGroupFoodRepositoryInterface $welcomeGroupFoodRepository,
+        WelcomeGroupRestaurantFoodRepository $welcomeGroupRestaurantFoodRepository,
     ): void {
         $iikoItem = $this->item;
 
@@ -90,7 +95,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
 
         $foodRequest = $foodBuilder->build();
 
-        $response = $welcomeGroupConnector->createFood(
+        $foodResponse = $welcomeGroupConnector->createFood(
             new CreateFoodRequestData(
                 $foodRequest->externalFoodCategoryId->id,
                 $foodRequest->workshopId->id,
@@ -102,18 +107,38 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ),
         );
 
-        $foodBuilder = $foodBuilder->setExternalId(new IntegerId($response->id));
+        $foodBuilder = $foodBuilder->setExternalId(new IntegerId($foodResponse->id));
 
         $createdFood = $welcomeGroupFoodRepository->save($foodBuilder->build());
+
+        $restaurantFoodResponse = $welcomeGroupConnector->createRestaurantFood(
+            new CreateRestaurantFoodRequestData(
+                $organizationSetting->welcomeGroupRestaurantId->id,
+                $createdFood->id->id,
+            )
+        );
+
+        $restaurantFoodBuilder = RestaurantFoodBuilder::fromExisted(
+            $restaurantFoodResponse->toDomainEntity()
+        )
+            ->setWelcomeGroupFoodId($createdFood->id)
+            ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId)
+            ->setExternalId(new IntegerId($restaurantFoodResponse->id));
+
+        $createdRestaurantFood = $welcomeGroupRestaurantFoodRepository->save($restaurantFoodBuilder->build());
+
+        $restaurantFood = $restaurantFoodBuilder
+            ->setId($createdRestaurantFood->id)
+            ->build();
 
         $food = $foodBuilder
             ->setId($createdFood->id)
             ->build();
 
-        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use ($dispatcher, $food): void {
+        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
             $itemSize->itemModifierGroups->each(
-                function (ItemModifierGroup $itemModifierGroup) use ($dispatcher, $food): void {
-                    $this->handleModifierGroup($dispatcher, $food, $itemModifierGroup);
+                function (ItemModifierGroup $itemModifierGroup) use ($dispatcher, $food, $organizationSetting): void {
+                    $this->handleModifierGroup($dispatcher, $food, $itemModifierGroup, $organizationSetting);
                 },
             );
         });
@@ -139,6 +164,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         QueueingDispatcher $dispatcher,
         Food $food,
         ItemModifierGroup $modifierGroup,
+        OrganizationSetting $organizationSetting
     ): void {
         $maxQuantity = $modifierGroup->maxQuantity;
 
@@ -151,6 +177,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                         ModifierTypeBehaviour::fromValue($maxQuantity)->value,
                     ),
                     $modifierGroup,
+                    $organizationSetting,
                 ),
             );
         }

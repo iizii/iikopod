@@ -26,6 +26,39 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
         return WelcomeGroupFood::toDomainEntity($welcomeGroupFood);
     }
 
+    public function findById(IntegerId $integerId): ?Food
+    {
+        return $this
+            ->query()
+            ->find($integerId->id)
+            ?->toDomainEntity();
+    }
+
+    public function findByIikoItemId(IntegerId $integerId): ?Food
+    {
+        return $this
+            ->query()
+            ->where('iiko_menu_item_id', $integerId->id)
+            ->first()
+            ?->toDomainEntity();
+    }
+
+    public function update(Food $food): Food
+    {
+        /** @var WelcomeGroupFood $currentFood */
+        $currentFood = $this
+            ->query()
+            ->find($food->id);
+
+        $newFood = $currentFood
+            ->fromDomainEntity($food);
+
+        $newFood->id = $food->id;
+        $newFood->save();
+
+        return WelcomeGroupFood::toDomainEntity($newFood);
+    }
+
     public function findByIikoId(IntegerId $id): ?Food
     {
         $welcomeGroupFood = $this

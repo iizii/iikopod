@@ -166,6 +166,20 @@ return [
             'days' => 7,
         ],
 
+        'food_update' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/food_update/food_update.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 7,
+        ],
+
+        'iiko_webhook' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/iiko_webhook/iiko_webhook.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 7,
+        ],
+
     ],
 
 ];

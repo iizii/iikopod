@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Infrastructure\Jobs\WelcomeGroup;
 
 use Application\WelcomeGroup\Builders\ModifierBuilder;
+use Application\WelcomeGroup\Builders\RestaurantModifierBuilder;
 use Domain\Iiko\Entities\Menu\Item;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
+use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Entities\ModifierType;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierRepositoryInterface;
@@ -18,6 +20,8 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierRequestData;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantModifierRepository;
 use Infrastructure\Queue\Queue;
 
 final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
@@ -33,6 +37,8 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         public readonly Item $item,
         public readonly ModifierType $modifierType,
         public readonly CreateModifierRequestData $createModifierRequestData,
+        public readonly OrganizationSetting $organizationSetting,
+
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
     }
@@ -55,6 +61,23 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
 
         $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
         $modifier = $modifierBuilder->setId($createdModifier->id);
+
+        $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+            new CreateRestaurantModifierRequestData(
+                $this->organizationSetting->welcomeGroupRestaurantId->id,
+                $createdModifier->externalId->id
+            )
+        );
+
+        $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+        $restaurantModifier = $restaurantModifierBuilder
+            ->setWelcomeGroupRestaurantId($this->organizationSetting->welcomeGroupRestaurantId)
+            ->setWelcomeGroupModifierId($createdModifier->id);
+        /** @var WelcomeGroupRestaurantModifierRepository $welcomeGroupRestaurantModifierRepository */
+        $welcomeGroupRestaurantModifierRepository = resolve(WelcomeGroupRestaurantModifierRepository::class);
+        $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+
+        $restaurantModifier->setExternalId($createdRestaurantModifier->id);
 
         $dispatcher->dispatch(
             new CreateFoodModifierJob(

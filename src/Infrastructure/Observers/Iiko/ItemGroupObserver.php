@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Observers\Iiko;
 
 use Domain\Iiko\Events\ItemGroupCreatedEvent;
+use Domain\Iiko\Events\ItemGroupUpdatedEvent;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Events\Dispatcher;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup;
@@ -28,7 +29,9 @@ final class ItemGroupObserver implements ShouldHandleEventsAfterCommit
      */
     public function updated(IikoMenuItemGroup $iikoMenuItemGroup): void
     {
-        //
+        $this
+            ->dispatcher
+            ->dispatch(new ItemGroupUpdatedEvent(IikoMenuItemGroup::toDomainEntity($iikoMenuItemGroup)));
     }
 
     /**

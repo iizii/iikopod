@@ -24,13 +24,14 @@ final class GetRestaurantModifierResponseData extends ResponseData
     public function toDomainEntity(): RestaurantModifier
     {
         return new RestaurantModifier(
-            new IntegerId($this->id),
+            new IntegerId(),
             new IntegerId($this->restaurant),
             new IntegerId($this->modifier),
+            new IntegerId($this->id),
+            new IntegerId(),
+            new IntegerId(),
             $this->statusComment,
             $this->status,
-            $this->created,
-            $this->updated
         );
     }
 }

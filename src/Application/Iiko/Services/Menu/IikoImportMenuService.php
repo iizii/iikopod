@@ -80,6 +80,10 @@ final readonly class IikoImportMenuService
                         )
                         ->toDomainEntity();
 
+                    /**
+                     * Обновление и создание меню не обсервится(на момент написания кода) и не вызывает
+                     * при created|updated никаких последующих методов.
+                     */
                     $this
                         ->databaseManager
                         ->transaction(function () use ($priceCategory, $organizationSetting, $responseEntity): void {
@@ -99,6 +103,9 @@ final readonly class IikoImportMenuService
 
     private function handleItemGroups(Menu $menu, PriceCategory $priceCategory): void
     {
+        /**
+         * IikoMenuItemGroup обсервится и при update|create вызываются ивенты продолжающие выполнять связанный с этим местом код
+         */
         $menu
             ->itemGroups
             ->each(function (ItemGroup $itemGroup) use ($priceCategory, $menu) {
@@ -118,6 +125,9 @@ final readonly class IikoImportMenuService
 
     private function handleItemGroupItems(ItemGroup $itemGroup): void
     {
+        /**
+         * IikoMenuItem обсервится и при update|create вызываются ивенты продолжающие выполнять связанный с этим местом код
+         */
         $itemGroup
             ->items
             ->each(function (Item $item) use ($itemGroup) {
