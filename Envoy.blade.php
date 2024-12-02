@@ -19,7 +19,7 @@
 
 @for($i = 0; $i < 5; $i++)
     echo -e "\033[32mStarting queue worker\033[0m"
-    nohup php artisan queue:work --queue=integrations -v > /dev/null 2>&1 &
+    nohup php artisan queue:work --queue=integrations,default -v > /dev/null 2>&1 &
 @endfor
 @endtask
 
