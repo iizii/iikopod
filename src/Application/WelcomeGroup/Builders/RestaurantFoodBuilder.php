@@ -25,11 +25,11 @@ final class RestaurantFoodBuilder
     {
         return new self(
             $restaurantFood->id,
-            $restaurantFood->restaurantId,
+            $restaurantFood->welcomeGroupRestaurantId,
             $restaurantFood->restaurantId,
             $restaurantFood->foodId,
-            $restaurantFood->foodId,
-            new IntegerId(),
+            $restaurantFood->welcomeGroupFoodId,
+            $restaurantFood->externalId,
             $restaurantFood->status,
             $restaurantFood->statusComment,
         );
