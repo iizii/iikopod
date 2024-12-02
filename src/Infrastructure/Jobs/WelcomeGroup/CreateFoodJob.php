@@ -20,6 +20,7 @@ use Domain\WelcomeGroup\Entities\Food;
 use Domain\WelcomeGroup\Enums\ModifierTypeBehaviour;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepositoryInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -28,7 +29,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
-use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepository;
 use Infrastructure\Queue\Queue;
 use Shared\Domain\ValueObjects\IntegerId;
 
@@ -57,7 +57,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodCategoryRepositoryInterface $welcomeGroupFoodCategoryRepository,
         WelcomeGroupFoodRepositoryInterface $welcomeGroupFoodRepository,
-        WelcomeGroupRestaurantFoodRepository $welcomeGroupRestaurantFoodRepository,
+        WelcomeGroupRestaurantFoodRepositoryInterface $welcomeGroupRestaurantFoodRepository,
     ): void {
         $iikoItem = $this->item;
 

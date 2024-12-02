@@ -185,7 +185,6 @@ final class PersistenceRepositoryServiceProvider extends ServiceProvider
             );
         });
 
-
     }
 
     /**
