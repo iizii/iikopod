@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Jobs\WelcomeGroup;
 
+use Application\WelcomeGroup\Builders\ModifierTypeBuilder;
 use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
@@ -46,7 +47,10 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
     ): void {
         $modifierTypeResponse = $welcomeGroupConnector->createModifierType($this->createModifierTypeRequestData);
 
-        $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeResponse->toDomainEntity());
+        $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($modifierTypeResponse->toDomainEntity())
+            ->setIikoMenuItemModifierGroupId($this->modifierGroup->id);
+
+        $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
 
         $this
             ->modifierGroup

@@ -242,9 +242,9 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                         new IntegerId($modifierType->external_id)
                                     );
 
-                                $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity());
-                                $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
-                                $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
+                                $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity())
+                                    ->setId(new IntegerId($modifierType->id))
+                                    ->setIikoMenuItemModifierGroupId(new IntegerId($modifierGroup->id->id));
 
                                 // Закончили обновление типа модификатора
                                 $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
@@ -431,9 +431,9 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                     new IntegerId($modifierType->external_id)
                                 );
 
-                            $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity());
-                            $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
-                            $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
+                            $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity())
+                                ->setId(new IntegerId($modifierType->id))
+                                ->setIikoMenuItemModifierGroupId(new IntegerId($modifierGroup->id->id));
 
                             // Закончили обновление типа модификатора
                             $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
@@ -749,6 +749,9 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                             ),
                         );
 
+                        $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($modifierTypeResponse->toDomainEntity())
+                            ->setIikoMenuItemModifierGroupId($modifierGroup->id);
+
                         $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeResponse->toDomainEntity());
 
                         $modifierGroup->items->each(
@@ -1055,9 +1058,9 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                 new IntegerId($modifierType->external_id)
                             );
 
-                        $modifierBuilder = ModifierTypeBuilder::fromExisted($response->toDomainEntity());
-                        $modifierBuilder->setId(new IntegerId($modifierType->id));
-                        $modifierBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
+                        $modifierBuilder = ModifierTypeBuilder::fromExisted($response->toDomainEntity())
+                            ->setId(new IntegerId($modifierType->id))
+                            ->setIikoMenuItemModifierGroupId($modifierGroup->id);
 
                         $welcomeGroupModifierTypeRepository->save($modifierBuilder->build());
                     });
