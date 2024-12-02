@@ -52,7 +52,7 @@ final class WelcomeGroupRestaurantFood extends Model
     public function fromDomainEntity(RestaurantFood $restaurantFood): self
     {
         return $this->fill([
-            'external_id' => $restaurantFood->id->id,
+            'external_id' => $restaurantFood->externalId->id,
             'welcome_group_restaurant_id' => $restaurantFood->restaurantId->id,
             'restaurant_id' => $restaurantFood->restaurantId->id,
             'welcome_group_food_id' => $restaurantFood->foodId->id,
