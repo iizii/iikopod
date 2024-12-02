@@ -122,8 +122,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             $restaurantFoodResponse->toDomainEntity()
         )
             ->setWelcomeGroupFoodId($createdFood->id)
-            ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId)
-            ->setExternalId(new IntegerId($restaurantFoodResponse->id));
+            ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId);
 
         $createdRestaurantFood = $welcomeGroupRestaurantFoodRepository->save($restaurantFoodBuilder->build());
 

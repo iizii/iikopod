@@ -77,8 +77,6 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
 
         $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
 
-        $restaurantModifier = $restaurantModifier->setExternalId($createdRestaurantModifier->id);
-
         $dispatcher->dispatch(
             new CreateFoodModifierJob(
                 $this->food,
