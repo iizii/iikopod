@@ -29,7 +29,7 @@ final class RestaurantModifierBuilder
             $restaurantFood->welcomeGroupRestaurantId,
             $restaurantFood->modifierId,
             $restaurantFood->welcomeGroupModifierId,
-            new IntegerId(),
+            $restaurantFood->externalId,
             $restaurantFood->status,
             $restaurantFood->statusComment,
         );
