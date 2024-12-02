@@ -22,6 +22,8 @@ use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepositoryInterface
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierTypeRepositoryInterface;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepositoryInterface;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantModifierRepositoryInterface;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenu;
@@ -52,11 +54,15 @@ use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodCate
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupRestaurantFood;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupRestaurantModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupFoodCategoryRepository;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepository;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupFoodRepository;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupModifierRepository;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupModifierTypeRepository;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepository;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantModifierRepository;
 
 final class PersistenceRepositoryServiceProvider extends ServiceProvider
 {
@@ -166,6 +172,20 @@ final class PersistenceRepositoryServiceProvider extends ServiceProvider
                 $application->make(Order::class),
             );
         });
+
+        $this->app->scoped(WelcomeGroupRestaurantFoodRepositoryInterface::class, static function (Application $application): WelcomeGroupRestaurantFoodRepository {
+            return new WelcomeGroupRestaurantFoodRepository(
+                $application->make(WelcomeGroupRestaurantFood::class),
+            );
+        });
+
+        $this->app->scoped(WelcomeGroupRestaurantModifierRepositoryInterface::class, static function (Application $application): WelcomeGroupRestaurantModifierRepository {
+            return new WelcomeGroupRestaurantModifierRepository(
+                $application->make(WelcomeGroupRestaurantModifier::class),
+            );
+        });
+
+
     }
 
     /**
