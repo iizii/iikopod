@@ -58,6 +58,7 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
         $modifierBuilder = $modifierBuilder
             ->setInternalIikoItemId($this->item->id)
+            ->setIikoExternalModifierId($this->item->externalId)
             ->setInternalModifierTypeId($this->modifierType->id);
 
         $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
