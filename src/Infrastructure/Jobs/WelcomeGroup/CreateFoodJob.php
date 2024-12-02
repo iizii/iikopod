@@ -114,7 +114,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         $restaurantFoodResponse = $welcomeGroupConnector->createRestaurantFood(
             new CreateRestaurantFoodRequestData(
                 $organizationSetting->welcomeGroupRestaurantId->id,
-                $createdFood->id->id,
+                $createdFood->externalId->id,
             ),
         );
 
