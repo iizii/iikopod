@@ -14,5 +14,12 @@
     composer optimize
     echo -e "\033[32mMigrate database\033[0m"
     php artisan migrate --force
+    echo -e "\033[32mStop all queue workers\033[0m"
+    pgrep -f "php artisan queue:work" | xargs -r kill
+
+@for($i = 0; $i < 5; $i++)
+    echo -e "\033[32mStarting queue worker\033[0m"
+    nohup php artisan queue:work --queue=integrations -v > /dev/null 2>&1 &
+@endfor
 @endtask
 
