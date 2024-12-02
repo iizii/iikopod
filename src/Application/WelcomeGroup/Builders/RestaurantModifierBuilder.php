@@ -25,8 +25,8 @@ final class RestaurantModifierBuilder
     {
         return new self(
             $restaurantFood->id,
-            $restaurantFood->restaurantId,
             $restaurantFood->welcomeGroupRestaurantId,
+            $restaurantFood->restaurantId,
             $restaurantFood->modifierId,
             $restaurantFood->welcomeGroupModifierId,
             $restaurantFood->externalId,
