@@ -38,6 +38,7 @@ final class WelcomeGroupModifierType extends Model
 {
     protected $fillable = [
         'external_id',
+        'iiko_menu_item_modifier_group_id',
         'name',
         'behaviour',
     ];
@@ -46,7 +47,7 @@ final class WelcomeGroupModifierType extends Model
     {
         return $this->fill([
             'external_id' => $modifierType->externalId->id,
-            'iiko_menu_item_modifier_group_id' => $modifierType->iikoMenuItemModifierGroupId,
+            'iiko_menu_item_modifier_group_id' => $modifierType->iikoMenuItemModifierGroupId->id,
             'name' => $modifierType->name,
             'behaviour' => $modifierType->behaviour->value,
         ]);

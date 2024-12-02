@@ -70,7 +70,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
 
         $foodCategory = $welcomeGroupFoodCategoryRepository->findByIikoMenuItemGroupId($iikoItemBuilder->itemGroupId);
 
-        if (! $foodCategory) {
+        if (!$foodCategory) {
             $this->release($now->addMinute());
 
             return;
@@ -78,13 +78,13 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
 
         $iikoMenu = $iikoMenuRepository->findforItem($iikoItemBuilder);
 
-        if (! $iikoMenu) {
+        if (!$iikoMenu) {
             throw new \RuntimeException('Iiko menu not found');
         }
 
         $organizationSetting = $organizationSettingRepository->findById($iikoMenu->organizationSettingId);
 
-        if (! $organizationSetting) {
+        if (!$organizationSetting) {
             throw new \RuntimeException('Organization Setting not found');
         }
 
@@ -115,14 +115,13 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             new CreateRestaurantFoodRequestData(
                 $organizationSetting->welcomeGroupRestaurantId->id,
                 $createdFood->id->id,
-            )
+            ),
         );
 
-        $restaurantFoodBuilder = RestaurantFoodBuilder::fromExisted(
-            $restaurantFoodResponse->toDomainEntity()
-        )
-            ->setWelcomeGroupFoodId($createdFood->id)
-            ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId);
+        $restaurantFoodBuilder = RestaurantFoodBuilder::fromExisted($restaurantFoodResponse->toDomainEntity());
+        $restaurantFoodBuilder = $restaurantFoodBuilder
+                ->setWelcomeGroupFoodId($createdFood->id)
+                ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId);
 
         $createdRestaurantFood = $welcomeGroupRestaurantFoodRepository->save($restaurantFoodBuilder->build());
 
@@ -163,7 +162,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         QueueingDispatcher $dispatcher,
         Food $food,
         ItemModifierGroup $modifierGroup,
-        OrganizationSetting $organizationSetting
+        OrganizationSetting $organizationSetting,
     ): void {
         $maxQuantity = $modifierGroup->maxQuantity;
 
