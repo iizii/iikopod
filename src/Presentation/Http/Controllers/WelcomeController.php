@@ -16,8 +16,6 @@ final readonly class WelcomeController
     #[Route(methods: 'GET', uri: '/', name: 'welcome')]
     public function __invoke()
     {
-        throw new IikoEventTypeNotFountException();
-
-        return $this->responseFactory->json(IikoMenuItem::toDomainEntity(IikoMenuItem::find(16)));
+        return $this->responseFactory->json();
     }
 }
