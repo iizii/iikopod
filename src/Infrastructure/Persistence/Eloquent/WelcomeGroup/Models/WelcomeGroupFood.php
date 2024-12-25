@@ -18,7 +18,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property int $external_food_category_id
  * @property int $workshop_id
  * @property string $name
- * @property string|null $description
+ * @property string $description
  * @property int $weight
  * @property int $caloricity
  * @property int $price

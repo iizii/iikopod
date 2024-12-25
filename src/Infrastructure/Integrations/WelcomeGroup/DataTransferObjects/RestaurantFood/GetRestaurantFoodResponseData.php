@@ -29,13 +29,14 @@ final class GetRestaurantFoodResponseData extends ResponseData
     public function toDomainEntity(): RestaurantFood
     {
         return new RestaurantFood(
+            new IntegerId(),
+            new IntegerId(),
+            new IntegerId(),
             new IntegerId($this->id),
             new IntegerId($this->restaurant),
             new IntegerId($this->food),
             $this->statusComment,
             $this->status,
-            $this->created,
-            $this->updated
         );
     }
 }

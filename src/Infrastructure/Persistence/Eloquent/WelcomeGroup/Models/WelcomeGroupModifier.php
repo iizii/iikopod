@@ -14,7 +14,6 @@ use Shared\Domain\ValueObjects\StringId;
 /**
  * @property int $id
  * @property int $welcome_group_modifier_type_id
- * @property int $iiko_menu_item_modifier_item_id
  * @property int $external_id
  * @property int $external_modifier_type_id
  * @property string $name
@@ -22,6 +21,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $iiko_external_modifier_id
+ * @property-read IikoMenuItemModifierItem|null $iikoModifier
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType $modifierType
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier newModelQuery()
@@ -32,7 +32,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereExternalModifierTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereIikoExternalModifierId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereIikoMenuItemModifierItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereIsDefault($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereUpdatedAt($value)
