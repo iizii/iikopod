@@ -78,7 +78,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
         ModifierHandlerService $modifierService
     ): void {
         // Получаем блюдо айки из ивента
-        $itemContext = $this->fetchItemContext($iikoMenuRepository, $organizationSettingRepository, $welcomeGroupFoodCategoryRepository, $welcomeGroupFoodRepository);
+        $itemContext = $this->fetchItemContext($iikoMenuRepository, $organizationSettingRepository, $welcomeGroupFoodCategoryRepository, $welcomeGroupFoodRepository, $welcomeGroupRestaurantFoodRepository);
 
         if (! $itemContext) {
             return;
