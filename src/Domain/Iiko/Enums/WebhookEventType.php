@@ -18,6 +18,8 @@ enum WebhookEventType: string
 
     case RESERVE_UPDATE = 'ReserveUpdate';
 
+    case PERSONAL_SHIFT = 'PersonalShift';
+
     /**
      * @return array<non-empty-string, class-string>
      */
