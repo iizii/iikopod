@@ -17,10 +17,10 @@ final class ItemContext
     public function __construct(
         public readonly Item $item,
         public readonly ItemBuilder $itemBuilder,
-        public readonly Food $food,
-        public readonly OrganizationSetting $organizationSetting,
-        public readonly FoodCategory $category,
+        public readonly ?Food $food,
+        public readonly ?OrganizationSetting $organizationSetting,
+        public readonly ?FoodCategory $category,
         public readonly WelcomeGroupFoodRepositoryInterface $foodRepo,
-        public readonly RestaurantFood $restaurantFood,
+        public readonly ?RestaurantFood $restaurantFood,
     ) {}
 }
