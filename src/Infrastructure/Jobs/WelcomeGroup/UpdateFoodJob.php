@@ -29,6 +29,7 @@ use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepositoryInterface
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierTypeRepositoryInterface;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantModifierRepositoryInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -74,7 +75,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
         WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
         WelcomeGroupRestaurantModifierRepositoryInterface $welcomeGroupRestaurantModifierRepository,
-        WelcomeGroupRestaurantFoodRepository $welcomeGroupRestaurantFoodRepository,
+        WelcomeGroupRestaurantFoodRepositoryInterface $welcomeGroupRestaurantFoodRepository,
         ModifierHandlerService $modifierService
     ): void {
         // Получаем блюдо айки из ивента
@@ -140,7 +141,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
             ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->id)
             ->setExternalId(new IntegerId($restaurantFoodResponse->id));
 
-        $updatedRestaurantFood = $welcomeGroupRestaurantFoodRepository->
+        $updatedRestaurantFood = $welcomeGroupRestaurantFoodRepository->update($restaurantFoodBuilder->build());
 
         $iikoMenuItemSizes->each(function (ItemSize $itemSize) use (
             $welcomeGroupRestaurantModifierRepository,
@@ -1074,7 +1075,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
         OrganizationSettingRepositoryInterface $orgRepository,
         WelcomeGroupFoodCategoryRepositoryInterface $categoryRepository,
         WelcomeGroupFoodRepositoryInterface $foodRepository,
-        WelcomeGroupRestaurantFoodRepository $restaurantFoodRepository,
+        WelcomeGroupRestaurantFoodRepositoryInterface $restaurantFoodRepository,
     ): ?ItemContext {
         $item = $this->item;
         $itemBuilder = ItemBuilder::fromExisted($item);
