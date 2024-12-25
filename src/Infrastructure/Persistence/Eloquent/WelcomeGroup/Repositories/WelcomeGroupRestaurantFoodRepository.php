@@ -42,7 +42,7 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
             ->query()
             ->find($integerId->id);
 
-        if (!$result) {
+        if (! $result) {
             return null;
         }
 
@@ -51,18 +51,30 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
 
     public function findByInternalFoodId(IntegerId $id): ?RestaurantFood
     {
-        return $this
+        $result = $this
             ->query()
-            ->where('welcome_group_food_id', $id)
+            ->where('welcome_group_food_id', $id->id)
             ->first();
+
+        if (!$result) {
+            return null;
+        }
+
+        return WelcomeGroupRestaurantFood::toDomainEntity($result);
     }
 
     public function findByInternalFoodAndRestaurantId(IntegerId $internalFoodid, IntegerId $internalRestaurantId): ?RestaurantFood
     {
-        return $this
+        $result = $this
             ->query()
-            ->where('welcome_group_food_id', $internalFoodid)
-            ->where('welcome_group_restaurant_id', $internalRestaurantId)
+            ->where('welcome_group_food_id', $internalFoodid->id)
+            ->where('welcome_group_restaurant_id', $internalRestaurantId->id)
             ->first();
+
+        if (!$result) {
+            return null;
+        }
+
+        return WelcomeGroupRestaurantFood::toDomainEntity($result);
     }
 }
