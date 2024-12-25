@@ -38,6 +38,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Ed
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
@@ -75,6 +77,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\EditModifierT
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrdersByRestaurantRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\UpdateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\FindPhoneRequest;
@@ -374,10 +377,20 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      */
     public function updateRestaurantFood(EditRestaurantFoodRequestData $editRestaurantFoodRequestData, IntegerId $id): DataTransferObjects\RestaurantFood\EditRestaurantFoodResponseData
     {
-        /** @var EditRestaurantFoodResponseData $response */
-        $response = $this->send(new EditRestaurantFoodRequest($id->id, $editRestaurantFoodRequestData));
+        /** @var EditRestaurantFoodResponseData */
+        return $this->send(new EditRestaurantFoodRequest((int) $id->id, $editRestaurantFoodRequestData));
+    }
 
-        return $response;
+    /**
+     * @return LazyCollection<array-key, GetOrdersByRestaurantResponseData>
+     *
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getOrdersByRestaurantId(GetOrdersByRestaurantRequestData $getOrdersByRestaurantRequestData): LazyCollection
+    {
+        /** @var LazyCollection<array-key, FindPhoneResponseData> */
+        return $this->send(new GetOrdersByRestaurantRequest($getOrdersByRestaurantRequestData));
     }
 
     protected function getRequestException(Response $response, \Throwable $clientException): \Throwable

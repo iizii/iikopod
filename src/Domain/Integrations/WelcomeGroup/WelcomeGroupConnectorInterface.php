@@ -32,6 +32,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Ed
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
@@ -102,7 +103,7 @@ interface WelcomeGroupConnectorInterface
 
     public function createRestaurantFood(CreateRestaurantFoodRequestData $createRestaurantFoodRequestData): CreateRestaurantFoodResponseData;
 
-    public function updateRestaurantFood(EditRestaurantFoodRequestData $editRestaurantFoodRequest, IntegerId $id): EditRestaurantFoodResponseData;
+    public function updateRestaurantFood(EditRestaurantFoodRequestData $editRestaurantFoodRequestData, IntegerId $id): EditRestaurantFoodResponseData;
 
     //    public function deleteModifierType(EditModifierTypeRequestData $editModifierTypeRequestData, IntegerId $id): EditModifierTypeResponseData;
 
@@ -171,4 +172,6 @@ interface WelcomeGroupConnectorInterface
     public function createPayment(CreateOrderPaymentRequestData $createOrderPaymentRequestData): CreateOrderPaymentResponseData;
 
     public function createRestaurantModifier(CreateRestaurantModifierRequestData $createRestaurantModifierRequestData): CreateRestaurantModifierResponseData;
+
+    public function getOrdersByRestaurantId(GetOrdersByRestaurantRequestData $getOrdersByRestaurantRequestData): LazyCollection;
 }
