@@ -85,6 +85,7 @@ final class CreateOrderJob implements ShouldQueue
                 0,
                 $order->comment,
                 OrderSource::TEST->value,
+                true
             ),
         );
 
