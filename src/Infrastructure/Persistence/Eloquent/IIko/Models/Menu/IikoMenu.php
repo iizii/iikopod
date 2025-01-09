@@ -7,13 +7,16 @@ namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\ValueObjects\Menu\ItemGroupCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
  * @property int $id
  * @property int $organization_setting_id
+ * @property-read  OrganizationSetting $organizationSetting
  * @property string $external_id
  * @property int $revision
  * @property string $name
@@ -53,6 +56,11 @@ final class IikoMenu extends Model
     public function itemGroups(): HasMany
     {
         return $this->hasMany(IikoMenuItemGroup::class, 'iiko_menu_id', 'id');
+    }
+
+    public function organizationSetting(): BelongsTo
+    {
+        return $this->belongsTo(OrganizationSetting::class);
     }
 
     public function fromDomainEntity(Menu $menu): self

@@ -42,7 +42,7 @@ final class EditFoodResponseData extends ResponseData
             $this->description,
             $this->weight,
             $this->caloricity,
-            (int)($this->price * 100),
+            (int) ($this->price * 100),
         );
     }
 }

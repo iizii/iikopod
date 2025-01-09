@@ -27,8 +27,8 @@ enum WebhookEventType: string
     {
         return [
             self::DELIVERY_ORDER_UPDATE->value => DeliveryOrderUpdateEvent::class,
-            /*self::DELIVERY_ORDER_ERROR->value => DeliveryOrderErrorEvent::class,
-            self::STOP_LIST_UPDATE->value => StopListUpdateEvent::class,*/
+            //self::DELIVERY_ORDER_ERROR->value => DeliveryOrderErrorEvent::class,
+            self::STOP_LIST_UPDATE->value => StopListUpdateEvent::class,
         ];
     }
 }

@@ -8,11 +8,17 @@ use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\ValueObjects\Menu\ItemSizeCollection;
 use Domain\Iiko\ValueObjects\Menu\PriceCollection;
+use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepositoryInterface;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
 use Infrastructure\Observers\Iiko\ItemObserver;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupRestaurantFood;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -30,6 +36,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup $itemGroup
+ * @property-read WelcomeGroupFood $food
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize> $itemSizes
  * @property-read int|null $item_sizes_count
  *
@@ -79,6 +86,11 @@ final class IikoMenuItem extends Model
         return $this->hasMany(IikoMenuItemSize::class, 'iiko_menu_item_id', 'id');
     }
 
+    public function food(): HasOne
+    {
+        return $this->hasOne(WelcomeGroupFood::class, 'iiko_menu_item_id');
+    }
+
     public function casts(): array
     {
         return [
@@ -118,5 +130,47 @@ final class IikoMenuItem extends Model
             new PriceCollection(),
             new ItemSizeCollection(),
         );
+    }
+
+    public function isNewRecord(): bool
+    {
+        return $this->getKey() === null;
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        self::saving(static function (self $item) {
+            // Проверяем, что запись НЕ новая и поле `is_hidden` изменилось
+            if (! $item->isNewRecord() && $item->isDirty('is_hidden')) {
+                $welcomeGroupFood = $item->food;
+                $orgId = $item->itemGroup->iikoMenu->organization_setting_id;
+
+                /** @var WelcomeGroupRestaurantFoodRepositoryInterface $restaurantFoodRepository */
+                $restaurantFoodRepository = app(WelcomeGroupRestaurantFoodRepositoryInterface::class);
+
+                $restaurantFood = $restaurantFoodRepository->findByInternalFoodId(new IntegerId($welcomeGroupFood->id));
+
+                $restaurantFood = WelcomeGroupRestaurantFood::query()
+                    ->find($restaurantFood->id->id);
+
+                $restaurantFood->status = $item->is_hidden ? 'stopped' : 'active';
+                $restaurantFood->save();
+
+                /** @var WelcomeGroupConnectorInterface $welcomeGroupConnector */
+                $welcomeGroupConnector = app(WelcomeGroupConnectorInterface::class);
+
+                $welcomeGroupConnector
+                    ->updateRestaurantFood(
+                        new EditRestaurantFoodRequestData(
+                            $restaurantFood->restaurant_id,
+                            $restaurantFood->food_id,
+                            $restaurantFood->status
+                        ),
+                        $restaurantFood->external_id
+                    );
+            }
+        });
     }
 }

@@ -18,5 +18,4 @@ interface WelcomeGroupRestaurantFoodRepositoryInterface
     public function findByInternalFoodId(IntegerId $id): ?RestaurantFood;
 
     public function findByInternalFoodAndRestaurantId(IntegerId $internalFoodid, IntegerId $internalRestaurantId): ?RestaurantFood;
-
 }
