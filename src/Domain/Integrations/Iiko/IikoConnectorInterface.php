@@ -7,6 +7,7 @@ namespace Domain\Integrations\Iiko;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse\GetMenuResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
@@ -35,4 +36,6 @@ interface IikoConnectorInterface
         GetMenuRequestData $getMenuRequestData,
         string $authToken,
     ): GetMenuResponseData;
+
+    public function getStopLists(string $organizationId, string $authToken): LazyCollection;
 }

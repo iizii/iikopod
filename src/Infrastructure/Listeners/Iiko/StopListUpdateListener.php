@@ -8,14 +8,14 @@ use Application\Iiko\Events\StopListUpdateEvent;
 use Domain\Iiko\Exceptions\RestaurantNotFoundException;
 use Domain\Iiko\Repositories\IikoMenuItemRepositoryInterface;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
+use Domain\Integrations\Iiko\IikoConnectorInterface;
+use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Infrastructure\Integrations\IIko\IikoAuthenticator;
-use Infrastructure\Integrations\IIko\IIkoConnector;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenu;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup;
-use Infrastructure\Persistence\Eloquent\Settings\Repositories\OrganizationSettingRepository;
 use Mockery\Exception;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -25,9 +25,9 @@ final class StopListUpdateListener
      * Create the event listener.
      */
     public function __construct(
-        private readonly IikoConnector $connector,
+        private readonly IikoConnectorInterface $connector,
         private readonly IikoAuthenticator $authenticator,
-        private readonly OrganizationSettingRepository $settingRepository,
+        private readonly OrganizationSettingRepositoryInterface $settingRepository,
         private readonly IikoMenuItemRepositoryInterface $iikoMenuItemRepository,
         private readonly IikoMenuRepositoryInterface $iikoMenuRepository,
     ) {}
@@ -64,7 +64,7 @@ final class StopListUpdateListener
             logger()
                 ->channel('stop_list_update')
                 ->info(
-                    'Не удачная попытка получить стоп-листы',
+                    'Неудачная попытка получить стоп-листы',
                     [
                         'data' => $data,
                     ]
@@ -90,21 +90,25 @@ final class StopListUpdateListener
 
             return;
         }
-        $stopListProductIds = $stopListResponse->pluck('productId');
+        $stopListProductIds = $stopListResponse
+            ->map(static fn ($item) => $item->productId)
+            ->values()
+            ->all();
+
         $menu->each(static function (IikoMenu $iikoMenu) use ($stopListProductIds) {
             $iikoMenu
                 ->itemGroups
                 ->each(static function (IikoMenuItemGroup $iikoMenuItemGroup) use ($stopListProductIds) {
                     $iikoMenuItemGroup
                         ->items()
-                        ->whereIn('product_id', $stopListProductIds)
+                        ->whereIn('external_id', $stopListProductIds)
                         ->each(static function (IikoMenuItem $iikoMenuItem) {
                             $iikoMenuItem->is_hidden = true;
                             $iikoMenuItem->save();
                         });
                     $iikoMenuItemGroup
                         ->items()
-                        ->whereNotIn('product_id', $stopListProductIds)
+                        ->whereNotIn('external_id', $stopListProductIds)
                         ->each(static function (IikoMenuItem $iikoMenuItem) {
                             $iikoMenuItem->is_hidden = false;
                             $iikoMenuItem->save();

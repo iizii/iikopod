@@ -14,10 +14,9 @@ final readonly class WebhookEventDataFactory
 {
     public function fromRequest(IikoWebhookRequest $request): Data
     {
-
         return match ($request->eventType->value) {
             WebhookEventType::DELIVERY_ORDER_UPDATE->value => DataTransferObjects\DeliveryOrderUpdateData\EventData::from($request->eventInfo),
-            WebhookEventType::STOP_LIST_UPDATE->value => DataTransferObjects\StopListUpdateData\EventData::from(['organizationId' => $request->eventInfo, 'items' => $request->eventInfo['terminalGroupsStopListsUpdates']]),
+            WebhookEventType::STOP_LIST_UPDATE->value => DataTransferObjects\StopListUpdateData\EventData::from(['organizationId' => $request->organizationId, 'items' => $request->eventInfo['terminalGroupsStopListsUpdates']]),
             default => throw new IikoEventTypeNotFountException(),
         };
     }
