@@ -16,7 +16,6 @@ use Shared\Domain\ValueObjects\StringId;
 /**
  * @property int $id
  * @property int $organization_setting_id
- * @property-read  OrganizationSetting $organizationSetting
  * @property string $external_id
  * @property int $revision
  * @property string $name
@@ -25,6 +24,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup> $itemGroups
  * @property-read int|null $item_groups_count
+ * @property-read OrganizationSetting $organizationSetting
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newQuery()

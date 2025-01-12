@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\Orders\Builders;
 
+use Carbon\CarbonImmutable;
 use Domain\Orders\Entities\Order;
 use Domain\Orders\Enums\OrderSource;
 use Domain\Orders\Enums\OrderStatus;
@@ -26,6 +27,7 @@ final class OrderBuilder
         private ?Payment $payment,
         private Customer $customer,
         private ItemCollection $items,
+        private CarbonImmutable $completeBefore
     ) {}
 
     public static function fromExisted(Order $order): self
@@ -41,6 +43,7 @@ final class OrderBuilder
             $order->payment,
             $order->customer,
             $order->items,
+            $order->completeBefore,
         );
     }
 
@@ -137,6 +140,7 @@ final class OrderBuilder
             $this->payment,
             $this->customer,
             $this->items,
+            $this->completeBefore
         );
     }
 }

@@ -26,6 +26,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property string|null $comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $complete_before
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderCustomer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem> $items
  * @property-read int|null $items_count
@@ -35,6 +36,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCompleteBefore($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereIikoExternalId($value)
@@ -55,6 +57,11 @@ final class Order extends Model
         'iiko_external_id',
         'welcome_group_external_id',
         'comment',
+        'complete_before',
+    ];
+
+    protected $casts = [
+        'complete_before' => 'datetime',
     ];
 
     /**
@@ -98,6 +105,7 @@ final class Order extends Model
             'iiko_external_id' => $order->iikoExternalId->id,
             'welcome_group_external_id' => $order->welcomeGroupExternalId->id,
             'comment' => $order->comment,
+            'complete_before' => $order->completeBefore,
         ]);
     }
 
@@ -118,6 +126,7 @@ final class Order extends Model
                 $order->customer->phone,
             ),
             new ItemCollection(),
+            $order->complete_before->toImmutable()
         );
     }
 }

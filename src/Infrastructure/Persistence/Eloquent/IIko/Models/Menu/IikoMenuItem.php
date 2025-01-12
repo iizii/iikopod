@@ -35,8 +35,8 @@ use Shared\Domain\ValueObjects\StringId;
  * @property bool $is_hidden
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read WelcomeGroupFood|null $food
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup $itemGroup
- * @property-read WelcomeGroupFood $food
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize> $itemSizes
  * @property-read int|null $item_sizes_count
  *
