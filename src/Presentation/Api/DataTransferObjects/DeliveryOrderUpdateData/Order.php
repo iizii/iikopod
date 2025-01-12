@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData;
 
+use Carbon\CarbonImmutable;
 use Domain\Iiko\Enums\OrderStatus;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
@@ -26,7 +27,7 @@ final class Order extends Data
         public readonly OrderStatus $status,
         public readonly ?CancelInfo $cancelInfo,
         public readonly ?CourierInfo $courierInfo,
-        public readonly ?string $completeBefore,
+        public readonly ?CarbonImmutable $completeBefore,
         public readonly ?string $whenCreated,
         public readonly ?string $whenConfirmed,
         public readonly ?string $whenPrinted,

@@ -57,7 +57,6 @@ final readonly class CreateOrderFromWebhook
                 $eventPayment->sum,
             )
             : null;
-
         $organization = $this->organizationSettingRepository->findByIIkoId(new StringId($eventData->organizationId));
 
         if (! $organization) {
@@ -79,6 +78,7 @@ final readonly class CreateOrderFromWebhook
                 $eventData->order->phone,
             ),
             new ItemCollection(),
+            $eventData->order->completeBefore
         );
 
         $eventData

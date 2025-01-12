@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Orders\Entities;
 
+use Carbon\CarbonImmutable;
 use Domain\Orders\Enums\OrderSource;
 use Domain\Orders\Enums\OrderStatus;
 use Domain\Orders\ValueObjects\Customer;
@@ -27,6 +28,7 @@ final class Order extends DomainEntity
         public readonly ?Payment $payment,
         public readonly Customer $customer,
         public readonly ItemCollection $items,
+        public readonly CarbonImmutable $completeBefore,
     ) {}
 
     public function addItem(Item $item): self

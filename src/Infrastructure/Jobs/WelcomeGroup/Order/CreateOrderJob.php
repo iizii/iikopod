@@ -73,6 +73,16 @@ final class CreateOrderJob implements ShouldQueue
             ),
         );
 
+        $welcomeGroupRestaurant = $welcomeGroupConnector
+            ->getRestaurant($organizationSettings->welcomeGroupRestaurantId);
+        $totalCompleteOrderTime = now()->addSeconds($welcomeGroupRestaurant->timeWaitingCooking
+            + $welcomeGroupRestaurant->timeCooking
+            + $welcomeGroupRestaurant->timeWaitingDelivering
+            + $welcomeGroupRestaurant->timeDelivering);
+        $isPreorder = $order
+            ->completeBefore
+            ->greaterThan($totalCompleteOrderTime);
+
         $response = $welcomeGroupConnector->createOrder(
             new CreateOrderRequestData(
                 $organizationSettings->welcomeGroupRestaurantId->id,
@@ -85,6 +95,7 @@ final class CreateOrderJob implements ShouldQueue
                 0,
                 $order->comment,
                 OrderSource::TEST->value,
+                $isPreorder,
             ),
         );
 

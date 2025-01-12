@@ -28,6 +28,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\Cr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\EditFoodModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\EditFoodModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\GetRestaurantResponse\GetRestaurantResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\EditModifierRequestData;
@@ -81,6 +82,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrdersByRestauran
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\UpdateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\FindPhoneRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\CreateRestaurantFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\EditRestaurantFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantModifier\CreateRestaurantModifierRequest;
@@ -109,6 +111,18 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     ): CreateFoodCategoryResponseData {
         /** @var CreateFoodCategoryResponseData $response */
         $response = $this->send(new CreateFoodCategoryRequest($createFoodCategoryRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getRestaurant(IntegerId $id): GetRestaurantResponseData
+    {
+        /** @var GetRestaurantResponseData $response */
+        $response = $this->send(new GetRestaurantRequest($id));
 
         return $response;
     }

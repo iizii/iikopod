@@ -8,7 +8,9 @@ use Domain\Iiko\Entities\Menu\Item;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\Repositories\IikoMenuRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenu;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
 
@@ -36,6 +38,21 @@ final class IikoMenuRepository extends AbstractPersistenceRepository implements 
         }
 
         return IikoMenu::toDomainEntity($result);
+    }
+
+    /**
+     * @return null|Collection<array-key, IikoMenu>
+     */
+    public function getAllByInternalOrganizationIdWithItemGroups(IntegerId $organizationId): ?Collection
+    {
+        /** @var Collection<array-key, IikoMenu> */
+        return $this
+            ->query()
+            ->select(['id', 'organization_setting_id']) // Только нужные колонки
+            ->where('organization_setting_id', $organizationId->id)
+            ->with(['itemGroups:id,iiko_menu_id,name,is_hidden,external_id']) // Жадная загрузка с нужными колонками
+            ->get()
+            ->whenEmpty(static fn () => null);
     }
 
     public function findByExternalId(StringId $externalId): ?Menu

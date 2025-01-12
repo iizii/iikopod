@@ -61,9 +61,23 @@ final class OrganizationSettingResource extends Resource
                             ->label('ID ресторана IIKO')
                             ->string()
                             ->required()
-                            ->rules(
-                                ['regex:/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/'],
-                            )
+                            ->rules([
+                                'regex:/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/',
+                                static fn (Get $get): Closure => static function (
+                                    string $attribute,
+                                    mixed $value,
+                                    Closure $fail,
+                                ) use ($get) {
+                                    $exists = OrganizationSetting::query()
+                                        ->where('iiko_api_key', $get('iiko_api_key'))
+                                        ->where('iiko_restaurant_id', $value)
+                                        ->exists();
+
+                                    if ($exists) {
+                                        $fail('Комбинация IIKO API Key и ID ресторана должна быть уникальной во всём проекте.');
+                                    }
+                                },
+                            ])
                             ->reactive(),  // Также делаем поле реактивным
                         Forms\Components\TextInput::make('welcome_group_restaurant_id')
                             ->label('ID ресторана Welcome Доставка')

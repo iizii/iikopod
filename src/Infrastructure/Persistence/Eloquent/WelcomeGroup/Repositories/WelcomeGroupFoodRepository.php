@@ -60,10 +60,10 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
             ->query()
             ->find($food->id);
 
-        $newFood = $currentFood
-            ->fromDomainEntity($food);
+        $newFood = new WelcomeGroupFood();
+        $newFood->fromDomainEntity($food);
+        $newFood->id = $currentFood->id;
 
-        $newFood->id = $food->id;
         $newFood->save();
 
         return WelcomeGroupFood::toDomainEntity($newFood);

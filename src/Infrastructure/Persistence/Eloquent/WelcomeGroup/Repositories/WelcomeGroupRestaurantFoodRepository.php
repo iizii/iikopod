@@ -56,7 +56,7 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
             ->where('welcome_group_food_id', $id->id)
             ->first();
 
-        if (!$result) {
+        if (! $result) {
             return null;
         }
 
@@ -71,7 +71,7 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
             ->where('welcome_group_restaurant_id', $internalRestaurantId->id)
             ->first();
 
-        if (!$result) {
+        if (! $result) {
             return null;
         }
 

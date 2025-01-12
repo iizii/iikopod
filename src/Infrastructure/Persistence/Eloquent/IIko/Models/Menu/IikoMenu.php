@@ -7,7 +7,9 @@ namespace Infrastructure\Persistence\Eloquent\IIko\Models\Menu;
 use Domain\Iiko\Entities\Menu\Menu;
 use Domain\Iiko\ValueObjects\Menu\ItemGroupCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -22,6 +24,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup> $itemGroups
  * @property-read int|null $item_groups_count
+ * @property-read OrganizationSetting $organizationSetting
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newQuery()
@@ -53,6 +56,11 @@ final class IikoMenu extends Model
     public function itemGroups(): HasMany
     {
         return $this->hasMany(IikoMenuItemGroup::class, 'iiko_menu_id', 'id');
+    }
+
+    public function organizationSetting(): BelongsTo
+    {
+        return $this->belongsTo(OrganizationSetting::class);
     }
 
     public function fromDomainEntity(Menu $menu): self

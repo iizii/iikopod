@@ -22,6 +22,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $iiko_external_modifier_id
+ * @property-read IikoMenuItemModifierItem $iikoModifier
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType $modifierType
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier newModelQuery()

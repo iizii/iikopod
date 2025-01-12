@@ -49,7 +49,6 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModif
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupRestaurantFood;
-use Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepository;
 use Shared\Domain\ValueObjects\IntegerId;
 
 final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
