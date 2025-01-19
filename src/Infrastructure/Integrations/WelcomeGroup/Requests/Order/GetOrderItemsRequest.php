@@ -7,15 +7,15 @@ namespace Infrastructure\Integrations\WelcomeGroup\Requests\Order;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
-final readonly class GetOrderPaymentRequest implements RequestInterface, ResponseDataInterface
+final readonly class GetOrderItemsRequest implements RequestInterface, ResponseDataInterface
 {
-    public function __construct(private GetOrderPaymentRequestData $requestData) {}
+    public function __construct(private GetOrderItemsRequestData $requestData) {}
 
     public function method(): RequestMethod
     {
@@ -24,7 +24,7 @@ final readonly class GetOrderPaymentRequest implements RequestInterface, Respons
 
     public function endpoint(): string
     {
-        return '/api/payment';
+        return '/api/order_item';
     }
 
     public function headers(): array|Arrayable
@@ -38,10 +38,10 @@ final readonly class GetOrderPaymentRequest implements RequestInterface, Respons
     }
 
     /**
-     * @return LazyCollection<array-key, GetOrderPaymentResponseData>
+     * @return LazyCollection<array-key, GetOrderItemsResponseData>
      */
     public function createDtoFromResponse(Response $response): LazyCollection
     {
-        return GetOrderPaymentResponseData::collect($response->json('items'), LazyCollection::class);
+        return GetOrderItemsResponseData::collect($response->json('items'), LazyCollection::class);
     }
 }

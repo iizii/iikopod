@@ -11,8 +11,10 @@ use Domain\Orders\Enums\OrderStatus;
 use Domain\Orders\ValueObjects\Customer;
 use Domain\Orders\ValueObjects\ItemCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -30,6 +32,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderCustomer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem> $items
  * @property-read int|null $items_count
+ * @property-read OrganizationSetting $organizationSetting
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment|null $payment
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
@@ -86,6 +89,11 @@ final class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class, 'order_id', 'id');
+    }
+
+    public function organizationSetting(): BelongsTo
+    {
+        return $this->belongsTo(OrganizationSetting::class);
     }
 
     public function casts(): array

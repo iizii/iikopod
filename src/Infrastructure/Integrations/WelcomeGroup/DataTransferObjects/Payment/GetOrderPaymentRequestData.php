@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment;
 
-use Domain\WelcomeGroup\Enums\OrderPaymentStatus;
-use Domain\WelcomeGroup\Enums\OrderPaymentType;
-use Spatie\LaravelData\Data;
+use Shared\Infrastructure\Integrations\ResponseData;
 
-final class GetOrderPaymentRequestData extends Data
+final class GetOrderPaymentRequestData extends ResponseData
 {
     public function __construct(
         public readonly int $order,

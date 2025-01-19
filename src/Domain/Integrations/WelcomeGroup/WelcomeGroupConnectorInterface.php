@@ -12,6 +12,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateA
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\GetClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
@@ -40,10 +41,12 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\Creat
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\GetPhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
@@ -172,9 +175,17 @@ interface WelcomeGroupConnectorInterface
      */
     public function createPayment(CreateOrderPaymentRequestData $createOrderPaymentRequestData): CreateOrderPaymentResponseData;
 
+    public function getOrderPayment(GetOrderPaymentRequestData $getOrderPaymentRequestData): LazyCollection;
+
     public function createRestaurantModifier(CreateRestaurantModifierRequestData $createRestaurantModifierRequestData): CreateRestaurantModifierResponseData;
 
     public function getOrdersByRestaurantId(GetOrdersByRestaurantRequestData $getOrdersByRestaurantRequestData): LazyCollection;
 
     public function getRestaurant(IntegerId $id): GetRestaurantResponseData;
+
+    public function getClient(IntegerId $id): GetClientResponseData;
+
+    public function getPhone(IntegerId $id): GetPhoneResponseData;
+
+    public function getOrderItems(IntegerId $id): LazyCollection;
 }

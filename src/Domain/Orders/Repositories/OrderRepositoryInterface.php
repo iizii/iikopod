@@ -18,5 +18,4 @@ interface OrderRepositoryInterface
     public function findByIikoId(StringId $id): ?DomainOrder;
 
     public function findByWelcomeGroupId(IntegerId $id): ?DomainOrder;
-
 }

@@ -6,9 +6,6 @@ namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order;
 
 use Carbon\CarbonImmutable;
 use Domain\Orders\Enums\OrderSource;
-use Domain\Orders\ValueObjects\Payment;
-use Domain\WelcomeGroup\Entities\Order;
-use Domain\WelcomeGroup\Enums\OrderStatus;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\OrderItems\OrderItems;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
@@ -60,7 +57,7 @@ final class GetOrdersByRestaurantResponseData extends ResponseData
         public readonly ?int $productionTime,
         public readonly ?int $timeDelivery,
         public readonly ?string $statusProcessRouting,
-        public readonly ?string $source,
+        public readonly int $source,
         public readonly int $id,
         public readonly CarbonImmutable $created,
         public readonly CarbonImmutable $updated,
@@ -92,52 +89,50 @@ final class GetOrdersByRestaurantResponseData extends ResponseData
         public readonly ?array $orderItems
     ) {}
 
-//    public function toDomainEntity(): Order
-//    {
-//        return new Order(
-//            new IntegerId($this->id),
-//            new IntegerId($this->restaurant),
-//            new IntegerId($this->client),
-//            new IntegerId($this->phone),
-//            new IntegerId($this->address),
-//            OrderStatus::from($this->status),
-//            $this->discount,
-//            $this->comment,
-//            $this->isInternetPayment,
-//            $this->isRZDPayment,
-//            $this->isBankAccountPayment,
-//            $this->isPreorder,
-//            $this->km,
-//            $this->durations,
-//            $this->awaitingCooking,
-//            $this->awaitingDelivery,
-//            $this->timeProduction,
-//            $this->lateness,
-//            $this->couponLateness,
-//            $this->productionTime,
-//            $this->timeDelivery,
-//            $this->statusProcessRouting,
-//            $this->source,
-//        );
-//    }
+    //    public function toDomainEntity(): Order
+    //    {
+    //        return new Order(
+    //            new IntegerId($this->id),
+    //            new IntegerId($this->restaurant),
+    //            new IntegerId($this->client),
+    //            new IntegerId($this->phone),
+    //            new IntegerId($this->address),
+    //            OrderStatus::from($this->status),
+    //            $this->discount,
+    //            $this->comment,
+    //            $this->isInternetPayment,
+    //            $this->isRZDPayment,
+    //            $this->isBankAccountPayment,
+    //            $this->isPreorder,
+    //            $this->km,
+    //            $this->durations,
+    //            $this->awaitingCooking,
+    //            $this->awaitingDelivery,
+    //            $this->timeProduction,
+    //            $this->lateness,
+    //            $this->couponLateness,
+    //            $this->productionTime,
+    //            $this->timeDelivery,
+    //            $this->statusProcessRouting,
+    //            $this->source,
+    //        );
+    //    }
 
-    public function toDomainEntity(): \Domain\Orders\Entities\Order
-    {
-        $payment = null;
-
-        new Payment()
-
-        return new \Domain\Orders\Entities\Order(
-            new IntegerId(),
-            new IntegerId(),
-            OrderSource::WELCOME_GROUP,
-            \Domain\Orders\Enums\OrderStatus::from($this->status),
-            new StringId(),
-            new IntegerId($this->id),
-            $this->comment,
-
-
-
-        );
-    }
+    //    public function toDomainEntity(): \Domain\Orders\Entities\Order
+    //    {
+    //        $payment = null;
+    //
+    //        //        new Payment()
+    //
+    //        return new \Domain\Orders\Entities\Order(
+    //            new IntegerId(),
+    //            new IntegerId(),
+    //            OrderSource::WELCOME_GROUP,
+    //            \Domain\Orders\Enums\OrderStatus::from($this->status),
+    //            new StringId(),
+    //            new IntegerId($this->id),
+    //            $this->comment,
+    //
+    //        );
+    //    }
 }

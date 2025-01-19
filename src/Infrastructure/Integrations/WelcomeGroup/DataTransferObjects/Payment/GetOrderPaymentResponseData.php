@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment;
 
-use Carbon\CarbonImmutable;
-use Domain\WelcomeGroup\Entities\RestaurantFood;
-use Shared\Domain\ValueObjects\IntegerId;
+use Domain\Orders\ValueObjects\Payment;
 use Shared\Infrastructure\Integrations\ResponseData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapOutputName;
@@ -17,26 +15,23 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 final class GetOrderPaymentResponseData extends ResponseData
 {
     public function __construct(
-        public readonly int $id,
-        public readonly int $restaurant,
-        public readonly int $food,
-        public readonly ?string $statusComment,
+        public readonly int $order,
+        public readonly string $statusComment,
         public readonly string $status,
-        public readonly CarbonImmutable $created,
-        public readonly CarbonImmutable $updated,
+        public readonly string $type,
+        public readonly float $sum,
+        public readonly string $comment,
+        public readonly ExternalData $externalData,
+        public readonly int $id,
+        public readonly string $created,
+        public readonly string $updated
     ) {}
 
-    public function toDomainEntity(): RestaurantFood
+    public function toDomainEntity(): Payment
     {
-        return new RestaurantFood(
-            new IntegerId(),
-            new IntegerId(),
-            new IntegerId(),
-            new IntegerId($this->id),
-            new IntegerId($this->restaurant),
-            new IntegerId($this->food),
-            $this->statusComment,
-            $this->status,
+        return new Payment(
+            $this->type,
+            (int) ($this->sum * 100),
         );
     }
 }

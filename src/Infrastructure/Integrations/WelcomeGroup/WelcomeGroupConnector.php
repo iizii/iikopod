@@ -18,6 +18,8 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateCl
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\FindClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\FindClientResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\GetClientRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\GetClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\CreateFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
@@ -45,12 +47,18 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrd
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\FindPhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\GetPhoneRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\GetPhoneResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
@@ -65,6 +73,7 @@ use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationE
 use Infrastructure\Integrations\WelcomeGroup\Requests\Address\CreateAddressRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Client\CreateClientRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Client\FindClientRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Client\GetClientRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Food\CreateFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Food\EditFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\FoodCategory\CreateFoodCategoryRequest;
@@ -78,10 +87,13 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\EditModifierT
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrderItemsRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrdersByRestaurantRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\UpdateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\FindPhoneRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\GetPhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\CreateRestaurantFoodRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\RestaurantFood\EditRestaurantFoodRequest;
@@ -326,6 +338,21 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     }
 
     /**
+     * @return LazyCollection<array-key, GetOrderItemsResponseData>
+     *
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getOrderItems(IntegerId $id): LazyCollection
+    {
+        /** @var LazyCollection<array-key, GetOrderItemsResponseData> */
+        return $this
+            ->send(new GetOrderItemsRequest(
+                new GetOrderItemsRequestData($id->id)
+            ));
+    }
+
+    /**
      * @throws RequestException
      * @throws ConnectionException
      */
@@ -335,6 +362,12 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
         $response = $this->send(new CreateOrderPaymentRequest($createOrderPaymentRequestData));
 
         return $response;
+    }
+
+    public function getOrderPayment(GetOrderPaymentRequestData $getOrderPaymentRequestData): LazyCollection
+    {
+        /** @var LazyCollection<array-key, GetOrderPaymentResponseData> */
+        return $this->send(new GetOrderPaymentRequest($getOrderPaymentRequestData));
     }
 
     /**
@@ -405,6 +438,26 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var LazyCollection<array-key, FindPhoneResponseData> */
         return $this->send(new GetOrdersByRestaurantRequest($getOrdersByRestaurantRequestData));
+    }
+
+    public function getClient(IntegerId $id): GetClientResponseData
+    {
+        /** @var GetClientResponseData */
+        return $this->send(new GetClientRequest(
+            new GetClientRequestData($id->id)
+        ));
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getPhone(IntegerId $id): GetPhoneResponseData
+    {
+        /** @var GetPhoneResponseData */
+        return $this->send(new GetPhoneRequest(
+            new GetPhoneRequestData($id->id)
+        ));
     }
 
     protected function getRequestException(Response $response, \Throwable $clientException): \Throwable

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\IIko\Requests;
 
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
-use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationsResponse\GetOrganizationResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
-use Shared\Infrastructure\Integrations\ResponseData;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;
 
 final readonly class CreateOrderRequest implements RequestInterface, ResponseDataInterface
@@ -43,12 +41,8 @@ final readonly class CreateOrderRequest implements RequestInterface, ResponseDat
         return ['Authorization' => sprintf('Bearer %s', $this->authToken)];
     }
 
-    //    /**
-    //     * @return LazyCollection<array-key, GetOrganizationResponseData>
-    //     */
-    public function createDtoFromResponse(Response $response): ResponseData|iterable|Response
+    public function createDtoFromResponse(Response $response): CreateOrderResponseData
     {
-        return $response;
-        //        return GetOrganizationResponseData::collect($response->json('organizations'), LazyCollection::class);
+        return CreateOrderResponseData::from($response->json());
     }
 }
