@@ -33,9 +33,19 @@ final class CreateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodCategoryRepositoryInterface $welcomeGroupFoodCategoryRepository,
     ): void {
-        $response = $welcomeGroupConnector->createFoodCategory(
-            new CreateFoodCategoryRequestData($this->foodCategory->name),
-        );
+        try {
+            $response = $welcomeGroupConnector->createFoodCategory(
+                new CreateFoodCategoryRequestData($this->foodCategory->name),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Не удалось создать фуд категорию %s в Welcome Group, message: %s',
+                    $this->foodCategory->name,
+                    $e->getMessage(),
+                ),
+            );
+        }
 
         $foodCategoryBuilder = FoodCategoryBuilder::fromExisted($response->toDomainEntity());
         $foodCategoryBuilder = $foodCategoryBuilder->setIikoItemGroupId($this->foodCategory->iikoItemGroupId);

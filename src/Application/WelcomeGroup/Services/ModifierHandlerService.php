@@ -54,7 +54,18 @@ final readonly class ModifierHandlerService
     private function createMissingModifiers(Food $food, ItemModifierGroup $modifierGroup, int $count): void
     {
         for ($i = 0; $i < $count; $i++) {
-            $response = $this->connector->createModifierType($modifierGroup);
+            try {
+                $response = $this->connector->createModifierType($modifierGroup);
+            } catch (\Throwable $e) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'При обновлении типа модификатора блюда %s произошла ошибка %s',
+                        $modifierGroup->externalId,
+                        $e->getMessage(),
+                    ),
+                );
+            }
+
             $this->modifierRepository->save($response->toDomainEntity());
         }
     }
@@ -62,7 +73,18 @@ final readonly class ModifierHandlerService
     private function updateModifiers(array $modifiers, ItemModifierGroup $modifierGroup): void
     {
         foreach ($modifiers as $modifier) {
-            $response = $this->connector->updateModifier($modifier->externalId, $modifierGroup);
+            try {
+                $response = $this->connector->updateModifier($modifier->externalId, $modifierGroup);
+            } catch (\Throwable $e) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'При обновлении модификатора блюда %s произошла ошибка %s',
+                        $modifier->externalId,
+                        $e->getMessage(),
+                    ),
+                );
+            }
+
             $this->modifierRepository->save($response->toDomainEntity());
         }
     }

@@ -74,13 +74,24 @@ final class CreateOrderItemJob implements ShouldQueue
             },
         );
 
-        $welcomeGroupConnector->createOrderItem(
-            new CreateOrderItemRequestData(
-                $order->welcomeGroupExternalId->id,
-                $food->externalId->id,
-                $modifierIds->toArray(),
-            ),
-        );
+        try {
+            $welcomeGroupConnector->createOrderItem(
+                new CreateOrderItemRequestData(
+                    $order->welcomeGroupExternalId->id,
+                    $food->externalId->id,
+                    $modifierIds->toArray(),
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании блюда %s для заказа %s произошла ошибка: %s',
+                    $food->name,
+                    $order->id,
+                    $e->getMessage(),
+                ),
+            );
+        }
     }
 
     /**

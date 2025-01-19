@@ -39,12 +39,22 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
     {
         $order = $this->order;
 
-        $welcomeGroupConnector->updateOrder(
-            $order->welcomeGroupExternalId,
-            new UpdateOrderRequestData(
-                OrderStatus::toWelcomeGroupStatus($order->status),
-            ),
-        );
+        try {
+            $welcomeGroupConnector->updateOrder(
+                $order->welcomeGroupExternalId,
+                new UpdateOrderRequestData(
+                    OrderStatus::toWelcomeGroupStatus($order->status),
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При обновлении заказа %s произошла ошибка: %s',
+                    $order->id,
+                    $e->getMessage(),
+                ),
+            );
+        }
     }
 
     /**

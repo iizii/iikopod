@@ -95,28 +95,49 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
 
         $foodRequest = $foodBuilder->build();
 
-        $foodResponse = $welcomeGroupConnector->createFood(
-            new CreateFoodRequestData(
-                $foodRequest->externalFoodCategoryId->id,
-                $foodRequest->workshopId->id,
-                $foodRequest->name,
-                $foodRequest->description,
-                $foodRequest->weight,
-                $foodRequest->caloricity,
-                $foodRequest->price,
-            ),
-        );
+        try {
+            $foodResponse = $welcomeGroupConnector->createFood(
+                new CreateFoodRequestData(
+                    $foodRequest->externalFoodCategoryId->id,
+                    $foodRequest->workshopId->id,
+                    $foodRequest->name,
+                    $foodRequest->description,
+                    $foodRequest->weight,
+                    $foodRequest->caloricity,
+                    $foodRequest->price,
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании блюда %s произошла ошибка %s',
+                    $foodRequest->name,
+                    $e->getMessage(),
+                ),
+            );
+        }
 
         $foodBuilder = $foodBuilder->setExternalId(new IntegerId($foodResponse->id));
 
         $createdFood = $welcomeGroupFoodRepository->save($foodBuilder->build());
 
-        $restaurantFoodResponse = $welcomeGroupConnector->createRestaurantFood(
-            new CreateRestaurantFoodRequestData(
-                $organizationSetting->welcomeGroupRestaurantId->id,
-                $createdFood->externalId->id,
-            ),
-        );
+        try {
+            $restaurantFoodResponse = $welcomeGroupConnector->createRestaurantFood(
+                new CreateRestaurantFoodRequestData(
+                    $organizationSetting->welcomeGroupRestaurantId->id,
+                    $createdFood->externalId->id,
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании блюда %s в ресторане %s произошла ошибка: %s',
+                    $createdFood->name,
+                    $organizationSetting->welcomeGroupRestaurantId->id,
+                    $e->getMessage(),
+                ),
+            );
+        }
 
         $restaurantFoodBuilder = RestaurantFoodBuilder::fromExisted($restaurantFoodResponse->toDomainEntity());
         $restaurantFoodBuilder = $restaurantFoodBuilder

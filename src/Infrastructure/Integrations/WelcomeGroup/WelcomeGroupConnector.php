@@ -386,10 +386,10 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function updateRestaurantFood(EditRestaurantFoodRequestData $editRestaurantFoodRequestData, IntegerId $id): DataTransferObjects\RestaurantFood\EditRestaurantFoodResponseData
+    public function updateRestaurantFood(EditRestaurantFoodRequestData $editRestaurantFoodRequest, IntegerId $id): DataTransferObjects\RestaurantFood\EditRestaurantFoodResponseData
     {
         /** @var EditRestaurantFoodResponseData $response */
-        $response = $this->send(new EditRestaurantFoodRequest($id->id, $editRestaurantFoodRequestData));
+        $response = $this->send(new EditRestaurantFoodRequest($id->id, $editRestaurantFoodRequest));
 
         return $response;
     }
