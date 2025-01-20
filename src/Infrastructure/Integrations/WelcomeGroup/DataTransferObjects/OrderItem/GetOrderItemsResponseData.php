@@ -15,11 +15,11 @@ final class GetOrderItemsResponseData extends ResponseData
      * @param  FoodModifiersArray[]  $foodModifiersArray
      */
     public function __construct(
-        public readonly string $statusComment,
+        public readonly ?string $statusComment,
         public readonly string $status,
-        public readonly string $comment,
+        public readonly ?string $comment,
         public readonly int $food,
-        public readonly array $foodModifiers,
+        public readonly ?array $foodModifiers,
         public readonly int $order,
         public readonly int $id,
         public readonly string $created,
@@ -29,6 +29,6 @@ final class GetOrderItemsResponseData extends ResponseData
         public readonly float $sum,
         public readonly bool $isInternetPayment,
         public readonly FoodObject $foodObject,
-        public readonly array $foodModifiersArray
+        public readonly ?array $foodModifiersArray
     ) {}
 }

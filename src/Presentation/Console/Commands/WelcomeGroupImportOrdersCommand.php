@@ -6,6 +6,7 @@ namespace Presentation\Console\Commands;
 
 use Application\WelcomeGroup\Services\ImportOrderService;
 use Illuminate\Console\Command;
+use Throwable;
 
 final class WelcomeGroupImportOrdersCommand extends Command
 {
@@ -25,8 +26,9 @@ final class WelcomeGroupImportOrdersCommand extends Command
 
     /**
      * Execute the console command.
+     * @throws Throwable
      */
-    public function handle(ImportOrderService $importOrderService)
+    public function handle(ImportOrderService $importOrderService): void
     {
         $this->info('Starting import orders by WG');
 

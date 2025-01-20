@@ -49,7 +49,6 @@ final readonly class ImportOrderService
 {
     public function __construct(
         private IikoAuthenticator $authenticator,
-        private DatabaseManager $databaseManager,
         private IikoConnectorInterface $iikoConnector,
         private WelcomeGroupConnectorInterface $welcomeGroupConnector,
         private OrderRepositoryInterface $orderRepository,
@@ -156,7 +155,11 @@ final readonly class ImportOrderService
 
                 return $item;
             });
-
+            if (blank($payments)) {
+                $payment = null;
+            } else {
+                $payment = new Payment($payments->first()->type, $totalSum);
+            }
             $newOrder = new Order(
                 new IntegerId(),
                 new IntegerId($organizationSetting->id->id),
@@ -165,7 +168,7 @@ final readonly class ImportOrderService
                 new StringId(),
                 new IntegerId($order->id),
                 $order->comment,
-                new Payment($payments->first()->type, $totalSum),
+                $payment,
                 new \Domain\Orders\ValueObjects\Customer($client->name, CustomerType::NEW, $phone->number),
                 new ItemCollection($items),
                 now()->toImmutable(),
@@ -182,7 +185,7 @@ final readonly class ImportOrderService
         } catch (Throwable $e) {
             logger()->error('Ошибка при создании заказа.', [
                 'orderId' => $order->id,
-                'error' => $e->getMessage(),
+                'error' => $e,
             ]);
         }
     }

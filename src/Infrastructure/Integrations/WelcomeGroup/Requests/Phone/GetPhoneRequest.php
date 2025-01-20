@@ -17,7 +17,7 @@ final readonly class GetPhoneRequest implements RequestInterface, ResponseDataIn
 
     public function method(): RequestMethod
     {
-        return RequestMethod::POST;
+        return RequestMethod::GET;
     }
 
     public function endpoint(): string

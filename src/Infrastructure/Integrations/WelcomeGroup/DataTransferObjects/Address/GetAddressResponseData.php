@@ -17,12 +17,12 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 final class GetAddressResponseData extends ResponseData
 {
     public function __construct(
-        public readonly int $id,
-        public readonly string $city,
-        public readonly string $street,
-        public readonly string $house,
-        public readonly CarbonImmutable $created,
-        public readonly CarbonImmutable $updated,
+        public readonly ?int $id,
+        public readonly ?string $city,
+        public readonly ?string $street,
+        public readonly ?string $house,
+        public readonly ?CarbonImmutable $created,
+        public readonly ?CarbonImmutable $updated,
         public readonly ?string $building = null,
         public readonly ?string $floor = null,
         public readonly ?string $flat = null,

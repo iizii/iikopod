@@ -13,5 +13,5 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 #[MapOutputName(SnakeCaseMapper::class)]
 final class ExternalData extends ResponseData
 {
-    public function __construct(public readonly float $bonusBalance) {}
+    public function __construct(public readonly ?float $bonusBalance) {}
 }
