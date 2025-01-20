@@ -20,10 +20,10 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
  * @property string|null $comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read IikoMenuItem $iikoMenuItem
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier> $modifiers
  * @property-read int|null $modifiers_count
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\Order $order
- * @property-read IikoMenuItem $iikoMenuItem
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()

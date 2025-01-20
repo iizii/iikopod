@@ -18,7 +18,6 @@ use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Settings\OrganizationSetting;
-use Illuminate\Database\DatabaseManager;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Address;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderSettings;
@@ -135,7 +134,7 @@ final readonly class ImportOrderService
             $address = $this->welcomeGroupConnector->getAddress(new IntegerId($order->address));
 
             $items = $this->welcomeGroupConnector->getOrderItems(new IntegerId($order->id))->map(static function (GetOrderItemsResponseData $orderItem) {
-                $food = WelcomeGroupFood::query()->where('external_id', $orderItem->id)->firstOrFail();
+                $food = WelcomeGroupFood::query()->where('external_id', $orderItem->food)->firstOrFail();
                 $item = new Item(
                     new IntegerId($food->iikoMenuItem->id),
                     (int) ($orderItem->price * 100),
@@ -146,7 +145,7 @@ final readonly class ImportOrderService
                 );
 
                 foreach ($orderItem->foodModifiersArray as $foodModifier) {
-                    $modifier = WelcomeGroupModifier::query()->where('external_id', $foodModifier->modifierObject->id)->firstOrFail();
+                    $modifier = WelcomeGroupModifier::query()->where('external_id', $foodModifier->modifier)->firstOrFail();
                     $item->addModifier(new Modifier(
                         new IntegerId($food->iikoMenuItem->id),
                         new IntegerId($modifier->iikoModifier->id)
