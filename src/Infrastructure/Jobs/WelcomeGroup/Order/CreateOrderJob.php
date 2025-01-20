@@ -14,8 +14,6 @@ use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\WelcomeGroup\Enums\OrderSource;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
@@ -41,8 +39,6 @@ final class CreateOrderJob implements ShouldQueue
      * Execute the job.
      *
      * @throws OrganizationNotFoundException
-     * @throws RequestException
-     * @throws ConnectionException
      */
     public function handle(
         OrderRepositoryInterface $orderRepository,
@@ -54,50 +50,114 @@ final class CreateOrderJob implements ShouldQueue
         $organizationSettings = $organizationSettingRepository->findById($order->organizationId);
 
         if (! $organizationSettings) {
-            throw new OrganizationNotFoundException();
+            throw new OrganizationNotFoundException(
+                sprintf(
+                    'Не найден ресторан %s при создании заказа %s в Welcome Group',
+                    $order->organizationId,
+                    $order->id,
+                ),
+            );
         }
 
         $orderPhone = $order->customer->phone;
 
-        $phone = $welcomeGroupConnector->findPhone(new FindPhoneRequestData($orderPhone))->first();
-
-        if (! $phone) {
-            $phone = $welcomeGroupConnector->createPhone(
-                new CreatePhoneRequestData($orderPhone),
+        try {
+            $phone = $welcomeGroupConnector->findPhone(new FindPhoneRequestData($orderPhone))->first();
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании заказа %s в Welcome Group произошла ошибка при попытке найти телефон клиента %s, ошибка: %s',
+                    $order->id,
+                    $orderPhone,
+                    $e->getMessage(),
+                ),
             );
         }
 
-        $client = $welcomeGroupConnector->createClient(
-            new CreateClientRequestData(
-                $order->customer->name ?? 'Не указано',
-            ),
-        );
+        if (! $phone) {
+            try {
+                $phone = $welcomeGroupConnector->createPhone(
+                    new CreatePhoneRequestData($orderPhone),
+                );
+            } catch (\Throwable $e) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'При создании заказа %s в Welcome Group произошла ошибка при попытке создать телефон клиента %s, ошибка: %s',
+                        $order->id,
+                        $orderPhone,
+                        $e->getMessage(),
+                    ),
+                );
+            }
+        }
 
-        $welcomeGroupRestaurant = $welcomeGroupConnector
-            ->getRestaurant($organizationSettings->welcomeGroupRestaurantId);
-        $totalCompleteOrderTime = now()->addSeconds($welcomeGroupRestaurant->timeWaitingCooking
+        try {
+            $client = $welcomeGroupConnector->createClient(
+                new CreateClientRequestData(
+                    $order->customer->name ?? 'Не указано',
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании заказа %s в Welcome Group произошла ошибка при попытке создать клиента %s, ошибка: %s',
+                    $order->id,
+                    $orderPhone,
+                    $e->getMessage(),
+                ),
+            );
+        }
+
+        try {
+            $welcomeGroupRestaurant = $welcomeGroupConnector->getRestaurant(
+                $organizationSettings->welcomeGroupRestaurantId,
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании заказа %s в Welcome Group произошла ошибка при попытке получить ресторан %s, ошибка: %s',
+                    $order->id,
+                    $organizationSettings->welcomeGroupRestaurantId,
+                    $e->getMessage(),
+                ),
+            );
+        }
+
+        $totalCompleteOrderTime = now()->addSeconds(
+            $welcomeGroupRestaurant->timeWaitingCooking
             + $welcomeGroupRestaurant->timeCooking
             + $welcomeGroupRestaurant->timeWaitingDelivering
-            + $welcomeGroupRestaurant->timeDelivering);
+            + $welcomeGroupRestaurant->timeDelivering,
+        );
         $isPreorder = $order
             ->completeBefore
             ->greaterThan($totalCompleteOrderTime);
 
-        $response = $welcomeGroupConnector->createOrder(
-            new CreateOrderRequestData(
-                $organizationSettings->welcomeGroupRestaurantId->id,
-                $client->id,
-                $phone->id,
-                1,
-                [],
-                OrderStatus::toWelcomeGroupStatus($order->status),
-                100,
-                0,
-                $order->comment,
-                OrderSource::TEST->value,
-                $isPreorder,
-            ),
-        );
+        try {
+            $response = $welcomeGroupConnector->createOrder(
+                new CreateOrderRequestData(
+                    $organizationSettings->welcomeGroupRestaurantId->id,
+                    $client->id,
+                    $phone->id,
+                    1,
+                    [],
+                    OrderStatus::toWelcomeGroupStatus($order->status),
+                    100,
+                    0,
+                    $order->comment,
+                    OrderSource::TEST->value,
+                    $isPreorder,
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании заказа %s в Welcome Group произошла ошибка, ошибка: %s',
+                    $order->id,
+                    $e->getMessage(),
+                ),
+            );
+        }
 
         $sentOrder = OrderBuilder::fromExisted($order);
         $sentOrder = $sentOrder->setWelcomeGroupExternalId(new IntegerId($response->id));

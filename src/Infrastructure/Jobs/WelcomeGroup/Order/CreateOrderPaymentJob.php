@@ -47,14 +47,24 @@ final class CreateOrderPaymentJob implements ShouldQueue
             throw new OrderNotFoundException();
         }
 
-        $welcomeGroupConnector->createPayment(
-            new CreateOrderPaymentRequestData(
-                $order->welcomeGroupExternalId->id,
-                OrderPaymentStatus::FINISHED,
-                OrderPaymentType::CARD,
-                $this->order->payment->amount,
-            ),
-        );
+        try {
+            $welcomeGroupConnector->createPayment(
+                new CreateOrderPaymentRequestData(
+                    $order->welcomeGroupExternalId->id,
+                    OrderPaymentStatus::FINISHED,
+                    OrderPaymentType::CARD,
+                    $this->order->payment->amount,
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании платежа для заказа %s произошла ошибка: %s',
+                    $order->id,
+                    $e->getMessage(),
+                ),
+            );
+        }
     }
 
     /**

@@ -68,17 +68,29 @@ final readonly class IikoImportMenuService
         $organizations->each(function (OrganizationSetting $organizationSetting): void {
             $organizationSetting->priceCategories->each(
                 function (PriceCategory $priceCategory) use ($organizationSetting): void {
-                    $responseEntity = $this
-                        ->iikoConnector
-                        ->getMenu(
-                            new GetMenuRequestData(
-                                [$organizationSetting->iikoRestaurantId->id],
+                    try {
+                        $responseEntity = $this
+                            ->iikoConnector
+                            ->getMenu(
+                                new GetMenuRequestData(
+                                    [$organizationSetting->iikoRestaurantId->id],
+                                    $organizationSetting->externalMenuId->id,
+                                    $priceCategory->categoryId->id,
+                                ),
+                                $this->authenticator->getAuthToken($organizationSetting->iikoApiKey),
+                            )
+                            ->toDomainEntity();
+                    } catch (\Throwable $e) {
+                        throw new \RuntimeException(
+                            sprintf(
+                                'Не удалось получить меню из Iiko, для ресторана: %s, меню: %s, ценовая категория %s ошибка: %s',
+                                $organizationSetting->iikoRestaurantId->id,
                                 $organizationSetting->externalMenuId->id,
                                 $priceCategory->categoryId->id,
+                                $e->getMessage(),
                             ),
-                            $this->authenticator->getAuthToken($organizationSetting->iikoApiKey),
-                        )
-                        ->toDomainEntity();
+                        );
+                    }
 
                     /**
                      * Обновление и создание меню не обсервится(на момент написания кода) и не вызывает
@@ -194,7 +206,9 @@ final readonly class IikoImportMenuService
                 $itemModifierBuilder = ItemModifierGroupBuilder::fromExisted($itemModifierGroup);
                 $itemModifierBuilder = $itemModifierBuilder->setItemSizeId($itemSize->id);
 
-                $createdModifierGroup = $this->iikoMenuItemModifierGroupRepository->createOrUpdate($itemModifierBuilder->build());
+                $createdModifierGroup = $this->iikoMenuItemModifierGroupRepository->createOrUpdate(
+                    $itemModifierBuilder->build(),
+                );
 
                 $itemModifierBuilder = $itemModifierBuilder->setId($createdModifierGroup->id);
 

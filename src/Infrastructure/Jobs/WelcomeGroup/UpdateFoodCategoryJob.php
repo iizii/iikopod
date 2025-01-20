@@ -32,10 +32,20 @@ final class UpdateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodCategoryRepositoryInterface $welcomeGroupFoodCategoryRepository,
     ): void {
-        $welcomeGroupConnector->updateFoodCategory(
-            new CreateFoodCategoryRequestData($this->foodCategory->name),
-            $this->foodCategory->externalId,
-        );
+        try {
+            $welcomeGroupConnector->updateFoodCategory(
+                new CreateFoodCategoryRequestData($this->foodCategory->name),
+                $this->foodCategory->externalId,
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При обновлении фуд категории %s произошла ошибка %s',
+                    $this->foodCategory->name,
+                    $e->getMessage(),
+                ),
+            );
+        }
 
         $welcomeGroupFoodCategoryRepository->update($this->foodCategory);
     }
