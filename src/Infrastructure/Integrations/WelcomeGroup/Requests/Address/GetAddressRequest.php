@@ -35,10 +35,6 @@ final readonly class GetAddressRequest implements RequestInterface, ResponseData
         return [];
     }
 
-    /**
-     * @param Response $response
-     * @return GetAddressResponseData
-     */
     public function createDtoFromResponse(Response $response): GetAddressResponseData
     {
         return GetAddressResponseData::from($response->json());

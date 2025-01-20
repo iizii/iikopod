@@ -18,14 +18,12 @@ use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Settings\OrganizationSetting;
-use Domain\Settings\ValueObjects\PaymentType;
 use Illuminate\Database\DatabaseManager;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Address;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderSettings;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Customer;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\DeliveryPoint;
-use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Guests;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Items;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Payments;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse\GetPaymentTypesResponseData;
@@ -43,7 +41,6 @@ use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Coordinates;
-use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 use Throwable;
@@ -85,6 +82,38 @@ final readonly class ImportOrderService
         });
     }
 
+    protected function getPaymentTypeIdFromIikoByCode(\Infrastructure\Persistence\Eloquent\Orders\Models\Order $order): string
+    {
+        // Извлечение типов оплат из коллекции payment_types
+        $paymentTypes = $order->organizationSetting->payment_types;
+
+        // Поиск iiko_payment_code на основе welcome_group_payment_code
+        $matchedPaymentCode = $paymentTypes->firstWhere('welcome_group_payment_code', $order->payment->type);
+
+        if (! $matchedPaymentCode || ! isset($matchedPaymentCode['iiko_payment_code'])) {
+            throw new \RuntimeException('Не удалось найти соответствие типа оплаты для кода: '.$order->payment->type);
+        }
+
+        $iikoPaymentCode = $matchedPaymentCode['iiko_payment_code'];
+
+        // Запрос типов оплат из iiko
+        $iikoPaymentTypes = $this->iikoConnector->getPaymentTypes(
+            new StringId($order->organizationSetting->iiko_restaurant_id),
+            $this->authenticator->getAuthToken($order->organizationSetting->iiko_api_key)
+        );
+
+        // Фильтрация по коду iiko
+        $iikoPaymentType = $iikoPaymentTypes->first(static function (GetPaymentTypesResponseData $paymentType) use ($iikoPaymentCode) {
+            return $paymentType->code === $iikoPaymentCode;
+        });
+
+        if (! $iikoPaymentType) {
+            throw new \RuntimeException('Не удалось найти тип оплаты в iiko для кода: '.$iikoPaymentCode);
+        }
+
+        return $iikoPaymentType->id; // Возвращаем ID типа оплаты из iiko
+    }
+
     private function processOrder(GetOrdersByRestaurantResponseData $order, OrganizationSetting $organizationSetting, int $timestamp): void
     {
         $internalOrder = $this->orderRepository->findByWelcomeGroupId(new IntegerId($order->id));
@@ -94,18 +123,19 @@ final readonly class ImportOrderService
                 'orderId' => $order->id,
                 'timestamp' => $timestamp,
             ]);
+
             return;
         }
 
         try {
             $payments = $this->welcomeGroupConnector->getOrderPayment(new GetOrderPaymentRequestData($order->id));
-            $totalSum = $payments->sum(static fn(GetOrderPaymentResponseData $payment) => $payment->sum);
+            $totalSum = $payments->sum(static fn (GetOrderPaymentResponseData $payment) => $payment->sum);
 
             $client = $this->welcomeGroupConnector->getClient(new IntegerId($order->client));
             $phone = $this->welcomeGroupConnector->getPhone(new IntegerId($order->phone));
             $address = $this->welcomeGroupConnector->getAddress(new IntegerId($order->address));
 
-            $items = $this->welcomeGroupConnector->getOrderItems(new IntegerId($order->id))->map(function (GetOrderItemsResponseData $orderItem) {
+            $items = $this->welcomeGroupConnector->getOrderItems(new IntegerId($order->id))->map(static function (GetOrderItemsResponseData $orderItem) {
                 $food = WelcomeGroupFood::query()->where('external_id', $orderItem->id)->firstOrFail();
                 $item = new Item(
                     new IntegerId($food->iikoMenuItem->id),
@@ -168,10 +198,10 @@ final readonly class ImportOrderService
 
             $orderItems = [];
 
-            $order->items()->each(function (OrderItem $item) use (&$orderItems) {
+            $order->items()->each(static function (OrderItem $item) use (&$orderItems) {
                 $modifiers = [];
 
-                $item->modifiers->each(function (OrderItemModifier $modifier) use (&$modifiers) {
+                $item->modifiers->each(static function (OrderItemModifier $modifier) use (&$modifiers) {
                     array_push(
                         $modifiers,
                         new \Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Modifier(
@@ -210,15 +240,15 @@ final readonly class ImportOrderService
                         null,
                         new DeliveryPoint(
                             new Coordinates(
-                                (int)$address->latitude,
-                                (int)$address->longitude
+                                (int) $address->latitude,
+                                (int) $address->longitude
                             ),
                             new Address(
-                                __("г. :city, ул. :street, д. :house, :other", [
-                                    "city" => $address->city,
-                                    "street" => $address->street,
-                                    "house" => $address->house,
-                                    "other" => !blank($address->flat) && !blank($address->floor) ? 'этаж ' .$address->floor . ', кв. '. $address->flat : "",
+                                __('г. :city, ул. :street, д. :house, :other', [
+                                    'city' => $address->city,
+                                    'street' => $address->street,
+                                    'house' => $address->house,
+                                    'other' => ! blank($address->flat) && ! blank($address->floor) ? 'этаж '.$address->floor.', кв. '.$address->flat : '',
                                 ]),
                                 $address->flat,
                                 $address->entry,
@@ -243,7 +273,7 @@ final readonly class ImportOrderService
                                 null,
                                 false,
                                 true
-                            )
+                            ),
                         ],
                         null,
                         null
@@ -262,37 +292,4 @@ final readonly class ImportOrderService
             ]);
         }
     }
-
-    protected function getPaymentTypeIdFromIikoByCode(\Infrastructure\Persistence\Eloquent\Orders\Models\Order $order): string
-    {
-        // Извлечение типов оплат из коллекции payment_types
-        $paymentTypes = $order->organizationSetting->payment_types;
-
-        // Поиск iiko_payment_code на основе welcome_group_payment_code
-        $matchedPaymentCode = $paymentTypes->firstWhere('welcome_group_payment_code', $order->payment->type);
-
-        if (!$matchedPaymentCode || !isset($matchedPaymentCode['iiko_payment_code'])) {
-            throw new \RuntimeException('Не удалось найти соответствие типа оплаты для кода: ' . $order->payment->type);
-        }
-
-        $iikoPaymentCode = $matchedPaymentCode['iiko_payment_code'];
-
-        // Запрос типов оплат из iiko
-        $iikoPaymentTypes = $this->iikoConnector->getPaymentTypes(
-            new StringId($order->organizationSetting->iiko_restaurant_id),
-            $this->authenticator->getAuthToken($order->organizationSetting->iiko_api_key)
-        );
-
-        // Фильтрация по коду iiko
-        $iikoPaymentType = $iikoPaymentTypes->first(function (GetPaymentTypesResponseData $paymentType) use ($iikoPaymentCode) {
-            return $paymentType->code === $iikoPaymentCode;
-        });
-
-        if (!$iikoPaymentType) {
-            throw new \RuntimeException('Не удалось найти тип оплаты в iiko для кода: ' . $iikoPaymentCode);
-        }
-
-        return $iikoPaymentType->id; // Возвращаем ID типа оплаты из iiko
-    }
-
 }

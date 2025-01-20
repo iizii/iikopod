@@ -478,7 +478,6 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
         return $response;
     }
 
-
     protected function getRequestException(Response $response, \Throwable $clientException): \Throwable
     {
         return new WelcomeGroupIntegrationException(

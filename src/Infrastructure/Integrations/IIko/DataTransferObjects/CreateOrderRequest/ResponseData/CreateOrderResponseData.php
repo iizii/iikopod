@@ -13,7 +13,7 @@ final class CreateOrderResponseData extends ResponseData
         public readonly OrderInfo $orderInfo
     ) {}
 }
-#TODO: нужно распилить класс на мн-во, торопился поэтому всё в одном
+//TODO: нужно распилить класс на мн-во, торопился поэтому всё в одном
 final class OrderInfo extends ResponseData
 {
     public function __construct(
