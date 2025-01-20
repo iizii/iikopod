@@ -26,6 +26,7 @@ final class WelcomeGroupImportOrdersCommand extends Command
 
     /**
      * Execute the console command.
+     *
      * @throws Throwable
      */
     public function handle(ImportOrderService $importOrderService): void
