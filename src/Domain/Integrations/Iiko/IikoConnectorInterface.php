@@ -8,8 +8,11 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse\GetMenuResponseData;
+use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
 
@@ -38,4 +41,13 @@ interface IikoConnectorInterface
     ): GetMenuResponseData;
 
     public function getStopLists(string $organizationId, string $authToken): LazyCollection;
+
+    public function getAvailableTerminals(stringId $organizationId, string $authToken): LazyCollection;
+
+    public function getPaymentTypes(stringId $organizationId, string $authToken): LazyCollection;
+
+    public function createOrder(
+        CreateOrderRequestData $createOrderRequestData,
+        string $authToken,
+    ): CreateOrderResponseData;
 }

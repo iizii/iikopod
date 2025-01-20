@@ -6,6 +6,7 @@ namespace Domain\Orders\Repositories;
 
 use Domain\Orders\Entities\Order;
 use Domain\Orders\Entities\Order as DomainOrder;
+use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 interface OrderRepositoryInterface
@@ -15,4 +16,6 @@ interface OrderRepositoryInterface
     public function update(DomainOrder $order): ?DomainOrder;
 
     public function findByIikoId(StringId $id): ?DomainOrder;
+
+    public function findByWelcomeGroupId(IntegerId $id): ?DomainOrder;
 }

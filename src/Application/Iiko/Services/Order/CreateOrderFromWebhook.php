@@ -45,6 +45,11 @@ final readonly class CreateOrderFromWebhook
      */
     public function handle(EventData $eventData): void
     {
+        /*
+         * TODO: Как-то я не обратил внимания, что оба сервиса имеют массивы payments и поэтому сказал "Го первый".
+         * Фактически можно просто все передавать
+         * Но справедливости ради отмечу, что чико работают обычно по полной оплате разом
+        */
         $eventPayment = $eventData
             ->order
             ->payments

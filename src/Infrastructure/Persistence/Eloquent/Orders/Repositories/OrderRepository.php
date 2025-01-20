@@ -90,4 +90,18 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
 
         return Order::toDomainEntity($persistenceOrder);
     }
+
+    public function findByWelcomeGroupId(IntegerId $id): ?DomainOrder
+    {
+        $persistenceOrder = $this
+            ->query()
+            ->where('welcome_group_external_id', $id->id)
+            ->first();
+
+        if (! $persistenceOrder) {
+            return null;
+        }
+
+        return Order::toDomainEntity($persistenceOrder);
+    }
 }
