@@ -10,6 +10,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\GetAddressResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\GetClientResponseData;
@@ -186,6 +187,8 @@ interface WelcomeGroupConnectorInterface
     public function getClient(IntegerId $id): GetClientResponseData;
 
     public function getPhone(IntegerId $id): GetPhoneResponseData;
+
+    public function getAddress(IntegerId $id): GetAddressResponseData;
 
     public function getOrderItems(IntegerId $id): LazyCollection;
 }

@@ -14,6 +14,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\GetAddressResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\FindClientRequestData;
@@ -71,6 +72,7 @@ use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestFailedEve
 use Infrastructure\Integrations\WelcomeGroup\Events\WelcomeGroupRequestSuccessesEvent;
 use Infrastructure\Integrations\WelcomeGroup\Exceptions\WelcomeGroupIntegrationException;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Address\CreateAddressRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Address\GetAddressRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Client\CreateClientRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Client\FindClientRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Client\GetClientRequest;
@@ -219,7 +221,7 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      */
     public function createModifier(CreateModifierRequestData $createModifierRequestData): CreateModifierResponseData
     {
-        /** @var CreateModifierResponseData $respone */
+        /** @var CreateModifierResponseData $response */
         $response = $this->send(new CreateModifierRequest($createModifierRequestData));
 
         return $response;
@@ -364,6 +366,10 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
         return $response;
     }
 
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
     public function getOrderPayment(GetOrderPaymentRequestData $getOrderPaymentRequestData): LazyCollection
     {
         /** @var LazyCollection<array-key, GetOrderPaymentResponseData> */
@@ -459,6 +465,19 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
             new GetPhoneRequestData($id->id)
         ));
     }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getAddress(IntegerId $id): GetAddressResponseData
+    {
+        /** @var GetAddressResponseData $response */
+        $response = $this->send(new GetAddressRequest($id->id));
+
+        return $response;
+    }
+
 
     protected function getRequestException(Response $response, \Throwable $clientException): \Throwable
     {

@@ -44,6 +44,8 @@ interface IikoConnectorInterface
 
     public function getAvailableTerminals(stringId $organizationId, string $authToken): LazyCollection;
 
+    public function getPaymentTypes(stringId $organizationId, string $authToken): LazyCollection;
+
     public function createOrder(
         CreateOrderRequestData $createOrderRequestData,
         string $authToken,

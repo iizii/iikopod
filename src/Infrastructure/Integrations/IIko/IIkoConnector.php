@@ -15,6 +15,8 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsRe
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsResponse\GetAvailableTerminalsResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse\GetMenuResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse\GetPaymentTypesResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListResponseData;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestFailedEvent;
@@ -23,6 +25,7 @@ use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
 use Infrastructure\Integrations\IIko\Requests\CreateOrderRequest;
 use Infrastructure\Integrations\IIko\Requests\GetAvailableTerminalsRequest;
 use Infrastructure\Integrations\IIko\Requests\GetMenuRequest;
+use Infrastructure\Integrations\IIko\Requests\GetPaymentTypesRequest;
 use Infrastructure\Integrations\IIko\Requests\GetStopListRequest;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
@@ -96,6 +99,24 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
             ->send(
                 new GetAvailableTerminalsRequest(
                     new GetAvailableTerminalsRequestData(
+                        [$organizationId->id]
+                    ),
+                    $authToken
+                )
+            );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function getPaymentTypes(stringId $organizationId, string $authToken): LazyCollection
+    {
+        /** @var LazyCollection<array-key, GetPaymentTypesResponseData> */
+        return $this
+            ->send(
+                new GetPaymentTypesRequest(
+                    new GetPaymentTypesRequestData(
                         [$organizationId->id]
                     ),
                     $authToken

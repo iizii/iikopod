@@ -13,7 +13,7 @@ final class Payments extends Data
         public readonly int $sum,
         public readonly string $paymentTypeId,
         public readonly bool $isProcessedExternally,
-        public readonly PaymentAdditionalData $paymentAdditionalData,
+        public readonly ?PaymentAdditionalData $paymentAdditionalData,
         public readonly bool $isFiscalizedExternally,
         public readonly bool $isPrepay
     ) {}
