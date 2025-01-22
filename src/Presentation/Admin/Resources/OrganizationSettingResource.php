@@ -72,7 +72,7 @@ final class OrganizationSettingResource extends Resource
                                     $exists = OrganizationSetting::query()
                                         ->where('iiko_api_key', $get('iiko_api_key'))
                                         ->where('iiko_restaurant_id', $value)
-                                        ->when($currentRecordId, fn ($query) => $query->where('id', '!=', $currentRecordId)) // Исключаем текущую запись
+                                        ->when($currentRecordId, static fn ($query) => $query->where('id', '!=', $currentRecordId)) // Исключаем текущую запись
                                         ->exists();
 
                                     if ($exists) {
