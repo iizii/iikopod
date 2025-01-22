@@ -68,7 +68,7 @@ final class OrganizationSettingResource extends Resource
                                     mixed $value,
                                     Closure $fail,
                                 ) use ($get) {
-                                    $currentRecordId = $get('../../id');
+                                    $currentRecordId = $get('id') ?? null; // Получаем ID текущей записи, если существует
                                     $exists = OrganizationSetting::query()
                                         ->where('iiko_api_key', $get('iiko_api_key'))
                                         ->where('iiko_restaurant_id', $value)
