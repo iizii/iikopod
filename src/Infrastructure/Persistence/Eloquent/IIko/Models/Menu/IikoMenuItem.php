@@ -150,7 +150,7 @@ final class IikoMenuItem extends Model
                 /** @var WelcomeGroupRestaurantFoodRepositoryInterface $restaurantFoodRepository */
                 $restaurantFoodRepository = app(WelcomeGroupRestaurantFoodRepositoryInterface::class);
 
-                $restaurantFood = $restaurantFoodRepository->findByExternalFoodId(new IntegerId($welcomeGroupFood->id));
+                $restaurantFood = $restaurantFoodRepository->findByExternalFoodId(new IntegerId($welcomeGroupFood->external_id));
                 $restaurantFood = WelcomeGroupRestaurantFood::query()
                     ->find($restaurantFood->id->id);
 
