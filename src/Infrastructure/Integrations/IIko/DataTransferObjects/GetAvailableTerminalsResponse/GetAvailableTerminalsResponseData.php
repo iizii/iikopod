@@ -9,7 +9,7 @@ use Shared\Infrastructure\Integrations\ResponseData;
 final class GetAvailableTerminalsResponseData extends ResponseData
 {
     /**
-     * @param  Items[]  $items
+     * @param  array<array-key, Items>  $items
      */
     public function __construct(public readonly string $organizationId, public readonly array $items) {}
 }

@@ -25,6 +25,7 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Cust
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\DeliveryPoint;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Items;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Payments;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsResponse\GetAvailableTerminalsResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse\GetPaymentTypesResponseData;
 use Infrastructure\Integrations\IIko\IikoAuthenticator;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\GetAddressResponseData;
@@ -74,7 +75,7 @@ final readonly class ImportOrderService
             } catch (Throwable $e) {
                 logger()->error('Ошибка при обработке заказов из Welcome Group', [
                     'organizationId' => $organizationSetting->id,
-                    'error' => $e->getMessage(),
+                    'error' => $e,
                 ]);
             }
         });
@@ -139,12 +140,12 @@ final readonly class ImportOrderService
                     new IntegerId($food->iikoMenuItem->id),
                     (int) ($orderItem->price * 100),
                     (int) ($orderItem->discount * 100),
-                    $orderItem->quantity ?? 1,
+                    1, // В поде нет количества у позиции, товар = позиция
                     $orderItem->comment,
                     new ItemModifierCollection()
                 );
 
-                foreach ($orderItem->foodModifiersArray as $foodModifier) {
+                foreach ($orderItem->FoodModifiersArray as $foodModifier) {
                     $modifier = WelcomeGroupModifier::query()->where('external_id', $foodModifier->modifier)->firstOrFail();
                     $item->addModifier(new Modifier(
                         new IntegerId($food->iikoMenuItem->id),
@@ -157,7 +158,7 @@ final readonly class ImportOrderService
             if (blank($payments)) {
                 $payment = null;
             } else {
-                $payment = new Payment($payments->first()->type, $totalSum);
+                $payment = new Payment($payments->first()->type, (int)($totalSum*100));
             }
             $newOrder = new Order(
                 new IntegerId(),
@@ -192,17 +193,19 @@ final readonly class ImportOrderService
     private function createOrderInIiko(Order $order, GetAddressResponseData $address, GetClientResponseData $client, GetPhoneResponseData $phone, OrganizationSetting $organizationSetting): void
     {
         try {
-            $terminalId = $this->iikoConnector
+            /** @var GetAvailableTerminalsResponseData $terminals */
+            $terminals = $this->iikoConnector
                 ->getAvailableTerminals($organizationSetting->iikoRestaurantId, $this->authenticator->getAuthToken($organizationSetting->iikoApiKey))
-                ->first()
-                ->id;
+                ->first();
+
+            $terminalId = $terminals->items[0]->id;
             $order = \Infrastructure\Persistence\Eloquent\Orders\Models\Order::query()->find($order->id->id);
 
             $orderItems = [];
 
-            $order->items()->each(static function (OrderItem $item) use (&$orderItems) {
+            $order->items->each(static function (OrderItem $item) use (&$orderItems) {
                 $modifiers = [];
-
+                $item = $item->load(['modifiers', 'iikoMenuItem']);
                 $item->modifiers->each(static function (OrderItemModifier $modifier) use (&$modifiers) {
                     array_push(
                         $modifiers,
@@ -285,12 +288,12 @@ final readonly class ImportOrderService
             );
 
             logger()->channel('import_orders_from_wg_to_iiko')->info('Заказ успешно создан в iiko.', [
-                'orderId' => $order->id->id,
+                'orderId' => $order->id,
             ]);
         } catch (Throwable $e) {
             logger()->error('Ошибка при создании заказа в iiko.', [
-                'orderId' => $order->id->id,
-                'error' => $e->getMessage(),
+                'orderId' => $order->id,
+                'error' => $e,
             ]);
         }
     }

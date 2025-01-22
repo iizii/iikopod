@@ -16,11 +16,11 @@ final class GetOrderPaymentResponseData extends ResponseData
 {
     public function __construct(
         public readonly int $order,
-        public readonly string $statusComment,
+        public readonly ?string $statusComment,
         public readonly string $status,
         public readonly string $type,
         public readonly float $sum,
-        public readonly string $comment,
+        public readonly ?string $comment,
         public readonly ExternalData $externalData,
         public readonly int $id,
         public readonly string $created,
