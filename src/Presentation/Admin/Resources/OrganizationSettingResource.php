@@ -286,8 +286,46 @@ final class OrganizationSettingResource extends Resource
                                     ]);
                                 }
                             }),
+                        Forms\Components\TagsInput::make('menu_users')
+                            ->label('Наименования пользователей меню')
+                            ->placeholder('Введите наименования...')
+                            ->helperText('Перечислите всех, кто использует это меню (например, рестораны).')
+                            ->rules([
+                                static fn (): Closure => static function (string $attribute, $value, Closure $fail) {
+                                    if (!is_array($value)) {
+                                        return;
+                                    }
+
+                                    // Проверяем значения только в рамках текущего поля
+                                    $localDuplicates = collect($value)->duplicates();
+
+                                    if ($localDuplicates->isNotEmpty()) {
+                                        $fail('Повторяющиеся значения в текущем поле: ' . implode(', ', $localDuplicates->toArray()));
+                                    }
+                                },
+                            ]),
                     ])
                     ->columns()
+                    ->beforeStateDehydrated(static function ($state, $get) {
+                        // Получаем все значения меню из всех TagsInput
+                        $allTags = collect($state)
+                            ->flatMap(fn ($category) => $category['menu_users'] ?? [])
+                            ->toArray();
+
+                        // Проверяем дубликаты на уровне всех записей в репитере
+                        $duplicates = collect($allTags)->duplicates();
+
+                        if ($duplicates->isNotEmpty()) {
+                            Notification::make('validationError')
+                                ->title('Ошибка валидации')
+                                ->body('Введённые наименования пользователей меню должны быть уникальными в рамках всех категорий. Повторяющиеся значения: ' . implode(', ', $duplicates->toArray()))
+                                ->danger()
+                                ->send();
+
+                            throw ValidationException::withMessages([
+                                'menu_users' => 'Все введённые наименования пользователей меню должны быть уникальными.',
+                            ]);
+                        }})
                     ->reorderable(false)
                     ->collapsible()
                     ->addActionLabel('Добавить категорию')

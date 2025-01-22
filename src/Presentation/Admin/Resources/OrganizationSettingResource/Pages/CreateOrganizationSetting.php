@@ -123,6 +123,7 @@ final class CreateOrganizationSetting extends CreateRecord
                 new IntegerId((int) $data['welcome_group_default_workshop_id']),
                 new StringId($data['order_delivery_type_id']),
                 new StringId($data['order_pickup_type_id']),
+                $data['block_orders'],
                 new PaymentTypeCollection(
                     array_map(
                         static fn (array $paymentType): PaymentType => new PaymentType(
