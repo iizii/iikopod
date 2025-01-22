@@ -68,9 +68,11 @@ final class OrganizationSettingResource extends Resource
                                     mixed $value,
                                     Closure $fail,
                                 ) use ($get) {
+                                    $currentRecordId = $get('../../id');
                                     $exists = OrganizationSetting::query()
                                         ->where('iiko_api_key', $get('iiko_api_key'))
                                         ->where('iiko_restaurant_id', $value)
+                                        ->when($currentRecordId, fn ($query) => $query->where('id', '!=', $currentRecordId)) // Исключаем текущую запись
                                         ->exists();
 
                                     if ($exists) {
@@ -304,6 +306,12 @@ final class OrganizationSettingResource extends Resource
                         return 'IIKO API Key и ID ресторана IIKO введены верно, можете добавить ценовые категории';
                     })
                     ->required(),
+                Forms\Components\Toggle::make('block_orders')
+                    ->label('Блокировать заказы')
+                    ->default(false) // Значение по умолчанию
+                    ->helperText('При включении блокируются все новые заказы для данной организации.')
+                    ->reactive(),
+
             ]);
     }
 

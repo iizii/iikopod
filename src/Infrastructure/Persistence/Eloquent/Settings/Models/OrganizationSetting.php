@@ -58,6 +58,7 @@ final class OrganizationSetting extends Model
         'external_menu_id',
         'payment_types',
         'price_categories',
+        'block_orders',
     ];
 
     public function toDomainEntity(): DomainOrganizationSetting
