@@ -22,6 +22,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\Create
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\EditModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
@@ -541,6 +542,16 @@ final readonly class WelcomeGroupController
             ),
         );
         $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    #[Route(methods: 'GET', uri: '/wg/get_orders_by_restaurant', name: 'wg.get_orders_by_restaurant')]
+    public function getOrdersByRestaurant(Request $request, WelcomeGroupConnectorInterface $welcomeGroupConnector): JsonResponse
+    {
+        $response = $welcomeGroupConnector->getOrdersByRestaurantId(
+            new GetOrdersByRestaurantRequestData((int) $request->input('restaurant_id'))
+        );
 
         return $this->responseFactory->json($response, 200);
     }
