@@ -21,7 +21,7 @@ final class CreateOrderResponseData extends ResponseData
         public readonly string $status,
         public readonly int $duration,
         public readonly int $discount,
-        public readonly string $comment,
+        public readonly ?string $comment,
         public readonly int $source,
         public readonly bool $isPreorder = false,
     ) {}
