@@ -67,7 +67,7 @@ final class CreateOrderJob implements ShouldQueue
             throw new \RuntimeException(
                 sprintf(
                     'При создании заказа %s в Welcome Group произошла ошибка при попытке найти телефон клиента %s, ошибка: %s',
-                    $order->id,
+                    $order->id->id,
                     $orderPhone,
                     $e->getMessage(),
                 ),
@@ -83,7 +83,7 @@ final class CreateOrderJob implements ShouldQueue
                 throw new \RuntimeException(
                     sprintf(
                         'При создании заказа %s в Welcome Group произошла ошибка при попытке создать телефон клиента %s, ошибка: %s',
-                        $order->id,
+                        $order->id->id,
                         $orderPhone,
                         $e->getMessage(),
                     ),
@@ -101,7 +101,7 @@ final class CreateOrderJob implements ShouldQueue
             throw new \RuntimeException(
                 sprintf(
                     'При создании заказа %s в Welcome Group произошла ошибка при попытке создать клиента %s, ошибка: %s',
-                    $order->id,
+                    $order->id->id,
                     $orderPhone,
                     $e->getMessage(),
                 ),
@@ -116,7 +116,7 @@ final class CreateOrderJob implements ShouldQueue
             throw new \RuntimeException(
                 sprintf(
                     'При создании заказа %s в Welcome Group произошла ошибка при попытке получить ресторан %s, ошибка: %s',
-                    $order->id,
+                    $order->id->id,
                     $organizationSettings->welcomeGroupRestaurantId,
                     $e->getMessage(),
                 ),
@@ -153,7 +153,7 @@ final class CreateOrderJob implements ShouldQueue
             throw new \RuntimeException(
                 sprintf(
                     'При создании заказа %s в Welcome Group произошла ошибка, ошибка: %s',
-                    $order->id,
+                    $order->id->id,
                     $e->getMessage(),
                 ),
             );
