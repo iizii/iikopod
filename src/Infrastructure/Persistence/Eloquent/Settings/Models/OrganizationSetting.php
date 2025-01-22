@@ -104,6 +104,7 @@ final class OrganizationSetting extends Model
         return [
             'payment_types' => AsCollection::class,
             'price_categories' => AsCollection::class,
+            'block_orders' => 'boolean',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
         ];
