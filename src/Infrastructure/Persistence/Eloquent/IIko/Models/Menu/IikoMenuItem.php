@@ -167,7 +167,7 @@ final class IikoMenuItem extends Model
                             $restaurantFood->food_id,
                             $restaurantFood->status
                         ),
-                        $restaurantFood->external_id
+                        new IntegerId($restaurantFood->external_id)
                     );
             }
         });
