@@ -49,11 +49,11 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
         return WelcomeGroupRestaurantFood::toDomainEntity($result);
     }
 
-    public function findByInternalFoodId(IntegerId $id): ?RestaurantFood
+    public function findByExternalFoodId(IntegerId $id): ?RestaurantFood
     {
         $result = $this
             ->query()
-            ->where('welcome_group_food_id', $id->id)
+            ->where('food_id', $id->id)
             ->first();
 
         if (! $result) {
