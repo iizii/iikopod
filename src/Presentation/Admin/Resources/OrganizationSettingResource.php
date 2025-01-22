@@ -19,14 +19,18 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\LazyCollection;
 use Illuminate\Validation\ValidationException;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\ExternalMenuData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\PriceCategoryData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrderTypes\GetOrderTypesRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrderTypes\GetOrderTypesResponseData;
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
 use Infrastructure\Integrations\IIko\IikoAuthenticator;
 use Infrastructure\Integrations\IIko\Requests\GetExternalMenusWithPriceCategoriesRequest;
+use Infrastructure\Integrations\IIko\Requests\GetOrderTypesRequest;
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Presentation\Admin\Resources\OrganizationSettingResource\Pages;
 
@@ -81,7 +85,63 @@ final class OrganizationSettingResource extends Resource
                                 },
                             ])
                             ->reactive(),  // Также делаем поле реактивным
-                        Forms\Components\TextInput::make('welcome_group_restaurant_id')
+                        Forms\Components\Select::make('order_types')
+                            ->label('Типы заказов')
+                            ->multiple() // Включает выбор нескольких значений
+                            ->options(static function (Get $get, IikoAuthenticator $authenticator, IikoConnectorInterface $iikoConnector): array {
+                                $iikoApiKey = $get('iiko_api_key');
+                                $iikoRestaurantId = $get('iiko_restaurant_id');
+
+                                // Проверяем корректность введённых данных
+                                if (!OrganizationSettingResource::hasValidApiKey($iikoApiKey) || !OrganizationSettingResource::hasValidRestaurantId($iikoRestaurantId)) {
+                                    return [];
+                                }
+
+                                try {
+                                    // Формируем и отправляем запрос
+                                    /** @var LazyCollection $response */
+                                    $response = $iikoConnector->send(
+                                        new GetOrderTypesRequest(
+                                            new GetOrderTypesRequestData(
+                                                [$iikoRestaurantId]
+                                            ),
+                                            $authenticator->getAuthToken($iikoApiKey)
+                                        )
+                                    );
+
+                                    // Обрабатываем ответ
+                                    return $response
+                                        ->where('isDeleted', false) // Исключаем удалённые записи
+                                        ->mapWithKeys(fn (GetOrderTypesResponseData $item) => [$item->id => $item->name])
+                                        ->toArray();
+                                } catch (RequestException|ConnectionException $exception) {
+                                    Notification::make()
+                                        ->title('Ошибка загрузки данных')
+                                        ->danger()
+                                        ->body('Не удалось загрузить типы заказов. Проверьте API Key и Restaurant ID.')
+                                        ->send();
+
+                                    return [];
+                                }
+                            })
+                            ->disabled(
+                                static fn (Get $get): bool => ! self::hasValidApiKey($get('iiko_api_key'))
+                                    || ! self::hasValidRestaurantId($get('iiko_restaurant_id')),
+                            )
+                            ->hint(static function (Get $get): string {
+                                if (
+                                    ! self::hasValidApiKey($get('iiko_api_key'))
+                                    || ! self::hasValidRestaurantId($get('iiko_restaurant_id'))
+                                ) {
+                                    return 'Для выбора типов заказов необходимо верно ввести Iiko API Key и ID ресторана Iiko';
+                                }
+
+                                return 'IIKO API Key и ID ресторана Iiko введены верно, можете выбрать типы заказов';
+                            }),
+//                            ->required(),
+//                            ->reactive(), // Автообновление при изменении зависимых данных
+
+        Forms\Components\TextInput::make('welcome_group_restaurant_id')
                             ->label('ID ресторана Welcome Доставка')
                             ->integer()
                             ->required(),
