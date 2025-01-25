@@ -45,7 +45,7 @@ final readonly class IikoWebhookTestController
                                     'type' => 'one-time',
                                     'name' => 'Яндекс.Еда',
                                 ],
-                                'phone' => '+78006001310',
+                                'phone' => '+79283438636',
                                 'deliveryPoint' => null,
                                 'status' => 'Closed',
                                 'cancelInfo' => null,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\Iiko\Services\Order;
 
+use _PHPStan_e6dc705b2\Symfony\Component\String\Exception\RuntimeException;
 use Application\Orders\Builders\OrderBuilder;
 use Application\Orders\Services\StoreOrder;
 use Application\Orders\Services\UpdateOrder;
@@ -140,6 +141,10 @@ final readonly class CreateOrderFromWebhook
             $this->updateOrder->update($order->build());
 
             return;
+        }
+
+        if (! $existedOrder && $organization->blockOrders) {
+            throw new RuntimeException("Новый заказ не был передан в под по причине блокировки заведения в модуле связи. Данные заказа: \n".$order->toJson());
         }
 
         $this->storeOrder->store($order);

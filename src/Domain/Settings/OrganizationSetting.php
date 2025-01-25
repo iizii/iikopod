@@ -27,6 +27,7 @@ final class OrganizationSetting extends DomainEntity
         public readonly IntegerId $welcomeGroupDefaultWorkshopId,
         public readonly StringId $orderDeliveryTypeId,
         public readonly StringId $orderPickupTypeId,
+        public readonly bool $blockOrders,
         public readonly PaymentTypeCollection $paymentTypes,
         public readonly PriceCategoryCollection $priceCategories,
     ) {}

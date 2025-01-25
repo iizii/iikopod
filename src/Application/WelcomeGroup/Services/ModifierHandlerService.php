@@ -60,7 +60,7 @@ final readonly class ModifierHandlerService
                 throw new \RuntimeException(
                     sprintf(
                         'При обновлении типа модификатора блюда %s произошла ошибка %s',
-                        $modifierGroup->externalId,
+                        $modifierGroup->externalId->id,
                         $e->getMessage(),
                     ),
                 );
@@ -79,7 +79,7 @@ final readonly class ModifierHandlerService
                 throw new \RuntimeException(
                     sprintf(
                         'При обновлении модификатора блюда %s произошла ошибка %s',
-                        $modifier->externalId,
+                        $modifier->externalId?->id,
                         $e->getMessage(),
                     ),
                 );

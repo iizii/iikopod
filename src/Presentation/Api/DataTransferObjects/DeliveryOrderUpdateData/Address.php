@@ -18,6 +18,6 @@ final class Address extends Data
         public readonly string $floor,
         public readonly string $doorphone,
         public readonly ?Region $region,
-        public readonly string $line1
+        public readonly ?string $line1
     ) {}
 }

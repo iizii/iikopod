@@ -60,7 +60,7 @@ final class CreateOrderPaymentJob implements ShouldQueue
             throw new \RuntimeException(
                 sprintf(
                     'При создании платежа для заказа %s произошла ошибка: %s',
-                    $order->id,
+                    $order->id->id,
                     $e->getMessage(),
                 ),
             );

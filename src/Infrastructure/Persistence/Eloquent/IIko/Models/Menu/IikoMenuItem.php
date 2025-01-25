@@ -144,14 +144,13 @@ final class IikoMenuItem extends Model
         self::saving(static function (self $item) {
             // Проверяем, что запись НЕ новая и поле `is_hidden` изменилось
             if (! $item->isNewRecord() && $item->isDirty('is_hidden')) {
-                $welcomeGroupFood = $item->food;
-                $orgId = $item->itemGroup->iikoMenu->organization_setting_id;
+                $welcomeGroupFood = $item->load('food')->food;
+//                $orgId = $item->itemGroup->iikoMenu->organization_setting_id;
 
                 /** @var WelcomeGroupRestaurantFoodRepositoryInterface $restaurantFoodRepository */
                 $restaurantFoodRepository = app(WelcomeGroupRestaurantFoodRepositoryInterface::class);
 
-                $restaurantFood = $restaurantFoodRepository->findByInternalFoodId(new IntegerId($welcomeGroupFood->id));
-
+                $restaurantFood = $restaurantFoodRepository->findByExternalFoodId(new IntegerId($welcomeGroupFood->external_id));
                 $restaurantFood = WelcomeGroupRestaurantFood::query()
                     ->find($restaurantFood->id->id);
 
@@ -168,7 +167,7 @@ final class IikoMenuItem extends Model
                             $restaurantFood->food_id,
                             $restaurantFood->status
                         ),
-                        $restaurantFood->external_id
+                        new IntegerId($restaurantFood->external_id)
                     );
             }
         });

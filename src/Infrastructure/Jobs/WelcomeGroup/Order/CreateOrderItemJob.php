@@ -87,7 +87,7 @@ final class CreateOrderItemJob implements ShouldQueue
                 sprintf(
                     'При создании блюда %s для заказа %s произошла ошибка: %s',
                     $food->name,
-                    $order->id,
+                    $order->id->id,
                     $e->getMessage(),
                 ),
             );

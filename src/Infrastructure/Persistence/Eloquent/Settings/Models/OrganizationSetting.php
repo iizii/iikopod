@@ -27,10 +27,12 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Collection $price_categories
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property bool $block_orders
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereBlockOrders($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereExternalMenuId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereId($value)
@@ -58,6 +60,7 @@ final class OrganizationSetting extends Model
         'external_menu_id',
         'payment_types',
         'price_categories',
+        'block_orders',
     ];
 
     public function toDomainEntity(): DomainOrganizationSetting
@@ -71,6 +74,7 @@ final class OrganizationSetting extends Model
             new IntegerId($this->welcome_group_default_workshop_id),
             new StringId($this->order_delivery_type_id),
             new StringId($this->order_pickup_type_id),
+            $this->block_orders,
             new PaymentTypeCollection(
                 $this
                     ->payment_types
@@ -100,6 +104,7 @@ final class OrganizationSetting extends Model
         return [
             'payment_types' => AsCollection::class,
             'price_categories' => AsCollection::class,
+            'block_orders' => 'boolean',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
         ];

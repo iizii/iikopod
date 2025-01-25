@@ -50,7 +50,7 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
             throw new \RuntimeException(
                 sprintf(
                     'При обновлении заказа %s произошла ошибка: %s',
-                    $order->id,
+                    $order->id->id,
                     $e->getMessage(),
                 ),
             );
