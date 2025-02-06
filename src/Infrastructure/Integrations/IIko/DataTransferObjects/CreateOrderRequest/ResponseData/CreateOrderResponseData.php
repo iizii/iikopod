@@ -23,8 +23,8 @@ final class OrderInfo extends ResponseData
         public readonly string $organizationId,
         public readonly int $timestamp,
         public readonly string $creationStatus,
-        public readonly ErrorInfo $errorInfo,
-        public readonly Order $order
+        public readonly ?ErrorInfo $errorInfo,
+        public readonly ?Order $order
     ) {}
 }
 

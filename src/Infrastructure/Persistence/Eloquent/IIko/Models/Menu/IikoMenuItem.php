@@ -145,7 +145,7 @@ final class IikoMenuItem extends Model
             // Проверяем, что запись НЕ новая и поле `is_hidden` изменилось
             if (! $item->isNewRecord() && $item->isDirty('is_hidden')) {
                 $welcomeGroupFood = $item->load('food')->food;
-//                $orgId = $item->itemGroup->iikoMenu->organization_setting_id;
+                //                $orgId = $item->itemGroup->iikoMenu->organization_setting_id;
 
                 /** @var WelcomeGroupRestaurantFoodRepositoryInterface $restaurantFoodRepository */
                 $restaurantFoodRepository = app(WelcomeGroupRestaurantFoodRepositoryInterface::class);

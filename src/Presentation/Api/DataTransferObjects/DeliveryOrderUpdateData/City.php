@@ -8,5 +8,5 @@ use Spatie\LaravelData\Data;
 
 final class City extends Data
 {
-    public function __construct(public readonly string $id, public readonly string $name) {}
+    public function __construct(public readonly ?string $id, public readonly string $name) {}
 }

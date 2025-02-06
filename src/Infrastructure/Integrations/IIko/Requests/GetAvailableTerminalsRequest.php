@@ -43,7 +43,7 @@ final readonly class GetAvailableTerminalsRequest implements RequestInterface, R
     }
 
     /**
-     * @return LazyCollection<array-key, GetStopListResponseData>
+     * @return LazyCollection<array-key, GetAvailableTerminalsResponseData>
      */
     public function createDtoFromResponse(Response $response): LazyCollection
     {

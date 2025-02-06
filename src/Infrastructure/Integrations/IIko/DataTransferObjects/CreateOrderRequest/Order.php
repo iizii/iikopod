@@ -17,15 +17,15 @@ final class Order extends ResponseData
      * @param  ExternalData[]  $externalData
      */
     public function __construct(
-        public readonly null $menuId,
-        public readonly string $id,
-        public readonly string $externalNumber,
+        //        public readonly null $menuId,
+        //        public readonly ?string $id,
+        public readonly string $externalNumber, // По логике externalNumber при запросе в айку - наш внутренний
         public readonly string $completeBefore,
         public readonly string $phone,
         public readonly string $orderTypeId,
         public readonly ?string $orderServiceType,
         public readonly DeliveryPoint $deliveryPoint,
-        public readonly string $comment,
+        public readonly ?string $comment,
         public readonly Customer $customer,
         //        public readonly Guests $guests,
         //        public readonly string $marketingSourceId,
@@ -34,7 +34,7 @@ final class Order extends ResponseData
         //        public readonly string $deliveryZone,
         public readonly array $items,
         //        public readonly array $combos,
-        public readonly array $payments,
+        public readonly ?array $payments,
         public readonly ?array $tips,
         //        public readonly string $sourceKey,
         //        public readonly DiscountsInfo $discountsInfo,
