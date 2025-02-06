@@ -6,6 +6,7 @@ namespace Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderReques
 
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Region;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\StreetTwo;
 use Spatie\LaravelData\Data;
 
 final class Address extends Data
@@ -15,7 +16,7 @@ final class Address extends Data
         public readonly ?string $flat,
         public readonly ?string $entrance,
         public readonly ?string $floor,
-        public readonly ?Street $street,
+        public readonly ?StreetTwo $street,
         public readonly ?string $index,
         public readonly ?string $house,
         //        public readonly ?Region $region,

@@ -43,6 +43,7 @@ use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Coordinates;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\StreetTwo;
 use Shared\Domain\Exceptions\WelcomeGroupImportOrdersGeneralException;
 use Shared\Domain\Exceptions\WelcomeGroupNotFoundMatchForPaymentTypeException;
 use Shared\Domain\Exceptions\WelcomeGroupOrderItemsNotFoundForOrderException;
@@ -314,7 +315,7 @@ final readonly class ImportOrderService
                                 $address->flat,
                                 $address->entry,
                                 $address->floor,
-                                new Street(
+                                new StreetTwo(
                                     null,
                                     null,
                                     $address->street,
