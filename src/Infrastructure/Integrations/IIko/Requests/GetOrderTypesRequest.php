@@ -6,12 +6,8 @@ namespace Infrastructure\Integrations\IIko\Requests;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
-use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
-use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrderTypes\GetOrderTypesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrderTypes\GetOrderTypesResponseData;
-use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentResponseData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;

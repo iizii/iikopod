@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\WelcomeGroup\Services;
 
+use Carbon\CarbonImmutable;
 use Domain\Iiko\Enums\CustomerType;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
@@ -41,6 +42,10 @@ use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Coordinates;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
+use Shared\Domain\Exceptions\WelcomeGroupImportOrdersGeneralException;
+use Shared\Domain\Exceptions\WelcomeGroupNotFoundMatchForPaymentTypeException;
+use Shared\Domain\Exceptions\WelcomeGroupOrderItemsNotFoundForOrderException;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 use Throwable;
@@ -77,11 +82,13 @@ final readonly class ImportOrderService
                     'organizationId' => $organizationSetting->id,
                     'error' => $e,
                 ]);
+
+                throw new WelcomeGroupImportOrdersGeneralException("Не удалось инициировать процесс сбора заказов из ПОД в IIKO. Заведение: {$organizationSetting->welcomeGroupRestaurantId->id}. Причина: {$e->getMessage()}");
             }
         });
     }
 
-    protected function getPaymentTypeIdFromIikoByCode(\Infrastructure\Persistence\Eloquent\Orders\Models\Order $order): string
+    protected function getPaymentTypeFromIikoByCode(\Infrastructure\Persistence\Eloquent\Orders\Models\Order $order): GetPaymentTypesResponseData
     {
         // Извлечение типов оплат из коллекции payment_types
         $paymentTypes = $order->organizationSetting->payment_types;
@@ -90,7 +97,7 @@ final readonly class ImportOrderService
         $matchedPaymentCode = $paymentTypes->firstWhere('welcome_group_payment_code', $order->payment->type);
 
         if (! $matchedPaymentCode || ! isset($matchedPaymentCode['iiko_payment_code'])) {
-            throw new \RuntimeException('Не удалось найти соответствие типа оплаты для кода: '.$order->payment->type);
+            throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти соответствие типа оплаты для кода: '.$order->payment->type);
         }
 
         $iikoPaymentCode = $matchedPaymentCode['iiko_payment_code'];
@@ -102,15 +109,39 @@ final readonly class ImportOrderService
         );
 
         // Фильтрация по коду iiko
+        /** @var GetPaymentTypesResponseData $iikoPaymentType */
         $iikoPaymentType = $iikoPaymentTypes->first(static function (GetPaymentTypesResponseData $paymentType) use ($iikoPaymentCode) {
             return $paymentType->code === $iikoPaymentCode;
         });
 
         if (! $iikoPaymentType) {
-            throw new \RuntimeException('Не удалось найти тип оплаты в iiko для кода: '.$iikoPaymentCode);
+            throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти тип оплаты в iiko для кода: '.$iikoPaymentCode);
         }
 
-        return $iikoPaymentType->id; // Возвращаем ID типа оплаты из iiko
+        return $iikoPaymentType; // Возвращаем ID типа оплаты из iiko
+    }
+
+    protected function formatPhoneNumber($phoneNumber): string
+    {
+        // Удаляем все пробелы, тире, скобки и другие символы, кроме цифр и знака "+"
+        $phoneNumber = preg_replace('/[^0-9+]/', '', $phoneNumber);
+
+        if (strpos($phoneNumber, '+7') === 0) {
+            // Если номер уже начинается с +7, возвращаем его без изменений
+            return $phoneNumber;
+        } elseif (strpos($phoneNumber, '8') === 0) {
+            // Если номер начинается с 8, заменяем 8 на +7
+            return '+7'.substr($phoneNumber, 1);
+        } elseif (strpos($phoneNumber, '9') === 0) {
+            // Если номер начинается с 9, добавляем +7 перед цифрой 9
+            return '+7'.$phoneNumber;
+        } elseif (strpos($phoneNumber, '7') === 0) {
+            // Если номер начинается с 7, добавляем + перед 7
+            return '+'.$phoneNumber;
+        } else {
+            // Если формат не подходит, возвращаем исходный номер
+            return $phoneNumber;
+        }
     }
 
     private function processOrder(GetOrdersByRestaurantResponseData $order, OrganizationSetting $organizationSetting, int $timestamp): void
@@ -128,6 +159,7 @@ final readonly class ImportOrderService
 
         try {
             $payments = $this->welcomeGroupConnector->getOrderPayment(new GetOrderPaymentRequestData($order->id));
+
             $totalSum = $payments->sum(static fn (GetOrderPaymentResponseData $payment) => $payment->sum);
 
             $client = $this->welcomeGroupConnector->getClient(new IntegerId($order->client));
@@ -146,7 +178,7 @@ final readonly class ImportOrderService
                 );
 
                 foreach ($orderItem->FoodModifiersArray as $foodModifier) {
-                    $modifier = WelcomeGroupModifier::query()->where('external_id', $foodModifier->modifier)->firstOrFail();
+                    $modifier = WelcomeGroupModifier::query()->where('external_id', $foodModifier['modifier'])->firstOrFail();
                     $item->addModifier(new Modifier(
                         new IntegerId($food->iikoMenuItem->id),
                         new IntegerId($modifier->iikoModifier->id)
@@ -155,11 +187,20 @@ final readonly class ImportOrderService
 
                 return $item;
             });
+
             if (blank($payments)) {
                 $payment = null;
             } else {
-                $payment = new Payment($payments->first()->type, (int)($totalSum*100));
+                $payment = new Payment($payments->first()->type, (int) ($totalSum * 100));
             }
+
+            $timeCooking = $order->timeCooking ?? 0; // Если null, то используем 0
+            $timeWaitingCooking = $order->timeWaitingCooking ?? 0; // Если null, то используем 0
+            $estimatedTimeDelivery = $order->estimatedTimeDelivery ?? 0; // Если null, то используем 0
+            $totalTimeInSeconds = $timeCooking + $timeWaitingCooking + $estimatedTimeDelivery;
+
+            $deliveryTime = CarbonImmutable::now()->addSeconds($totalTimeInSeconds);
+
             $newOrder = new Order(
                 new IntegerId(),
                 new IntegerId($organizationSetting->id->id),
@@ -171,7 +212,7 @@ final readonly class ImportOrderService
                 $payment,
                 new \Domain\Orders\ValueObjects\Customer($client->name, CustomerType::NEW, $phone->number),
                 new ItemCollection($items),
-                now()->toImmutable(),
+                $deliveryTime,
             );
 
             $storedOrder = $this->orderRepository->store($newOrder);
@@ -187,6 +228,9 @@ final readonly class ImportOrderService
                 'orderId' => $order->id,
                 'error' => $e,
             ]);
+
+            // Было некогда создавать отдельный ексепшн, поэтому заюзал неподходящий по неймингу, но подкходящий по функционал
+            throw new WelcomeGroupImportOrdersGeneralException("Ошибка при создании заказа в IIKO. Заказ: {$order->number}. Причина: {$e->getMessage()}");
         }
     }
 
@@ -205,13 +249,14 @@ final readonly class ImportOrderService
 
             $order->items->each(static function (OrderItem $item) use (&$orderItems) {
                 $modifiers = [];
-                $item = $item->load(['modifiers', 'iikoMenuItem']);
-                $item->modifiers->each(static function (OrderItemModifier $modifier) use (&$modifiers) {
+                $item->load(['modifiers', 'iikoMenuItem'])->modifiers->each(static function (OrderItemModifier $modifier) use (&$modifiers) {
+                    $modifier = $modifier->load('modifier');
                     array_push(
                         $modifiers,
                         new \Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Modifier(
                             $modifier->modifier->external_id,
-                            $modifier->modifier->prices->first()->price,
+                            (float) number_format($modifier->modifier->prices->first()->price / 100, 2, '.', ''),
+                            $modifier->modifier->modifierGroup->external_id,
                         ));
                 });
 
@@ -220,7 +265,7 @@ final readonly class ImportOrderService
                     new Items(
                         $item->iikoMenuItem->external_id,
                         $modifiers,
-                        $item->price,
+                        (float) number_format($item->price / 100, 2, '.', ''),
                         'Product',
                         1, // Кажется тут логично указывать 1, ведь в поде нет количества
                         null,
@@ -229,6 +274,25 @@ final readonly class ImportOrderService
                     )
                 );
             });
+            $payments = null;
+
+            if ($order->payment) {
+                $paymentType = $this->getPaymentTypeFromIikoByCode($order);
+                $payments = [
+                    new Payments(
+                        $paymentType->paymentTypeKind,
+                        (float) number_format($order->payment->amount / 100, 2, '.', ''),
+                        $paymentType->id,
+                        true,
+                        null,
+                        false,
+                        true
+                    ),
+                ];
+            }
+            if ($order->items()->count() == 0) {
+                throw new WelcomeGroupOrderItemsNotFoundForOrderException("Не найдены товары в заказе $order->welcome_group_external_id . Из-за этого создание внутри ПОД отменено и необходимо обработать вручную данную ситуацию");
+            }
 
             $this->iikoConnector->createOrder(
                 new CreateOrderRequestData(
@@ -236,11 +300,9 @@ final readonly class ImportOrderService
                     $terminalId,
                     new CreateOrderSettings(),
                     new \Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Order(
-                        null,
-                        $order->iiko_external_id,
-                        $order->id,
-                        $order->complete_before,
-                        $order->customer->phone,
+                        (string) $order->id,
+                        $order->complete_before->format('Y-m-d H:i:s.v'),
+                        $this->formatPhoneNumber($order->customer->phone),
                         $order->organizationSetting->order_delivery_type_id, // Должно быть или pickup_type_id
                         null,
                         new DeliveryPoint(
@@ -249,37 +311,27 @@ final readonly class ImportOrderService
                                 (int) $address->longitude
                             ),
                             new Address(
-                                __('г. :city, ул. :street, д. :house, :other', [
-                                    'city' => $address->city,
-                                    'street' => $address->street,
-                                    'house' => $address->house,
-                                    'other' => ! blank($address->flat) && ! blank($address->floor) ? 'этаж '.$address->floor.', кв. '.$address->flat : '',
-                                ]),
                                 $address->flat,
                                 $address->entry,
                                 $address->floor,
-                                null,
+                                new Street(
+                                    null,
+                                    null,
+                                    $address->street,
+                                    $address->city
+                                ),
                                 null,
                                 $address->house,
-                                null
+                                null,
+                                $address->building
                             ),
                             null,
                             $address->comment,
                         ),
-                        $order->comment,
-                        new Customer($client->name, CustomerType::NEW, $phone->number),
+                        $order?->comment ?? '',
+                        new Customer($client->name),
                         $orderItems,
-                        [
-                            new Payments(
-                                'External',
-                                $order->payment->amount,
-                                $this->getPaymentTypeIdFromIikoByCode($order),
-                                true,
-                                null,
-                                false,
-                                true
-                            ),
-                        ],
+                        $payments,
                         null,
                         null
                     )
@@ -295,6 +347,8 @@ final readonly class ImportOrderService
                 'orderId' => $order->id,
                 'error' => $e,
             ]);
+
+            throw new WelcomeGroupImportOrdersGeneralException("Ошибка при создании заказа $order->welcome_group_external_id в iiko. Ошибка: {$e->getMessage()}");
         }
     }
 }

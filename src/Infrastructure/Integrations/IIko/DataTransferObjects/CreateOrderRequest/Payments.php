@@ -10,7 +10,7 @@ final class Payments extends Data
 {
     public function __construct(
         public readonly string $paymentTypeKind,
-        public readonly int $sum,
+        public readonly float $sum,
         public readonly string $paymentTypeId,
         public readonly bool $isProcessedExternally,
         public readonly ?PaymentAdditionalData $paymentAdditionalData,

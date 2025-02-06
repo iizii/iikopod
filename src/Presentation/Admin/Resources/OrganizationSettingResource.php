@@ -93,7 +93,7 @@ final class OrganizationSettingResource extends Resource
                                 $iikoRestaurantId = $get('iiko_restaurant_id');
 
                                 // Проверяем корректность введённых данных
-                                if (!OrganizationSettingResource::hasValidApiKey($iikoApiKey) || !OrganizationSettingResource::hasValidRestaurantId($iikoRestaurantId)) {
+                                if (! OrganizationSettingResource::hasValidApiKey($iikoApiKey) || ! OrganizationSettingResource::hasValidRestaurantId($iikoRestaurantId)) {
                                     return [];
                                 }
 
@@ -112,7 +112,7 @@ final class OrganizationSettingResource extends Resource
                                     // Обрабатываем ответ
                                     return $response
                                         ->where('isDeleted', false) // Исключаем удалённые записи
-                                        ->mapWithKeys(fn (GetOrderTypesResponseData $item) => [$item->id => $item->name])
+                                        ->mapWithKeys(static fn (GetOrderTypesResponseData $item) => [$item->id => $item->name])
                                         ->toArray();
                                 } catch (RequestException|ConnectionException $exception) {
                                     Notification::make()
@@ -138,10 +138,10 @@ final class OrganizationSettingResource extends Resource
 
                                 return 'IIKO API Key и ID ресторана Iiko введены верно, можете выбрать типы заказов';
                             }),
-//                            ->required(),
-//                            ->reactive(), // Автообновление при изменении зависимых данных
+                        //                            ->required(),
+                        //                            ->reactive(), // Автообновление при изменении зависимых данных
 
-        Forms\Components\TextInput::make('welcome_group_restaurant_id')
+                        Forms\Components\TextInput::make('welcome_group_restaurant_id')
                             ->label('ID ресторана Welcome Доставка')
                             ->integer()
                             ->required(),
@@ -352,7 +352,7 @@ final class OrganizationSettingResource extends Resource
                             ->helperText('Перечислите всех, кто использует это меню (например, рестораны).')
                             ->rules([
                                 static fn (): Closure => static function (string $attribute, $value, Closure $fail) {
-                                    if (!is_array($value)) {
+                                    if (! is_array($value)) {
                                         return;
                                     }
 
@@ -360,7 +360,7 @@ final class OrganizationSettingResource extends Resource
                                     $localDuplicates = collect($value)->duplicates();
 
                                     if ($localDuplicates->isNotEmpty()) {
-                                        $fail('Повторяющиеся значения в текущем поле: ' . implode(', ', $localDuplicates->toArray()));
+                                        $fail('Повторяющиеся значения в текущем поле: '.implode(', ', $localDuplicates->toArray()));
                                     }
                                 },
                             ]),
@@ -369,7 +369,7 @@ final class OrganizationSettingResource extends Resource
                     ->beforeStateDehydrated(static function ($state, $get) {
                         // Получаем все значения меню из всех TagsInput
                         $allTags = collect($state)
-                            ->flatMap(fn ($category) => $category['menu_users'] ?? [])
+                            ->flatMap(static fn ($category) => $category['menu_users'] ?? [])
                             ->toArray();
 
                         // Проверяем дубликаты на уровне всех записей в репитере
@@ -378,14 +378,15 @@ final class OrganizationSettingResource extends Resource
                         if ($duplicates->isNotEmpty()) {
                             Notification::make('validationError')
                                 ->title('Ошибка валидации')
-                                ->body('Введённые наименования пользователей меню должны быть уникальными в рамках всех категорий. Повторяющиеся значения: ' . implode(', ', $duplicates->toArray()))
+                                ->body('Введённые наименования пользователей меню должны быть уникальными в рамках всех категорий. Повторяющиеся значения: '.implode(', ', $duplicates->toArray()))
                                 ->danger()
                                 ->send();
 
                             throw ValidationException::withMessages([
                                 'menu_users' => 'Все введённые наименования пользователей меню должны быть уникальными.',
                             ]);
-                        }})
+                        }
+                    })
                     ->reorderable(false)
                     ->collapsible()
                     ->addActionLabel('Добавить категорию')

@@ -13,6 +13,6 @@ final class DeliveryPoint extends Data
         public readonly Coordinates $coordinates,
         public readonly Address $address,
         public readonly ?string $externalCartographyId,
-        public readonly string $comment
+        public readonly ?string $comment
     ) {}
 }

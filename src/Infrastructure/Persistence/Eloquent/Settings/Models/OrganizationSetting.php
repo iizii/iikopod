@@ -28,6 +28,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
  * @property bool $block_orders
+ * @property string|null $order_types
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newQuery()
@@ -40,6 +41,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereIikoRestaurantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereOrderDeliveryTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereOrderPickupTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereOrderTypes($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting wherePaymentTypes($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting wherePriceCategories($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereUpdatedAt($value)
@@ -61,6 +63,7 @@ final class OrganizationSetting extends Model
         'payment_types',
         'price_categories',
         'block_orders',
+        'order_types',
     ];
 
     public function toDomainEntity(): DomainOrganizationSetting

@@ -34,6 +34,7 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
 
         $persistenceOrder->customer()->save($persistenceCustomer);
 
+        logger('papa', [$order, $order->payment]);
         if ($order->payment) {
             $persistencePayment = new OrderPayment();
             $persistencePayment->fromDomainEntity($order->payment);

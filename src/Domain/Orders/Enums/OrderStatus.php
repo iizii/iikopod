@@ -29,7 +29,7 @@ enum OrderStatus: string
 
     case REJECTED = 'rejected'; // Rejected
 
-//    case COOKING_COMPLETED = 'cooking_completed'; // CookingCompleted
+    //    case COOKING_COMPLETED = 'cooking_completed'; // CookingCompleted
 
     public static function fromIikoOrderStatus(IIkoOrderStatus $orderStatus): self
     {

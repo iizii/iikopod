@@ -12,7 +12,7 @@ final class GetOrderItemsResponseData extends ResponseData
 {
     /**
      * @param  int[]  $foodModifiers
-     * @param  FoodModifiersArray[]  $FoodModifiersArray
+     * @param  array<array-key, FoodModifiersArray>  $FoodModifiersArray
      */
     public function __construct(
         public readonly ?string $statusComment,

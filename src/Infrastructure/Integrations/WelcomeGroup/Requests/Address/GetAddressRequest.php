@@ -22,7 +22,7 @@ final readonly class GetAddressRequest implements RequestInterface, ResponseData
 
     public function endpoint(): string
     {
-        return "/address/{$this->id}";
+        return "/api/address/{$this->id}";
     }
 
     public function headers(): array|Arrayable
@@ -37,6 +37,8 @@ final readonly class GetAddressRequest implements RequestInterface, ResponseData
 
     public function createDtoFromResponse(Response $response): GetAddressResponseData
     {
+        logger('st_address', [$response]);
+
         return GetAddressResponseData::from($response->json());
     }
 }
