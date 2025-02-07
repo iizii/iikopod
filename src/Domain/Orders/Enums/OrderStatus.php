@@ -63,4 +63,35 @@ enum OrderStatus: string
             default => throw new \InvalidArgumentException("Unknown order status: $orderStatus->value"),
         };
     }
+
+    public static function fromWelcomeGroupStatus(WelcomeGroupOrderStatus $orderStatus): self
+    {
+        return match ($orderStatus) {
+            WelcomeGroupOrderStatus::NEW => self::NEW,
+            WelcomeGroupOrderStatus::PRODUCE_WAITING => self::PRODUCE_WAITING,
+            WelcomeGroupOrderStatus::PROCESSING => self::PROCESSING,
+            WelcomeGroupOrderStatus::PRODUCING => self::PRODUCING,
+            WelcomeGroupOrderStatus::DELIVERY_WAITING => self::DELIVERY_WAITING,
+            WelcomeGroupOrderStatus::DELIVERING => self::DELIVERING,
+            WelcomeGroupOrderStatus::DELIVERED => self::DELIVERED,
+            WelcomeGroupOrderStatus::FINISHED => self::FINISHED,
+            WelcomeGroupOrderStatus::CANCELLED => self::CANCELLED,
+            WelcomeGroupOrderStatus::REJECTED => self::REJECTED,
+            default => throw new \InvalidArgumentException("Unknown WelcomeGroup order status: $orderStatus->value"),
+        };
+    }
+
+    public static function checkDeliveredStatus(self $orderStatus): bool
+    {
+        // Если true, то подразумевает, что WG уже имеют право менять статусы
+        return match ($orderStatus) {
+            self::DELIVERY_WAITING,
+            self::DELIVERING,
+            self::DELIVERED => true,
+//            self::FINISHED,
+//            self::CANCELLED,
+//            self::REJECTED => true,
+            default => false,
+        };
+    }
 }

@@ -8,10 +8,12 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse\GetMenuResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest\UpdateOrderRequestData;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
@@ -50,4 +52,12 @@ interface IikoConnectorInterface
         CreateOrderRequestData $createOrderRequestData,
         string $authToken,
     ): CreateOrderResponseData;
+
+    public function closeOrder(CancelOrCloseRequestData $cancelOrCloseRequestData, string $authToken);
+
+    public function rejectOrder(CancelOrCloseRequestData $cancelOrCloseRequestData, string $authToken);
+
+
+    public function updateDeliveryStatus(UpdateOrderRequestData $updateOrderRequestData, string $authToken);
+
 }

@@ -9,6 +9,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsRequestData;
@@ -19,14 +20,18 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesRequestD
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse\GetPaymentTypesResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest\UpdateOrderRequestData;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestFailedEvent;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestSuccessesEvent;
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
+use Infrastructure\Integrations\IIko\Requests\CancelDeliveryRequest;
+use Infrastructure\Integrations\IIko\Requests\CloseDeliveryRequest;
 use Infrastructure\Integrations\IIko\Requests\CreateOrderRequest;
 use Infrastructure\Integrations\IIko\Requests\GetAvailableTerminalsRequest;
 use Infrastructure\Integrations\IIko\Requests\GetMenuRequest;
 use Infrastructure\Integrations\IIko\Requests\GetPaymentTypesRequest;
 use Infrastructure\Integrations\IIko\Requests\GetStopListRequest;
+use Infrastructure\Integrations\IIko\Requests\UpdateDeliveryStatus;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\RequestInterface;
@@ -67,6 +72,41 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
                 $authToken,
             ),
         );
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function updateDeliveryStatus(
+        UpdateOrderRequestData $updateOrderRequestData,
+        string $authToken,
+    ) {
+        /** @var CreateOrderResponseData */
+        return $this->send(
+            new UpdateDeliveryStatus(
+                $updateOrderRequestData,
+                $authToken,
+            ),
+        );
+    }
+
+    public function closeOrder(CancelOrCloseRequestData $cancelOrCloseRequestData, string $authToken)
+    {
+        return $this
+            ->send(new CloseDeliveryRequest(
+                $cancelOrCloseRequestData,
+                $authToken
+            ));
+    }
+
+    public function rejectOrder(CancelOrCloseRequestData $cancelOrCloseRequestData, string $authToken)
+    {
+        return $this
+            ->send(new CancelDeliveryRequest(
+                $cancelOrCloseRequestData,
+                $authToken
+            ));
     }
 
     /**

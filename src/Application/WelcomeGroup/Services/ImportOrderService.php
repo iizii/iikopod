@@ -19,6 +19,7 @@ use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Settings\OrganizationSetting;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Address;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderSettings;
@@ -28,6 +29,7 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Item
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Payments;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsResponse\GetAvailableTerminalsResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse\GetPaymentTypesResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest\UpdateOrderRequestData;
 use Infrastructure\Integrations\IIko\IikoAuthenticator;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\GetAddressResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\GetClientResponseData;
@@ -154,6 +156,47 @@ final readonly class ImportOrderService
                 'orderId' => $order->id,
                 'timestamp' => $timestamp,
             ]);
+
+            $wgStatus = \Domain\WelcomeGroup\Enums\OrderStatus::from($order->status);
+
+            if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::CANCELLED) {
+                $this
+                    ->iikoConnector
+                    ->closeOrder(
+                        new CancelOrCloseRequestData(
+                            $organizationSetting->iikoRestaurantId->id,
+                            $internalOrder->iikoExternalId->id
+                        ),
+                        $this
+                            ->authenticator
+                            ->getAuthToken($organizationSetting->iikoApiKey)
+                    );
+            }
+
+            if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::REJECTED) {
+                $this
+                    ->iikoConnector
+                    ->rejectOrder(
+                        new CancelOrCloseRequestData(
+                            $organizationSetting->iikoRestaurantId->id,
+                            $internalOrder->iikoExternalId->id
+                        ),
+                        $this
+                            ->authenticator
+                            ->getAuthToken($organizationSetting->iikoApiKey)
+                    );
+            }
+
+            if (OrderStatus::checkDeliveredStatus($internalOrder->status)) {
+                $this->iikoConnector->updateDeliveryStatus(
+                    new UpdateOrderRequestData(
+                        $organizationSetting->iikoRestaurantId->id,
+                        $internalOrder->iikoExternalId->id,
+                        $internalOrder->status->value
+                    ),
+                    $this->authenticator->getAuthToken($organizationSetting->iikoApiKey)
+                );
+            }
 
             return;
         }
