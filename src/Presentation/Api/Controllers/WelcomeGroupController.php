@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Presentation\Api\Controllers;
 
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
+use Domain\WelcomeGroup\Enums\OrderStatus;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -22,6 +23,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\Create
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\EditModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
@@ -45,6 +47,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\GetModifierReques
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\EditModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\GetModifierTypeRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantsRequest;
@@ -555,4 +558,32 @@ final readonly class WelcomeGroupController
 
         return $this->responseFactory->json($response, 200);
     }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_order', name: 'wg.create_order')]
+    public function createOrder(Request $request, WelcomeGroupConnectorInterface $welcomeGroupConnector): JsonResponse
+    {
+        $response = $welcomeGroupConnector->createOrder(
+            new CreateOrderRequestData(
+                $request->input('restaurant_id'),
+                $request->input('client_id'),
+                $request->input('phone_id'),
+                $request->input('address_id'),
+                [],
+                OrderStatus::from($request->input('status')),
+                $request->input('duration'),
+                $request->input('discount'),
+                $request->input('comment'),
+                $request->input('source'),
+                $request->input('isPreorder')
+            )
+        );
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+
 }
