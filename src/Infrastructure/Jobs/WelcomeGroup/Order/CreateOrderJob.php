@@ -138,12 +138,13 @@ final class CreateOrderJob implements ShouldQueue
         if ($isPreorder) {
             $timePreorder = $order
                 ->completeBefore
-                ->subSeconds(
-                    ($welcomeGroupRestaurant->timeWaitingCooking
-                        + $welcomeGroupRestaurant->timeCooking
-                        + $welcomeGroupRestaurant->timeWaitingDelivering
-                        + $welcomeGroupRestaurant->timeDelivering)
-                )->toRfc7231String();
+                ->toRfc7231String();
+//                ->subSeconds(
+//                    ($welcomeGroupRestaurant->timeWaitingCooking
+//                        + $welcomeGroupRestaurant->timeCooking
+//                        + $welcomeGroupRestaurant->timeWaitingDelivering
+//                        + $welcomeGroupRestaurant->timeDelivering)
+//                )->toRfc7231String();
         }
 
         try {
