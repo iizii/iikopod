@@ -134,6 +134,7 @@ final class CreateOrderJob implements ShouldQueue
             ->greaterThan($totalCompleteOrderTime);
 
         $timePreorder = null;
+
         if ($isPreorder) {
             $timePreorder = $order
                 ->completeBefore
@@ -144,7 +145,6 @@ final class CreateOrderJob implements ShouldQueue
                         + $welcomeGroupRestaurant->timeDelivering)
                 )->toRfc7231String();
         }
-
 
         try {
             $response = $welcomeGroupConnector->createOrder(
