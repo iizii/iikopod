@@ -10,19 +10,7 @@ use Spatie\LaravelData\Data;
 final class CreateOrderRequestData extends Data
 {
     /**
-     * @param int $restaurant
-     * @param int $client
-     * @param int $phone
-     * @param int $address
-     * @param array<array-key, int> $promotions
-     * @param OrderStatus $status
-     * @param int $duration
-     * @param int $discount
-     * @param string|null $comment
-     * @param int $source
-     * @param int $destination
-     * @param bool $isPreorder
-     * @param string|null $timePreorder
+     * @param  array<array-key, int>  $promotions
      */
     public function __construct(
         public readonly int $restaurant,
@@ -35,7 +23,6 @@ final class CreateOrderRequestData extends Data
         public readonly int $discount,
         public readonly ?string $comment,
         public readonly int $source,
-        public readonly int $destination,
         public readonly bool $isPreorder = false,
         public readonly ?string $timePreorder = null,
     ) {}
