@@ -133,6 +133,19 @@ final class CreateOrderJob implements ShouldQueue
             ->completeBefore
             ->greaterThan($totalCompleteOrderTime);
 
+        $timePreorder = null;
+        if ($isPreorder) {
+            $timePreorder = $order
+                ->completeBefore
+                ->subSeconds(
+                    ($welcomeGroupRestaurant->timeWaitingCooking
+                        + $welcomeGroupRestaurant->timeCooking
+                        + $welcomeGroupRestaurant->timeWaitingDelivering
+                        + $welcomeGroupRestaurant->timeDelivering)
+                )->toRfc7231String();
+        }
+
+
         try {
             $response = $welcomeGroupConnector->createOrder(
                 new CreateOrderRequestData(
@@ -147,6 +160,7 @@ final class CreateOrderJob implements ShouldQueue
                     $order->comment,
                     OrderSource::TEST->value,
                     $isPreorder,
+                    $timePreorder,
                 ),
             );
         } catch (\Throwable $e) {

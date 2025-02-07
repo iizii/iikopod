@@ -578,7 +578,8 @@ final readonly class WelcomeGroupController
                 $request->input('discount'),
                 $request->input('comment'),
                 $request->input('source'),
-                $request->input('isPreorder')
+                $request->input('isPreorder'),
+                $request->input('timePreorder'),
             )
         );
 
