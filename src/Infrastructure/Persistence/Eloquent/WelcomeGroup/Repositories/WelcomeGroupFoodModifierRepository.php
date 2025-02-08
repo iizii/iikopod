@@ -38,7 +38,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return $result;
+        return WelcomeGroupFoodModifier::toDomainEntity($result);
 
     }
 
@@ -54,7 +54,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return $result;
+        return WelcomeGroupFoodModifier::toDomainEntity($result);
 
     }
 
@@ -69,7 +69,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return $result;
+        return WelcomeGroupFoodModifier::toDomainEntity($result);
 
     }
 
@@ -83,7 +83,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return $result;
+        return WelcomeGroupFoodModifier::toDomainEntity($result);
 
     }
 
