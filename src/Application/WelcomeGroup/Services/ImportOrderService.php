@@ -299,7 +299,7 @@ final readonly class ImportOrderService
                         $modifiers,
                         new \Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Modifier(
                             $modifier->modifier->external_id,
-                            (float) number_format($modifier->modifier->prices->first()->price / 100, 2, '.', ''),
+                            (float) number_format($modifier->modifier->prices->first()->price, 2, '.', ''),
                             $modifier->modifier->modifierGroup->external_id,
                         ));
                 });
