@@ -30,8 +30,8 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
     {
         $result = $this
             ->query()
-            ->where('welcome_group_food_id', $internalFoodId)
-            ->where('welcome_group_modifier_id', $internalModifierId)
+            ->where('welcome_group_food_id', $internalFoodId->id)
+            ->where('welcome_group_modifier_id', $internalModifierId->id)
             ->first();
 
         if (! $result) {
