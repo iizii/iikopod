@@ -12,6 +12,7 @@ use Domain\Orders\ValueObjects\Item;
 use Domain\Orders\ValueObjects\Modifier;
 use Domain\WelcomeGroup\Exceptions\FoodModifierNotFoundException;
 use Domain\WelcomeGroup\Exceptions\FoodNotFoundException;
+use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodRepositoryInterface;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupModifierRepositoryInterface;
 use Illuminate\Bus\Queueable;
@@ -44,6 +45,7 @@ final class CreateOrderItemJob implements ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodRepositoryInterface $welcomeGroupFoodRepository,
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
+        WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
         OrderRepositoryInterface $orderRepository,
     ): void {
         $item = $this->item;
@@ -63,14 +65,20 @@ final class CreateOrderItemJob implements ShouldQueue
         $modifierIds = new Collection();
 
         $item->modifiers->each(
-            static function (Modifier $modifier) use ($modifierIds, $welcomeGroupModifierRepository) {
+            static function (Modifier $modifier) use ($modifierIds, $welcomeGroupModifierRepository, $welcomeGroupFoodModifierRepository, $food) {
                 $foundModifier = $welcomeGroupModifierRepository->findByIikoId($modifier->modifierId);
 
                 if (! $foundModifier) {
                     throw new FoodModifierNotFoundException();
                 }
 
-                $modifierIds->add($foundModifier->externalId->id);
+                $foundFoodModifier = $welcomeGroupFoodModifierRepository->findByInternalFoodAndModifierIds($food->id, $foundModifier->id);
+
+                if (! $foundFoodModifier) {
+                    throw new FoodModifierNotFoundException();
+                }
+
+                $modifierIds->add($foundFoodModifier->externalId->id);
             },
         );
 
