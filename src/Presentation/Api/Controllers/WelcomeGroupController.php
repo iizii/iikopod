@@ -25,6 +25,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Cr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
@@ -580,6 +581,24 @@ final readonly class WelcomeGroupController
                 (int) $request->input('source'),
                 $request->input('isPreorder'),
                 $request->input('timePreorder'),
+            )
+        );
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_order_item', name: 'wg.create_order_item')]
+    public function createOrderItem(Request $request, WelcomeGroupConnectorInterface $welcomeGroupConnector): JsonResponse
+    {
+        $response = $welcomeGroupConnector->createOrderItem(
+            new CreateOrderItemRequestData(
+                $request->input('order_id'),
+                $request->input('food_id'),
+                $request->input('food_modifier_ids'),
             )
         );
 
