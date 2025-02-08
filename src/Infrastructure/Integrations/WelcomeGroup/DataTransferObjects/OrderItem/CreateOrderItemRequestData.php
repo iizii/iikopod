@@ -18,5 +18,6 @@ final class CreateOrderItemRequestData extends Data
         public readonly int $order,
         public readonly int $food,
         public readonly array $foodModifiers,
+        public readonly string $comment = '',
     ) {}
 }
