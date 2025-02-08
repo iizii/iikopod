@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem;
 
+use Spatie\LaravelData\Attributes\MapOutputName;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
+#[MapOutputName(SnakeCaseMapper::class)]
 final class CreateOrderItemRequestData extends Data
 {
     /**

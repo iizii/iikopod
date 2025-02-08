@@ -31,7 +31,7 @@ final readonly class CreateOrderItemRequest implements RequestInterface, Respons
         return [];
     }
 
-    public function data(): array|Arrayable
+    public function data(): CreateOrderItemRequestData
     {
         return $this->requestData;
     }
