@@ -13,6 +13,6 @@ final class UpdateOrderRequestData extends ResponseData
     public function __construct(
         public readonly string $organizationId,
         public readonly string $orderId,
-        public readonly string $status,
+        public readonly string $deliveryStatus,
     ) {}
 }
