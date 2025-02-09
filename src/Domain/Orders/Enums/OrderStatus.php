@@ -64,6 +64,22 @@ enum OrderStatus: string
         };
     }
 
+    public static function toIikoStatus(self $orderStatus): IIkoOrderStatus
+    {
+        return match ($orderStatus) {
+            self::NEW => IIkoOrderStatus::UNCONFIRMED, // new → Unconfirmed
+            self::PRODUCE_WAITING => IIkoOrderStatus::WAIT_COOKING, // produce_waiting → WaitCooking
+            self::PROCESSING => IIkoOrderStatus::READY_FOR_COOKING, // processing → ReadyForCooking
+            self::PRODUCING => IIkoOrderStatus::COOKING_STARTED, // producing → CookingStarted
+            self::DELIVERY_WAITING => IIkoOrderStatus::WAITING, // delivery_waiting → CookingCompleted
+            self::DELIVERING => IIkoOrderStatus::ON_WAY, // delivering → OnWay
+            self::DELIVERED => IIkoOrderStatus::DELIVERED, // delivered → Delivered
+            self::FINISHED => IIkoOrderStatus::CLOSED, // finished → Closed
+            self::CANCELLED => IIkoOrderStatus::CANCELLED, // cancelled → Cancelled
+            default => throw new \InvalidArgumentException("Unknown order status: $orderStatus->value"),
+        };
+    }
+
     public static function fromWelcomeGroupStatus(WelcomeGroupOrderStatus $orderStatus): self
     {
         return match ($orderStatus) {
