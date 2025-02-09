@@ -25,6 +25,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Cr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
@@ -582,6 +583,21 @@ final readonly class WelcomeGroupController
                 $request->input('isPreorder'),
                 $request->input('timePreorder'),
             )
+        );
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/update_order_status', name: 'wg.update_order_status')]
+    public function updateOrderStatus(Request $request, WelcomeGroupConnectorInterface $welcomeGroupConnector): JsonResponse
+    {
+        $response = $welcomeGroupConnector->updateOrder(
+            new IntegerId($request->input('order_id')),
+            new UpdateOrderRequestData(OrderStatus::from($request->input('status'))),
         );
 
         return $this->responseFactory->json($response, 200);
