@@ -192,7 +192,7 @@ final readonly class ImportOrderService
                     new UpdateOrderRequestData(
                         $organizationSetting->iikoRestaurantId->id,
                         $internalOrder->iikoExternalId->id,
-                        OrderStatus::toIikoStatus($internalOrder->status)->value,
+                        OrderStatus::toIikoStatus(OrderStatus::fromWelcomeGroupStatus($wgStatus))->value,
                     ),
                     $this->authenticator->getAuthToken($organizationSetting->iikoApiKey)
                 );
