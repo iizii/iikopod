@@ -219,8 +219,8 @@ final readonly class ImportOrderService
                 $food = WelcomeGroupFood::query()->where('external_id', $orderItem->food)->firstOrFail();
                 $item = new Item(
                     new IntegerId($food->iikoMenuItem->id),
-                    (int) ($orderItem->price * 100),
-                    (int) ($orderItem->discount * 100),
+                    (int) ($orderItem->price),
+                    (int) ($orderItem->discount),
                     1, // В поде нет количества у позиции, товар = позиция
                     $orderItem->comment,
                     new ItemModifierCollection()
@@ -240,7 +240,7 @@ final readonly class ImportOrderService
             if (blank($payments)) {
                 $payment = null;
             } else {
-                $payment = new Payment($payments->first()->type, (int) ($totalSum * 100));
+                $payment = new Payment($payments->first()->type, (int) ($totalSum));
             }
 
             $timeCooking = $order->timeCooking ?? 0; // Если null, то используем 0
@@ -283,6 +283,9 @@ final readonly class ImportOrderService
         }
     }
 
+    /**
+     * @throws WelcomeGroupImportOrdersGeneralException
+     */
     private function createOrderInIiko(Order $order, GetAddressResponseData $address, GetClientResponseData $client, GetPhoneResponseData $phone, OrganizationSetting $organizationSetting): void
     {
         try {
