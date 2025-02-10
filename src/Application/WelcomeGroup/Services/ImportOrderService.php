@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\WelcomeGroup\Services;
 
+use Application\Orders\Builders\OrderBuilder;
 use Carbon\CarbonImmutable;
 use Domain\Iiko\Enums\CustomerType;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
@@ -44,7 +45,6 @@ use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Coordinates;
-use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\StreetTwo;
 use Shared\Domain\Exceptions\WelcomeGroupImportOrdersGeneralException;
 use Shared\Domain\Exceptions\WelcomeGroupNotFoundMatchForPaymentTypeException;
@@ -197,6 +197,11 @@ final readonly class ImportOrderService
                     $this->authenticator->getAuthToken($organizationSetting->iikoApiKey)
                 );
             }
+
+            $orderBuilder = OrderBuilder::fromExisted($internalOrder)
+                ->setStatus(OrderStatus::fromWelcomeGroupStatus($wgStatus));
+
+            $this->orderRepository->update($orderBuilder->build());
 
             return;
         }
