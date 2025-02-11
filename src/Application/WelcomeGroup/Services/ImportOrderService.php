@@ -149,6 +149,9 @@ final readonly class ImportOrderService
 
     private function processOrder(GetOrdersByRestaurantResponseData $order, OrganizationSetting $organizationSetting, int $timestamp): void
     {
+        if ($order->id < config('app.order_before_which_to_skip_all_orders')) {
+            return;
+        }
         $internalOrder = $this->orderRepository->findByWelcomeGroupId(new IntegerId($order->id));
 
         if ($internalOrder) {

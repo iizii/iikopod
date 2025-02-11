@@ -125,4 +125,5 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'order_before_which_to_skip_all_orders' => env('ORDER_BEFORE_WHICH_TO_SKIP_ALL_ORDERS', 0),
 ];
