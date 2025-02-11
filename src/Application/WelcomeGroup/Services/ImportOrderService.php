@@ -222,7 +222,7 @@ final readonly class ImportOrderService
                 $food = WelcomeGroupFood::query()->where('external_id', $orderItem->food)->firstOrFail();
                 $item = new Item(
                     new IntegerId($food->iikoMenuItem->id),
-                    (int) ($orderItem->price),
+                    (int) ($orderItem->foodObject->price),
                     (int) ($orderItem->discount),
                     1, // В поде нет количества у позиции, товар = позиция
                     $orderItem->comment,
@@ -320,7 +320,7 @@ final readonly class ImportOrderService
                     new Items(
                         $item->iikoMenuItem->external_id,
                         $modifiers,
-                        (float) number_format($item->price, 2, '.', ''),
+                        (float) number_format($item->price, 2, '.', ''), // сюда внимание
                         'Product',
                         1, // Кажется тут логично указывать 1, ведь в поде нет количества
                         null,
