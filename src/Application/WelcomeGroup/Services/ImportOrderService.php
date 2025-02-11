@@ -320,7 +320,7 @@ final readonly class ImportOrderService
                     new Items(
                         $item->iikoMenuItem->external_id,
                         $modifiers,
-                        (float) number_format($item->price / 100, 2, '.', ''),
+                        (float) number_format($item->price, 2, '.', ''),
                         'Product',
                         1, // Кажется тут логично указывать 1, ведь в поде нет количества
                         null,
@@ -336,7 +336,7 @@ final readonly class ImportOrderService
                 $payments = [
                     new Payments(
                         $paymentType->paymentTypeKind,
-                        (float) number_format($order->payment->amount / 100, 2, '.', ''),
+                        (float) number_format($order->payment->amount, 2, '.', ''),
                         $paymentType->id,
                         true,
                         null,
@@ -349,7 +349,7 @@ final readonly class ImportOrderService
                 throw new WelcomeGroupOrderItemsNotFoundForOrderException("Не найдены товары в заказе $order->welcome_group_external_id . Из-за этого создание внутри ПОД отменено и необходимо обработать вручную данную ситуацию");
             }
 
-            $this->iikoConnector->createOrder(
+            $createOrderResponse = $this->iikoConnector->createOrder(
                 new CreateOrderRequestData(
                     $organizationSetting->iikoRestaurantId->id,
                     $terminalId,
@@ -394,6 +394,8 @@ final readonly class ImportOrderService
                 $this->authenticator->getAuthToken($organizationSetting->iikoApiKey),
             );
 
+            $order->iiko_external_id = $createOrderResponse->orderInfo->id;
+            $order->save();
             logger()->channel('import_orders_from_wg_to_iiko')->info('Заказ успешно создан в iiko.', [
                 'orderId' => $order->id,
             ]);
