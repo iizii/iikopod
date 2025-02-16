@@ -162,7 +162,7 @@ final readonly class ImportOrderService
 
             $wgStatus = \Domain\WelcomeGroup\Enums\OrderStatus::from($order->status);
 
-            if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::CANCELLED) {
+            if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::FINISHED) {
                 $this
                     ->iikoConnector
                     ->closeOrder(
@@ -176,7 +176,7 @@ final readonly class ImportOrderService
                     );
             }
 
-            if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::REJECTED) {
+            if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::REJECTED || OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::CANCELLED) {
                 $this
                     ->iikoConnector
                     ->rejectOrder(

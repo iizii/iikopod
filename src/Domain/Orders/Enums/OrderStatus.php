@@ -75,7 +75,7 @@ enum OrderStatus: string
             self::DELIVERING => IIkoOrderStatus::ON_WAY, // delivering → OnWay
             self::DELIVERED => IIkoOrderStatus::DELIVERED, // delivered → Delivered
             self::FINISHED => IIkoOrderStatus::CLOSED, // finished → Closed
-            self::CANCELLED => IIkoOrderStatus::CANCELLED, // cancelled → Cancelled
+            self::CANCELLED, self::REJECTED => IIkoOrderStatus::CANCELLED, // cancelled → Cancelled
             default => throw new \InvalidArgumentException("Unknown order status: $orderStatus->value"),
         };
     }
