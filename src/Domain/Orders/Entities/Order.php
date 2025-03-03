@@ -11,6 +11,7 @@ use Domain\Orders\ValueObjects\Customer;
 use Domain\Orders\ValueObjects\Item;
 use Domain\Orders\ValueObjects\ItemCollection;
 use Domain\Orders\ValueObjects\Payment;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint;
 use Shared\Domain\DomainEntity;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
@@ -28,7 +29,8 @@ final class Order extends DomainEntity
         public readonly ?Payment $payment,
         public readonly Customer $customer,
         public readonly ItemCollection $items,
-        public readonly CarbonImmutable $completeBefore,
+        public readonly ?DeliveryPoint $deliveryPoint,
+        public readonly ?CarbonImmutable $completeBefore,
     ) {}
 
     public function addItem(Item $item): self

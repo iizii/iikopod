@@ -15,6 +15,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $iiko_menu_id
  * @property string $external_id
@@ -26,7 +28,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenu $iikoMenu
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem> $items
  * @property-read int|null $items_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup query()
@@ -38,7 +39,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereIsHidden($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemGroup whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 #[ObservedBy([ItemGroupObserver::class])]

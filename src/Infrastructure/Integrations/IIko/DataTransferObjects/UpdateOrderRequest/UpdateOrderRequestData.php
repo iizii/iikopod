@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest;
 
-use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderSettings;
-use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Order;
 use Shared\Infrastructure\Integrations\ResponseData;
 
 final class UpdateOrderRequestData extends ResponseData

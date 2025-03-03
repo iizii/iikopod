@@ -104,9 +104,9 @@ enum OrderStatus: string
             self::DELIVERY_WAITING,
             self::DELIVERING,
             self::DELIVERED => true,
-//            self::FINISHED,
-//            self::CANCELLED,
-//            self::REJECTED => true,
+            //            self::FINISHED,
+            //            self::CANCELLED,
+            //            self::REJECTED => true,
             default => false,
         };
     }

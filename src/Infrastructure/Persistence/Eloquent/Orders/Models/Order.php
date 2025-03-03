@@ -15,10 +15,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Address;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\City;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Coordinates;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Region;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ *
+ *
  * @property int $id
  * @property int $organization_setting_id
  * @property string $source
@@ -30,11 +38,11 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $complete_before
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderCustomer|null $customer
+ * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress|null $endpointAddress
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem> $items
  * @property-read int|null $items_count
  * @property-read OrganizationSetting $organizationSetting
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment|null $payment
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
@@ -48,7 +56,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereWelcomeGroupExternalId($value)
- *
  * @mixin \Eloquent
  */
 final class Order extends Model
@@ -81,6 +88,11 @@ final class Order extends Model
     public function customer(): HasOne
     {
         return $this->hasOne(OrderCustomer::class, 'order_id', 'id');
+    }
+
+    public function endpointAddress(): HasOne
+    {
+        return $this->hasOne(EndpointAddress::class, 'order_id', 'id');
     }
 
     /**
@@ -134,6 +146,37 @@ final class Order extends Model
                 $order->customer->phone,
             ),
             new ItemCollection(),
+            new DeliveryPoint(
+                new Coordinates(
+                    (float)$order->endpointAddress->latitude,
+                    (float)$order->endpointAddress->longitude
+                ),
+                new Address(
+                    new Street(
+                        null,
+                        null,
+                        $order->endpointAddress->street,
+                        new City(
+                            null,
+                            $order->endpointAddress->city,
+                        )
+                    ),
+                    $order->endpointAddress->index,
+                    $order->endpointAddress->house,
+                    $order->endpointAddress->building,
+                    $order->endpointAddress->flat,
+                    $order->endpointAddress->entrance,
+                    $order->endpointAddress->floor,
+                    $order->endpointAddress->doorphone,
+                    new Region(
+                        null,
+                        $order->endpointAddress->region,
+                    ),
+                    $order->endpointAddress->line1,
+                ),
+                null,
+                null
+            ),
             $order->complete_before->toImmutable()
         );
     }

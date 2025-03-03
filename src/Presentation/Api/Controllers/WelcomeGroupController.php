@@ -49,7 +49,6 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\GetModifierReques
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\EditModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\GetModifierTypeRequest;
-use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Phone\CreatePhoneRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Restaurant\GetRestaurantsRequest;
@@ -620,6 +619,4 @@ final readonly class WelcomeGroupController
 
         return $this->responseFactory->json($response, 200);
     }
-
-
 }

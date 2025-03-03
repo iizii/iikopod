@@ -11,6 +11,7 @@ use Domain\Orders\Enums\OrderStatus;
 use Domain\Orders\ValueObjects\Customer;
 use Domain\Orders\ValueObjects\ItemCollection;
 use Domain\Orders\ValueObjects\Payment;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -27,6 +28,7 @@ final class OrderBuilder
         private ?Payment $payment,
         private Customer $customer,
         private ItemCollection $items,
+        private DeliveryPoint $deliveryPoint,
         private CarbonImmutable $completeBefore
     ) {}
 
@@ -43,6 +45,7 @@ final class OrderBuilder
             $order->payment,
             $order->customer,
             $order->items,
+            $order->deliveryPoint,
             $order->completeBefore,
         );
     }
@@ -140,6 +143,7 @@ final class OrderBuilder
             $this->payment,
             $this->customer,
             $this->items,
+            $this->deliveryPoint,
             $this->completeBefore
         );
     }

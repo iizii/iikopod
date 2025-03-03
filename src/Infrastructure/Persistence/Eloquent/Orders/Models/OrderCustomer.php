@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $order_id
  * @property string $type
@@ -17,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\Order $order
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCustomer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCustomer newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCustomer query()
@@ -28,7 +29,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCustomer wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCustomer whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCustomer whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class OrderCustomer extends Model

@@ -6,7 +6,6 @@ namespace Infrastructure\Integrations\IIko\Requests;
 
 use Illuminate\Http\Client\Response;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
-use Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest\UpdateOrderRequestData;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\RequestMethod;
 use Shared\Infrastructure\Integrations\ResponseDataInterface;

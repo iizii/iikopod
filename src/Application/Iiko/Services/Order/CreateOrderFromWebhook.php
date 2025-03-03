@@ -84,6 +84,7 @@ final readonly class CreateOrderFromWebhook
                 $eventData->order->phone,
             ),
             new ItemCollection(),
+            $eventData->order->deliveryPoint,
             $eventData->order->completeBefore
         );
 

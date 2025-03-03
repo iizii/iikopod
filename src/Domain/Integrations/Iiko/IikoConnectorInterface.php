@@ -57,7 +57,5 @@ interface IikoConnectorInterface
 
     public function rejectOrder(CancelOrCloseRequestData $cancelOrCloseRequestData, string $authToken);
 
-
     public function updateDeliveryStatus(UpdateOrderRequestData $updateOrderRequestData, string $authToken);
-
 }

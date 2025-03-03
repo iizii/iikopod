@@ -8,5 +8,5 @@ use Spatie\LaravelData\Data;
 
 final class Coordinates extends Data
 {
-    public function __construct(public readonly int $latitude, public readonly int $longitude) {}
+    public function __construct(public readonly float $latitude, public readonly float $longitude) {}
 }

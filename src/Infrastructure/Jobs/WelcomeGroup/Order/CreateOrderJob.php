@@ -15,6 +15,8 @@ use Domain\WelcomeGroup\Enums\OrderSource;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\CreateAddressResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\CreateClientRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
@@ -109,6 +111,35 @@ final class CreateOrderJob implements ShouldQueue
         }
 
         try {
+
+            $address = $order->deliveryPoint;
+
+            $deliveryAddress = $welcomeGroupConnector->createAddress(
+                new CreateAddressRequestData(
+                    $address->address->street->city->name,
+                    $address->address->street->name,
+                    $address->address->house,
+                    $address->address->building,
+                    $address->address->floor,
+                    $address->address->flat,
+                    $address->address->entrance,
+                    $address->coordinates->latitude,
+                    $address->coordinates->longitude,
+                    $address->comment,
+                ),
+            );
+        } catch (\Throwable $e) {
+            throw new \RuntimeException(
+                sprintf(
+                    'При создании заказа %s в Welcome Group произошла ошибка при попытке создать клиента %s, ошибка: %s',
+                    $order->id->id,
+                    $orderPhone,
+                    $e->getMessage(),
+                ),
+            );
+        }
+
+        try {
             $welcomeGroupRestaurant = $welcomeGroupConnector->getRestaurant(
                 $organizationSettings->welcomeGroupRestaurantId,
             );
@@ -139,12 +170,12 @@ final class CreateOrderJob implements ShouldQueue
             $timePreorder = $order
                 ->completeBefore
                 ->toRfc7231String();
-//                ->subSeconds(
-//                    ($welcomeGroupRestaurant->timeWaitingCooking
-//                        + $welcomeGroupRestaurant->timeCooking
-//                        + $welcomeGroupRestaurant->timeWaitingDelivering
-//                        + $welcomeGroupRestaurant->timeDelivering)
-//                )->toRfc7231String();
+            //                ->subSeconds(
+            //                    ($welcomeGroupRestaurant->timeWaitingCooking
+            //                        + $welcomeGroupRestaurant->timeCooking
+            //                        + $welcomeGroupRestaurant->timeWaitingDelivering
+            //                        + $welcomeGroupRestaurant->timeDelivering)
+            //                )->toRfc7231String();
         }
 
         try {
@@ -153,7 +184,7 @@ final class CreateOrderJob implements ShouldQueue
                     $organizationSettings->welcomeGroupRestaurantId->id,
                     $client->id,
                     $phone->id,
-                    1,
+                    $deliveryAddress->id,
                     [],
                     OrderStatus::toWelcomeGroupStatus($order->status),
                     100,

@@ -12,7 +12,7 @@ final class StreetTwo extends Data
         public readonly ?string $classifierId,
         public readonly ?string $id,
         public readonly ?string $name,
-//                public readonly ?City $city
+        //                public readonly ?City $city
         public readonly ?string $city
     ) {}
 }

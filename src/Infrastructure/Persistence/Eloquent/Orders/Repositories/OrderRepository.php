@@ -9,6 +9,7 @@ use Domain\Orders\Entities\Order as DomainOrder;
 use Domain\Orders\Repositories\OrderRepositoryInterface;
 use Domain\Orders\ValueObjects\Item;
 use Domain\Orders\ValueObjects\Modifier;
+use Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress;
 use Infrastructure\Persistence\Eloquent\Orders\Models\Order;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderCustomer;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem;
@@ -39,6 +40,13 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
             $persistencePayment->fromDomainEntity($order->payment);
 
             $persistenceOrder->payment()->save($persistencePayment);
+        }
+
+        if ($order->deliveryPoint) {
+            $persistenceEndpointAddress = new EndpointAddress();
+            $persistenceEndpointAddress->fromDomainEntity($order->deliveryPoint);
+
+            $persistenceOrder->endpointAddress()->save($persistenceEndpointAddress);
         }
 
         $order->items->each(static function (Item $item) use ($persistenceOrder) {

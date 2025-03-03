@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest;
 
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Region;
-use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\StreetTwo;
 use Spatie\LaravelData\Data;
 
