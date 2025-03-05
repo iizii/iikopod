@@ -38,27 +38,26 @@ final class ItemSize extends ResponseData
         public readonly DataCollection $nutritions,
         array $itemModifierGroups,
     ) {
-        $data = collect($itemModifierGroups)->filter(static function ($itemModifierGroup) {
-            return $itemModifierGroup['id'] !== null;
-        })->map(static fn ($itemModifierGroup) => new ItemModifierGroup(
-            $itemModifierGroup['id'],
-            $itemModifierGroup['name'],
-            $itemModifierGroup['description'],
-            new Restriction(
-                $itemModifierGroup['restrictions']['minQuantity'],
-                $itemModifierGroup['restrictions']['maxQuantity'],
-                $itemModifierGroup['restrictions']['freeQuantity'],
-                $itemModifierGroup['restrictions']['defaultQuantity'],
-                $itemModifierGroup['restrictions']['hideIfDefaultQuantity'],
-            ),
-            $itemModifierGroup['splittable'],
-            $itemModifierGroup['isHidden'],
-            $itemModifierGroup['childModifiersHaveMinMaxRestrictions'],
-            $itemModifierGroup['sku'],
-            $itemModifierGroup['items'],
-        ))->toArray();
+        $data = array_map(static fn (array $itemModifierGroup) => new ItemModifierGroup(
+            $itemModifierGroup['id'] ?? null,
+            $itemModifierGroup['name'] ?? '',
+            $itemModifierGroup['description'] ?? '',
+            isset($itemModifierGroup['restrictions']) ? new Restriction(
+                $itemModifierGroup['restrictions']['minQuantity'] ?? 0,
+                $itemModifierGroup['restrictions']['maxQuantity'] ?? 0,
+                $itemModifierGroup['restrictions']['freeQuantity'] ?? 0,
+                $itemModifierGroup['restrictions']['defaultQuantity'] ?? 0,
+                $itemModifierGroup['restrictions']['hideIfDefaultQuantity'] ?? false,
+            ) : null,
+            $itemModifierGroup['splittable'] ?? false,
+            $itemModifierGroup['isHidden'] ?? false,
+            $itemModifierGroup['childModifiersHaveMinMaxRestrictions'] ?? false,
+            $itemModifierGroup['sku'] ?? '',
+            $itemModifierGroup['items'] ?? [],
+        ), array_filter($itemModifierGroups, fn ($group) => isset($group['id'])));
 
-        $this->itemModifierGroups = ItemModifierGroup::collect($data, DataCollection::class);
+        // Создаём DataCollection
+        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $data);
     }
 
     public function toDomainEntity(): DomainItemSize
