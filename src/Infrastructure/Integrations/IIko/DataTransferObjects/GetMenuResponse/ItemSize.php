@@ -37,9 +37,9 @@ final class ItemSize extends ResponseData
         public readonly DataCollection $nutritions,
         array $itemModifierGroups,
     ) {
-        $data = collect($itemModifierGroups)->filter(function ($itemModifierGroup) {
+        $data = collect($itemModifierGroups)->filter(static function ($itemModifierGroup) {
             return $itemModifierGroup['id'] !== null;
-        })->map(fn($itemModifierGroup) => new ItemModifierGroup(
+        })->map(static fn ($itemModifierGroup) => new ItemModifierGroup(
             $itemModifierGroup['id'],
             $itemModifierGroup['name'],
             $itemModifierGroup['description'],
