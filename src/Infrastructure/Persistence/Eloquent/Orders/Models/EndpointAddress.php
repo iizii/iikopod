@@ -32,6 +32,7 @@ use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\Order $order
+ *
  * @method static Builder<static>|EndpointAddress newModelQuery()
  * @method static Builder<static>|EndpointAddress newQuery()
  * @method static Builder<static>|EndpointAddress query()
@@ -52,6 +53,7 @@ use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint;
  * @method static Builder<static>|EndpointAddress whereRegion($value)
  * @method static Builder<static>|EndpointAddress whereStreet($value)
  * @method static Builder<static>|EndpointAddress whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class EndpointAddress extends Model

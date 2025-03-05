@@ -23,8 +23,6 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $iiko_menu_item_group_id
  * @property string $external_id
@@ -41,6 +39,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup $itemGroup
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize> $itemSizes
  * @property-read int|null $item_sizes_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem query()
@@ -56,6 +55,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereSku($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItem whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 #[ObservedBy([ItemObserver::class])]

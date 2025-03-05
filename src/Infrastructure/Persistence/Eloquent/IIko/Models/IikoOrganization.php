@@ -7,8 +7,6 @@ namespace Infrastructure\Persistence\Eloquent\IIko\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
- *
  * @property int $id
  * @property string $organization_id
  * @property string|null $inn
@@ -18,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $longitude
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization query()
@@ -30,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereOrganizationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoOrganization whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class IikoOrganization extends Model

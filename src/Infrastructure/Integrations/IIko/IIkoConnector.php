@@ -12,6 +12,8 @@ use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetActiveOrganizationCouriersRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetActiveOrganizationCouriersResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsResponse\GetAvailableTerminalsResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
@@ -27,6 +29,7 @@ use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
 use Infrastructure\Integrations\IIko\Requests\CancelDeliveryRequest;
 use Infrastructure\Integrations\IIko\Requests\CloseDeliveryRequest;
 use Infrastructure\Integrations\IIko\Requests\CreateOrderRequest;
+use Infrastructure\Integrations\IIko\Requests\GetActiveOrganizationCouriersRequest;
 use Infrastructure\Integrations\IIko\Requests\GetAvailableTerminalsRequest;
 use Infrastructure\Integrations\IIko\Requests\GetMenuRequest;
 use Infrastructure\Integrations\IIko\Requests\GetPaymentTypesRequest;
@@ -105,6 +108,22 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
         return $this
             ->send(new CancelDeliveryRequest(
                 $cancelOrCloseRequestData,
+                $authToken
+            ));
+    }
+
+    /**
+     * @return LazyCollection<array-key, GetActiveOrganizationCouriersResponseData>
+     *
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function getActiveOrganizationCouriers(GetActiveOrganizationCouriersRequestData $getActiveOrganizationCouriersRequestData, string $authToken): LazyCollection
+    {
+        /** @var LazyCollection<array-key, GetActiveOrganizationCouriersResponseData> */
+        return $this
+            ->send(new GetActiveOrganizationCouriersRequest(
+                $getActiveOrganizationCouriersRequestData,
                 $authToken
             ));
     }

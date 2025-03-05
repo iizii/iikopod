@@ -42,7 +42,7 @@ final class OrganizationSettingResource extends Resource
 
     protected ?string $heading = 'Организация';
 
-    protected static ?string $label = 'организацию';
+    protected static ?string $label = 'организации';
 
     protected static ?string $pluralLabel = 'Организаций';
 
@@ -85,6 +85,11 @@ final class OrganizationSettingResource extends Resource
                                 },
                             ])
                             ->reactive(),  // Также делаем поле реактивным
+                        Forms\Components\TextInput::make('iiko_courier_id')
+                            ->label('ID курьера созданного для WG в IIKO')
+                            ->string()
+                            ->hint('Поле предназначается для статичного указания id единственного курьера который будет назначаться всем заказам которые переводит в статус "доставляется" ПОД')
+                            ->required(),
                         Forms\Components\Select::make('order_types')
                             ->label('Типы заказов')
                             ->multiple() // Включает выбор нескольких значений

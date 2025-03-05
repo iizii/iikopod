@@ -11,8 +11,6 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $iiko_menu_item_id
  * @property int $welcome_group_food_category_id
@@ -28,6 +26,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodCategory $foodCategory
  * @property-read IikoMenuItem $iikoMenuItem
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood query()
@@ -44,6 +43,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood whereWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood whereWelcomeGroupFoodCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFood whereWorkshopId($value)
+ *
  * @mixin \Eloquent
  */
 final class WelcomeGroupFood extends Model

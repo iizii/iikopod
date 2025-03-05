@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $external_id
  * @property int $iiko_menu_item_modifier_group_id
@@ -22,6 +20,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier> $modifiers
  * @property-read int|null $modifiers_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifierType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifierType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifierType query()
@@ -32,6 +31,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifierType whereIikoMenuItemModifierGroupId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifierType whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifierType whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class WelcomeGroupModifierType extends Model

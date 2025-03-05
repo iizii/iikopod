@@ -40,11 +40,15 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\GetPhoneResponseData;
+use Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\City;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Coordinates;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Region;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Street;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\StreetTwo;
 use Shared\Domain\Exceptions\WelcomeGroupImportOrdersGeneralException;
 use Shared\Domain\Exceptions\WelcomeGroupNotFoundMatchForPaymentTypeException;
@@ -253,6 +257,11 @@ final readonly class ImportOrderService
 
             $deliveryTime = CarbonImmutable::now()->addSeconds($totalTimeInSeconds);
 
+            /** @var EndpointAddress $deliveryPoint */
+            $deliveryPoint = EndpointAddress::query()
+                ->where('order_id', $order->id)
+                ->first();
+
             $newOrder = new Order(
                 new IntegerId(),
                 new IntegerId($organizationSetting->id->id),
@@ -264,6 +273,38 @@ final readonly class ImportOrderService
                 $payment,
                 new \Domain\Orders\ValueObjects\Customer($client->name, CustomerType::NEW, $phone->number),
                 new ItemCollection($items),
+                new DeliveryPoint(
+                    new Coordinates(
+                        (float) $deliveryPoint->latitude ?? null,
+                        (float) $deliveryPoint->longitude ?? null
+                    ),
+                    new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Address(
+                        new Street(
+                            null,
+                            null,
+                            $deliveryPoint->street,
+                            new City(
+                                null,
+                                $deliveryPoint->city,
+                            ),
+                        ),
+                        $deliveryPoint->index,
+                        $deliveryPoint->house,
+                        $deliveryPoint->building,
+                        $deliveryPoint->flat,
+                        $deliveryPoint->entrance,
+                        $deliveryPoint->floor,
+                        $deliveryPoint->doorphone,
+                        new Region(
+                            null,
+                            $deliveryPoint->region,
+                        ),
+                        $deliveryPoint->line1,
+
+                    ),
+                    null,
+                    null,
+                ),
                 $deliveryTime,
             );
 

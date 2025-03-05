@@ -15,8 +15,6 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
- *
  * @property int $id
  * @property string $iiko_api_key
  * @property string $iiko_restaurant_id
@@ -30,7 +28,8 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
  * @property bool $block_orders
- * @property string|null $order_types
+ * @property array|null $order_types
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting query()
@@ -48,6 +47,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereWelcomeGroupDefaultWorkshopId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereWelcomeGroupRestaurantId($value)
+ *
  * @mixin \Eloquent
  */
 final class OrganizationSetting extends Model
@@ -64,6 +64,7 @@ final class OrganizationSetting extends Model
         'price_categories',
         'block_orders',
         'order_types',
+        'iiko_courier_id',
     ];
 
     public function toDomainEntity(): DomainOrganizationSetting
@@ -94,6 +95,8 @@ final class OrganizationSetting extends Model
                         $data['prefix'],
                     )),
             ),
+            new StringId($this->iiko_courier_id),
+            $this->order_types,
         );
     }
 
@@ -107,6 +110,7 @@ final class OrganizationSetting extends Model
         return [
             'payment_types' => AsCollection::class,
             'price_categories' => AsCollection::class,
+            'order_types' => 'array',
             'block_orders' => 'boolean',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',

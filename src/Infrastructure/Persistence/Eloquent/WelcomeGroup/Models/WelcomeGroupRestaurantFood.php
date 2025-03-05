@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $welcome_group_restaurant_id
  * @property int $restaurant_id
@@ -21,6 +19,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property string|null $status_comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupRestaurantFood newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupRestaurantFood newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupRestaurantFood query()
@@ -34,6 +33,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupRestaurantFood whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupRestaurantFood whereWelcomeGroupFoodId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupRestaurantFood whereWelcomeGroupRestaurantId($value)
+ *
  * @mixin \Eloquent
  */
 final class WelcomeGroupRestaurantFood extends Model

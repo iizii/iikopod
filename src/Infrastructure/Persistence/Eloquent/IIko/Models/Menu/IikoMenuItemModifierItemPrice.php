@@ -10,14 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $iiko_menu_item_modifier_item_id
  * @property int|null $price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem $itemSize
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice query()
@@ -26,6 +25,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice whereIikoMenuItemModifierItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItemPrice whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class IikoMenuItemModifierItemPrice extends Model

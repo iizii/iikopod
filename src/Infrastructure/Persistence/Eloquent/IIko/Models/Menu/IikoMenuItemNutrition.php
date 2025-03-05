@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $iiko_menu_item_size_id
  * @property float $fats
@@ -24,6 +22,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize $itemSize
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition query()
@@ -38,6 +37,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereSaturatedFattyAcid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereSugar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class IikoMenuItemNutrition extends Model

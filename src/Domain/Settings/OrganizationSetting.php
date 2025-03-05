@@ -17,6 +17,7 @@ final class OrganizationSetting extends DomainEntity
     /**
      * @param  PaymentTypeCollection<array-key, PaymentType>  $paymentTypes
      * @param  PriceCategoryCollection<array-key, PriceCategory>  $priceCategories
+     * @param  array<array-key, string>  $oderTypes
      */
     public function __construct(
         public readonly IntegerId $id,
@@ -30,5 +31,7 @@ final class OrganizationSetting extends DomainEntity
         public readonly bool $blockOrders,
         public readonly PaymentTypeCollection $paymentTypes,
         public readonly PriceCategoryCollection $priceCategories,
+        public readonly StringId $iikoCourierId,
+        public readonly array $oderTypes,
     ) {}
 }

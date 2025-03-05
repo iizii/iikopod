@@ -11,12 +11,14 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Infrastructure\Integrations\IIko\DataTransferObjects\AuthorizationResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetActiveOrganizationCouriersRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetExternalMenusWithPriceCategoriesResponse\GetExternalMenusWithPriceCategoriesResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetOrganizationRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesRequestData;
 use Infrastructure\Integrations\IIko\Requests\AuthorizationRequest;
+use Infrastructure\Integrations\IIko\Requests\GetActiveOrganizationCouriersRequest;
 use Infrastructure\Integrations\IIko\Requests\GetExternalMenusWithPriceCategoriesRequest;
 use Infrastructure\Integrations\IIko\Requests\GetMenuRequest;
 use Infrastructure\Integrations\IIko\Requests\GetOrganizationsRequest;
@@ -118,6 +120,23 @@ final readonly class IikoController
             $request->input('externalMenuId'),
             $request->input('priceCategoryId'));
         $req = new GetMenuRequest($getExternalMenusWithPriceCategoriesData, $authRes->token);
+        $response = $this->connector->send($req);
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    #[Route(methods: 'POST', uri: '/iiko/get_active_couriers_for_organization', name: 'iiko.get_active_couriers_for_organization')]
+    public function getActiveCouriersForOrganization(Request $request): JsonResponse
+    {
+        $authReq = new AuthorizationRequest((string) $request->input('token'));
+
+        /** @var AuthorizationResponseData $authRes */
+        $authRes = $this->connector->send($authReq);
+
+        $req = new GetActiveOrganizationCouriersRequest(
+            new GetActiveOrganizationCouriersRequestData($request->input('organizationIds')),
+            $authRes->token
+        );
         $response = $this->connector->send($req);
 
         return $this->responseFactory->json($response, 200);

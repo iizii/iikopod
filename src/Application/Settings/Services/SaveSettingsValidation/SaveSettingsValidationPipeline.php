@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\Settings\Services\SaveSettingsValidation;
 
+use Application\Settings\Services\SaveSettingsValidation\Pipes\VerifyIikoCourier;
 use Application\Settings\Services\SaveSettingsValidation\Pipes\VerifyIikoPaymentType;
 use Application\Settings\Services\SaveSettingsValidation\Pipes\VerifyIikoRestaurant;
 use Application\Settings\Services\SaveSettingsValidation\Pipes\VerifyWelcomeGroupRestaurant;
@@ -21,6 +22,7 @@ final class SaveSettingsValidationPipeline
         VerifyIikoPaymentType::class,
         VerifyWelcomeGroupRestaurant::class,
         VerifyWelcomeGroupWorkshop::class,
+        VerifyIikoCourier::class,
     ];
 
     public function __construct(private readonly Pipeline $pipeline) {}

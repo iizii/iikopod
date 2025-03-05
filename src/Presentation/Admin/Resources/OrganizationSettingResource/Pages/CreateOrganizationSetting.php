@@ -142,6 +142,8 @@ final class CreateOrganizationSetting extends CreateRecord
                         $data['price_categories'],
                     ),
                 ),
+                new StringId($data['iiko_courier_id']),
+                (array) $data['order_types']
             ),
         );
     }

@@ -14,8 +14,6 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $organization_setting_id
  * @property string $external_id
@@ -27,6 +25,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemGroup> $itemGroups
  * @property-read int|null $item_groups_count
  * @property-read OrganizationSetting $organizationSetting
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu query()
@@ -38,6 +37,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereOrganizationSettingId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereRevision($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenu whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class IikoMenu extends Model
