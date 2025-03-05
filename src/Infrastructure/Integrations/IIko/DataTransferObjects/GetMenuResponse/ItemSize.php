@@ -58,7 +58,7 @@ final class ItemSize extends ResponseData
             $itemModifierGroup['items'],
         ))->toArray();
 
-        $this->itemModifierGroups = ItemModifierGroup::collect($data);
+        $this->itemModifierGroups = ItemModifierGroup::collect($data, DataCollection::class);
     }
 
     public function toDomainEntity(): DomainItemSize
