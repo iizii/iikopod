@@ -10,6 +10,8 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetActiveOrganizationCouriersRequestData;
@@ -27,6 +29,7 @@ use Infrastructure\Integrations\IIko\Events\IIkoRequestFailedEvent;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestSuccessesEvent;
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
 use Infrastructure\Integrations\IIko\Requests\CancelDeliveryRequest;
+use Infrastructure\Integrations\IIko\Requests\ChangeDeliveryDriverForOrderRequest;
 use Infrastructure\Integrations\IIko\Requests\CloseDeliveryRequest;
 use Infrastructure\Integrations\IIko\Requests\CreateOrderRequest;
 use Infrastructure\Integrations\IIko\Requests\GetActiveOrganizationCouriersRequest;
@@ -124,6 +127,20 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
         return $this
             ->send(new GetActiveOrganizationCouriersRequest(
                 $getActiveOrganizationCouriersRequestData,
+                $authToken
+            ));
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function changeDeliveryDriverForOrder(ChangeDeliveryDriverForOrderRequestData $changeDeliveryDriverForOrderRequestData, string $authToken): ChangeDeliveryDriverForOrderResponseData
+    {
+        /** @var ChangeDeliveryDriverForOrderResponseData */
+        return $this
+            ->send(new ChangeDeliveryDriverForOrderRequest(
+                $changeDeliveryDriverForOrderRequestData,
                 $authToken
             ));
     }

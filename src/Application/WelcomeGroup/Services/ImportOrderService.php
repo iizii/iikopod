@@ -21,6 +21,7 @@ use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Settings\OrganizationSetting;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Address;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderSettings;
@@ -195,6 +196,22 @@ final readonly class ImportOrderService
             }
 
             if (OrderStatus::checkDeliveredStatus($internalOrder->status)) {
+                if (OrderStatus::toIikoStatus(OrderStatus::fromWelcomeGroupStatus($wgStatus)) === \Domain\Iiko\Enums\OrderStatus::ON_WAY) {
+                    // указываем курьера к заказу которого выбрали в админке
+                    $this
+                        ->iikoConnector
+                        ->changeDeliveryDriverForOrder(
+                            new ChangeDeliveryDriverForOrderRequestData(
+                                $organizationSetting->iikoRestaurantId->id,
+                                $internalOrder->iikoExternalId->id,
+                                $organizationSetting->iikoCourierId->id
+                            ),
+                            $this
+                                ->authenticator
+                                ->getAuthToken($organizationSetting->iikoApiKey)
+                        );
+                }
+
                 $this->iikoConnector->updateDeliveryStatus(
                     new UpdateOrderRequestData(
                         $organizationSetting->iikoRestaurantId->id,
