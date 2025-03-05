@@ -18,12 +18,18 @@ use Spatie\LaravelData\DataCollection;
 
 final class ItemSize extends ResponseData
 {
-    /** @var DataCollection<array-key, ItemModifierGroup> */
     public readonly DataCollection $itemModifierGroups;
 
     /**
-     * @param  DataCollection<array-key, Price>  $prices
-     * @param  DataCollection<array-key, Nutrition>  $nutritions
+     * @param string|null $id
+     * @param string $sku
+     * @param bool|null $isDefault
+     * @param int $weight
+     * @param Nutrition|null $nutritionPerHundredGrams
+     * @param string $measureUnitType
+     * @param DataCollection<array-key, Price> $prices
+     * @param DataCollection<array-key, Nutrition> $nutritions
+     * @param DataCollection $itemModifierGroups
      */
     public function __construct(
         public readonly ?string $id,
@@ -36,28 +42,16 @@ final class ItemSize extends ResponseData
         public readonly DataCollection $prices,
         #[DataCollectionOf(Nutrition::class)]
         public readonly DataCollection $nutritions,
-        array $itemModifierGroups,
+        DataCollection $itemModifierGroups,
     ) {
-        $data = array_map(static fn (array $itemModifierGroup) => new ItemModifierGroup(
-            $itemModifierGroup['id'] ?? null,
-            $itemModifierGroup['name'] ?? '',
-            $itemModifierGroup['description'] ?? '',
-            isset($itemModifierGroup['restrictions']) ? new Restriction(
-                $itemModifierGroup['restrictions']['minQuantity'] ?? 0,
-                $itemModifierGroup['restrictions']['maxQuantity'] ?? 0,
-                $itemModifierGroup['restrictions']['freeQuantity'] ?? 0,
-                $itemModifierGroup['restrictions']['defaultQuantity'] ?? 0,
-                $itemModifierGroup['restrictions']['hideIfDefaultQuantity'] ?? false,
-            ) : null,
-            $itemModifierGroup['splittable'] ?? false,
-            $itemModifierGroup['isHidden'] ?? false,
-            $itemModifierGroup['childModifiersHaveMinMaxRestrictions'] ?? false,
-            $itemModifierGroup['sku'] ?? '',
-            $itemModifierGroup['items'] ?? [],
-        ), array_filter($itemModifierGroups, fn ($group) => isset($group['id'])));
 
-        // Создаём DataCollection
-        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $data);
+        $filteredItems = $itemModifierGroups
+            ->toCollection()
+            ->filter(fn (ItemModifierGroup $group) => !is_null($group->id))
+            ->values(); // Убираем возможные разрывы в индексах массива
+
+        // Приводим к нужному типу внутри конструктора
+        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $filteredItems);
     }
 
     public function toDomainEntity(): DomainItemSize
