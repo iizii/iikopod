@@ -65,5 +65,4 @@ interface IikoConnectorInterface
     public function getActiveOrganizationCouriers(GetActiveOrganizationCouriersRequestData $getActiveOrganizationCouriersRequestData, string $authToken): LazyCollection;
 
     public function changeDeliveryDriverForOrder(ChangeDeliveryDriverForOrderRequestData $changeDeliveryDriverForOrderRequestData, string $authToken): ChangeDeliveryDriverForOrderResponseData;
-
 }
