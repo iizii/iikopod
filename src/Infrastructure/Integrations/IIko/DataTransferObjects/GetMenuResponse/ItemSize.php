@@ -39,7 +39,23 @@ final class ItemSize extends ResponseData
     ) {
         $data = collect($itemModifierGroups)->filter(function ($itemModifierGroup) {
             return $itemModifierGroup['id'] !== null;
-        })->toArray();
+        })->map(fn($itemModifierGroup) => new ItemModifierGroup(
+            $itemModifierGroup['id'],
+            $itemModifierGroup['name'],
+            $itemModifierGroup['description'],
+            new Restriction(
+                $itemModifierGroup['restrictions']['minQuantity'],
+                $itemModifierGroup['restrictions']['maxQuantity'],
+                $itemModifierGroup['restrictions']['freeQuantity'],
+                $itemModifierGroup['restrictions']['defaultQuantity'],
+                $itemModifierGroup['restrictions']['hideIfDefaultQuantity'],
+            ),
+            $itemModifierGroup['splittable'],
+            $itemModifierGroup['isHidden'],
+            $itemModifierGroup['childModifiersHaveMinMaxRestrictions'],
+            $itemModifierGroup['sku'],
+            $itemModifierGroup['items'],
+        ))->toArray();
 
         $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $data);
     }
