@@ -18,8 +18,9 @@ use Spatie\LaravelData\DataCollection;
 
 final class ItemSize extends ResponseData
 {
+    public readonly DataCollection $itemModifierGroups;
+
     /**
-     * @param  DataCollection<array-key, ItemModifierGroup>  $itemModifierGroups
      * @param  DataCollection<array-key, Price>  $prices
      * @param  DataCollection<array-key, Nutrition>  $nutritions
      */
@@ -34,9 +35,14 @@ final class ItemSize extends ResponseData
         public readonly DataCollection $prices,
         #[DataCollectionOf(Nutrition::class)]
         public readonly DataCollection $nutritions,
-        #[DataCollectionOf(ItemModifierGroup::class)]
-        public readonly DataCollection $itemModifierGroups,
-    ) {}
+        array $itemModifierGroups,
+    ) {
+        $data = collect($itemModifierGroups)->filter(function ($itemModifierGroup) {
+            return $itemModifierGroup['id'] !== null;
+        })->toArray();
+
+        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $data);
+    }
 
     public function toDomainEntity(): DomainItemSize
     {
