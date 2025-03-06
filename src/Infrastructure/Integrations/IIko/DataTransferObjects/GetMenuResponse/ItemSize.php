@@ -18,18 +18,12 @@ use Spatie\LaravelData\DataCollection;
 
 final class ItemSize extends ResponseData
 {
-    public readonly DataCollection $itemModifierGroups;
+//    /** @var DataCollection<array-key, ItemModifierGroup> */
+//    public readonly DataCollection $itemModifierGroups;
 
     /**
-     * @param string|null $id
-     * @param string $sku
-     * @param bool|null $isDefault
-     * @param int $weight
-     * @param Nutrition|null $nutritionPerHundredGrams
-     * @param string $measureUnitType
-     * @param DataCollection<array-key, Price> $prices
-     * @param DataCollection<array-key, Nutrition> $nutritions
-     * @param DataCollection $itemModifierGroups
+     * @param  DataCollection<array-key, Price>  $prices
+     * @param  DataCollection<array-key, Nutrition>  $nutritions
      */
     public function __construct(
         public readonly ?string $id,
@@ -42,16 +36,18 @@ final class ItemSize extends ResponseData
         public readonly DataCollection $prices,
         #[DataCollectionOf(Nutrition::class)]
         public readonly DataCollection $nutritions,
-        DataCollection $itemModifierGroups,
-    ) {
+        #[DataCollectionOf(ItemModifierGroup::class)]
+        public DataCollection $itemModifierGroups
+    )
+    {
 
-        $filteredItems = $itemModifierGroups
+        $this->itemModifierGroups = $this->itemModifierGroups
             ->toCollection()
-            ->filter(fn (ItemModifierGroup $group) => !is_null($group->id))
+            ->filter(static fn (ItemModifierGroup $group) => ! is_null($group->id))
             ->values(); // Убираем возможные разрывы в индексах массива
 
         // Приводим к нужному типу внутри конструктора
-        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $filteredItems);
+        //        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $filteredItems);
     }
 
     public function toDomainEntity(): DomainItemSize
