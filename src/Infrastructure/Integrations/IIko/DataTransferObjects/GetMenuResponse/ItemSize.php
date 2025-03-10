@@ -40,11 +40,13 @@ final class ItemSize extends ResponseData
         public DataCollection $itemModifierGroups
     )
     {
+        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class,
+            $this->itemModifierGroups
+                ->toCollection()
+                ->filter(static fn (ItemModifierGroup $group) => ! is_null($group->id))
+                ->values()
+        );
 
-        $this->itemModifierGroups = $this->itemModifierGroups
-            ->toCollection()
-            ->filter(static fn (ItemModifierGroup $group) => ! is_null($group->id))
-            ->values(); // Убираем возможные разрывы в индексах массива
 
         // Приводим к нужному типу внутри конструктора
         //        $this->itemModifierGroups = new DataCollection(ItemModifierGroup::class, $filteredItems);

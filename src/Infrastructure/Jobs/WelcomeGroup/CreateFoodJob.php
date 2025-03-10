@@ -93,6 +93,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ->setInternalFoodCategoryId($foodCategory->id)
             ->setExternalFoodCategoryId($foodCategory->externalId);
 
+//        if ($foodBuilder->)
+
         $foodRequest = $foodBuilder->build();
 
         try {

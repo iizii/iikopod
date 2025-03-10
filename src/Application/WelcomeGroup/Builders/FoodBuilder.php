@@ -53,6 +53,12 @@ final class FoodBuilder
             throw new NutritionNotLoadedException();
         }
 
+        $caloricity = $nutrition->energy;
+
+        if (is_null($nutrition->energy) || $nutrition->energy <= 0) {
+            $caloricity = 1;
+        }
+
         return new self(
             new IntegerId(),
             $item->id,
@@ -63,7 +69,7 @@ final class FoodBuilder
             $item->name,
             $item->description,
             $itemSize->weight,
-            (int) $nutrition->energy,
+            (int) $caloricity,
             $price->price ?? 0,
         );
     }
