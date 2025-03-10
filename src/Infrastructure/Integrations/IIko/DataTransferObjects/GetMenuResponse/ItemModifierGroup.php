@@ -19,7 +19,7 @@ final class ItemModifierGroup extends ResponseData
      * @param  DataCollection<array-key, Item>  $items
      */
     public function __construct(
-        public readonly string $id,
+        public readonly ?string $id,
         public readonly string $name,
         public readonly string $description,
         public readonly Restriction $restrictions,
