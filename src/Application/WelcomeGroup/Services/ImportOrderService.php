@@ -420,8 +420,8 @@ final readonly class ImportOrderService
                         null,
                         new DeliveryPoint(
                             new Coordinates(
-                                (int) $address->latitude,
-                                (int) $address->longitude
+                                $address->latitude,
+                                $address->longitude
                             ),
                             new Address(
                                 $address->flat,
