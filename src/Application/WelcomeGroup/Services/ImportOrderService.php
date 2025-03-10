@@ -290,7 +290,7 @@ final readonly class ImportOrderService
                 $payment,
                 new \Domain\Orders\ValueObjects\Customer($client->name, CustomerType::NEW, $phone->number),
                 new ItemCollection($items),
-                new DeliveryPoint(
+                new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint(
                     new Coordinates(
                         (float) $deliveryPoint->latitude ?? null,
                         (float) $deliveryPoint->longitude ?? null
