@@ -292,31 +292,31 @@ final readonly class ImportOrderService
                 new ItemCollection($items),
                 new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint(
                     new Coordinates(
-                        (float) $deliveryPoint->latitude ?? null,
-                        (float) $deliveryPoint->longitude ?? null
+                        $address->latitude,
+                        $address->longitude
                     ),
                     new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Address(
                         new Street(
                             null,
                             null,
-                            $deliveryPoint->street,
+                            $address->street,
                             new City(
                                 null,
-                                $deliveryPoint->city,
+                                $address->city,
                             ),
                         ),
-                        $deliveryPoint->index,
-                        $deliveryPoint->house,
-                        $deliveryPoint->building,
-                        $deliveryPoint->flat,
-                        $deliveryPoint->entrance,
-                        $deliveryPoint->floor,
-                        $deliveryPoint->doorphone,
+                        null, //$deliveryPoint->index,
+                        $address->house,
+                        $address->building,
+                        $address->flat,
+                        $address->entry,
+                        $address->floor,
+                        null, //$address->doorphone,
                         new Region(
                             null,
-                            $deliveryPoint->region,
+                            $address->city,
                         ),
-                        $deliveryPoint->line1,
+                        null, //$deliveryPoint->line1,
 
                     ),
                     null,
