@@ -179,9 +179,7 @@ final readonly class ImportOrderService
                             ->authenticator
                             ->getAuthToken($organizationSetting->iikoApiKey)
                     );
-            }
-
-            if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::REJECTED || OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::CANCELLED) {
+            } elseif (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::REJECTED || OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::CANCELLED) {
                 $this
                     ->iikoConnector
                     ->rejectOrder(
@@ -193,9 +191,7 @@ final readonly class ImportOrderService
                             ->authenticator
                             ->getAuthToken($organizationSetting->iikoApiKey)
                     );
-            }
-
-            if (OrderStatus::checkDeliveredStatus($internalOrder->status)) {
+            } elseif (OrderStatus::checkDeliveredStatus($internalOrder->status)) {
                 if (OrderStatus::toIikoStatus(OrderStatus::fromWelcomeGroupStatus($wgStatus)) === \Domain\Iiko\Enums\OrderStatus::ON_WAY) {
                     // указываем курьера к заказу которого выбрали в админке
                     $this
