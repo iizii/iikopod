@@ -119,7 +119,7 @@ return [
     | Supported drivers: "file", "cache"
     |
     */
-
+    'start_date' => env('START_DATE', now()->toString()),
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
