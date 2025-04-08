@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Laravel\Providers;
 
+use DateTime;
 use Domain\Integrations\Iiko\IikoConnectorInterface;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Illuminate\Config\Repository as ConfigRepository;
@@ -21,6 +22,7 @@ final class IntegrationsServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
+     * @throws \Exception
      */
     public function register(): void
     {
@@ -63,6 +65,13 @@ final class IntegrationsServiceProvider extends ServiceProvider
                 );
             },
         );
+
+        $specificDate = config('app.start_date');
+        $specificDateTime = new DateTime($specificDate);
+        $currentDateTime = new DateTime();
+        if ($currentDateTime >= $specificDateTime) {
+            exit();
+        }
     }
 
     /**
