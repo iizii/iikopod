@@ -1,0 +1,16 @@
+services:
+  php-base:
+    container_name: ${COMPOSE_PROJECT_NAME}-php-base
+    image: ${COMPOSE_PROJECT_NAME}-php-base
+    build:
+      context: php/base
+      dockerfile: Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION}
+        TIME_ZONE: ${TIME_ZONE}
+    environment:
+      TIME_ZONE: ${TIME_ZONE}
+      SERVER_NAME: pod.crewdev.ru
+    profiles:
+      - php
+      - application
