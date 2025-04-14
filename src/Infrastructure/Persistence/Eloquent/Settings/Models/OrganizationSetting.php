@@ -9,12 +9,16 @@ use Domain\Settings\ValueObjects\PaymentType;
 use Domain\Settings\ValueObjects\PaymentTypeCollection;
 use Domain\Settings\ValueObjects\PriceCategory;
 use Domain\Settings\ValueObjects\PriceCategoryCollection;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Model;
+use Infrastructure\Observers\OrganizationSettingObserver;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ *
+ *
  * @property int $id
  * @property string $iiko_api_key
  * @property string $iiko_restaurant_id
@@ -29,7 +33,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Carbon\CarbonImmutable|null $updated_at
  * @property bool $block_orders
  * @property array|null $order_types
- *
+ * @property string|null $iiko_courier_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting query()
@@ -38,6 +42,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereExternalMenuId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereIikoApiKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereIikoCourierId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereIikoRestaurantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereOrderDeliveryTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereOrderPickupTypeId($value)
@@ -47,9 +52,10 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereWelcomeGroupDefaultWorkshopId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting whereWelcomeGroupRestaurantId($value)
- *
  * @mixin \Eloquent
  */
+
+#[ObservedBy([OrganizationSettingObserver::class])]
 final class OrganizationSetting extends Model
 {
     protected $fillable = [

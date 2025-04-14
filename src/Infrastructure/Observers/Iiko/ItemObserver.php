@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Observers\Iiko;
 
 use Domain\Iiko\Events\ItemCreatedEvent;
+use Domain\Iiko\Events\ItemDeletedEvent;
 use Domain\Iiko\Events\ItemUpdatedEvent;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Events\Dispatcher;
@@ -39,7 +40,9 @@ final readonly class ItemObserver implements ShouldHandleEventsAfterCommit
      */
     public function deleted(IikoMenuItem $iikoMenuItem): void
     {
-        //
+        $this
+            ->dispatcher
+            ->dispatch(new ItemDeletedEvent($iikoMenuItem));
     }
 
     /**

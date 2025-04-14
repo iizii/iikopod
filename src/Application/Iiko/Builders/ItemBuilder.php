@@ -26,6 +26,7 @@ final class ItemBuilder
         private ?int $weight,
         private PriceCollection $prices,
         private ItemSizeCollection $itemSizes,
+        private string $prefix,
     ) {}
 
     public static function fromExisted(Item $item): self
@@ -44,6 +45,7 @@ final class ItemBuilder
             $item->weight,
             $item->prices,
             $item->itemSizes,
+            ''
         );
     }
 
@@ -111,6 +113,14 @@ final class ItemBuilder
         return $clone;
     }
 
+    public function setPrefix(string $prefix = ''): ItemBuilder
+    {
+        $clone = clone $this;
+        $clone->prefix = $prefix;
+
+        return $clone;
+    }
+
     public function setPaymentSubject(?string $paymentSubject): ItemBuilder
     {
         $clone = clone $this;
@@ -153,12 +163,14 @@ final class ItemBuilder
 
     public function build(): Item
     {
+        $prefix = empty($this->prefix) ? '' : $this->prefix.' ';
+
         return new Item(
             $this->id,
             $this->itemGroupId,
             $this->externalId,
             $this->sku,
-            $this->name,
+            $prefix.$this->name,
             $this->description,
             $this->type,
             $this->measureUnit,

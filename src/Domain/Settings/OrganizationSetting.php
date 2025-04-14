@@ -32,6 +32,6 @@ final class OrganizationSetting extends DomainEntity
         public readonly PaymentTypeCollection $paymentTypes,
         public readonly PriceCategoryCollection $priceCategories,
         public readonly StringId $iikoCourierId,
-        public readonly array $oderTypes,
+        public readonly array $orderTypes,
     ) {}
 }

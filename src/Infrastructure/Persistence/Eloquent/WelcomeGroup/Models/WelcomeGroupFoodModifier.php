@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $welcome_group_food_id
  * @property int $welcome_group_modifier_id
@@ -26,7 +28,6 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood $food
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier|null $modifier
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier query()
@@ -42,7 +43,6 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereWelcomeGroupFoodId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodModifier whereWelcomeGroupModifierId($value)
- *
  * @mixin \Eloquent
  */
 final class WelcomeGroupFoodModifier extends Model

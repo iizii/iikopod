@@ -70,7 +70,7 @@ final class IikoMenuRepository extends AbstractPersistenceRepository implements 
     {
         $iikoMenu = $this->findEloquentByExternalId($menu->externalId) ?? new IikoMenu();
 
-        $iikoMenu->fromDomainEntity($menu);
+        $iikoMenu = $iikoMenu->fromDomainEntity($menu);
         $iikoMenu->save();
 
         return IikoMenu::toDomainEntity($iikoMenu);

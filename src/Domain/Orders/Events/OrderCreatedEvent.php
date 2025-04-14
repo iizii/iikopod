@@ -12,5 +12,5 @@ final class OrderCreatedEvent implements ShouldDispatchAfterCommit
 {
     use Dispatchable;
 
-    public function __construct(public readonly Order $order) {}
+    public function __construct(public readonly Order $order, public readonly string $sourceKey) {}
 }

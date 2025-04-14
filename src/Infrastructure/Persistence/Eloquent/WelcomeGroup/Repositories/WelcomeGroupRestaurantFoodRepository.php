@@ -67,8 +67,8 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
     {
         $result = $this
             ->query()
-            ->where('welcome_group_food_id', $internalFoodid->id)
-            ->where('welcome_group_restaurant_id', $internalRestaurantId->id)
+            ->where('food_id', $internalFoodid->id)
+            ->where('restaurant_id', $internalRestaurantId->id)
             ->first();
 
         if (! $result) {

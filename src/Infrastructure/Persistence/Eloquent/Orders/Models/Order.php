@@ -25,6 +25,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $organization_setting_id
  * @property string $source
@@ -41,7 +43,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read int|null $items_count
  * @property-read OrganizationSetting $organizationSetting
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment|null $payment
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
@@ -55,7 +56,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereWelcomeGroupExternalId($value)
- *
  * @mixin \Eloquent
  */
 final class Order extends Model

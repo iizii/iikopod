@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $order_item_id
  * @property int $iiko_menu_item_modifier_item_id
@@ -18,7 +20,6 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierIte
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read IikoMenuItemModifierItem $modifier
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem $orderItem
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier query()
@@ -27,7 +28,6 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierIte
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereIikoMenuItemModifierItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereOrderItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItemModifier whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class OrderItemModifier extends Model

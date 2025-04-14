@@ -188,6 +188,13 @@ return [
             'days' => 7,
         ],
 
+        'block_orders' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/iiko_webhook/block_orders.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 7,
+        ],
+
     ],
 
 ];

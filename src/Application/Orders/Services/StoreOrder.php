@@ -22,14 +22,14 @@ final readonly class StoreOrder
     /**
      * @throws \Throwable
      */
-    public function store(Order $order): Order
+    public function store(Order $order, string $sourceKey): Order
     {
         $this->databaseManager->beginTransaction();
 
         try {
             $order = $this->repository->store($order);
 
-            $this->dispatcher->dispatch(new OrderCreatedEvent($order));
+            $this->dispatcher->dispatch(new OrderCreatedEvent($order, $sourceKey));
 
             $this->databaseManager->commit();
 

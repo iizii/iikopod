@@ -14,6 +14,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $iiko_menu_item_modifier_group_id
  * @property string $external_id
@@ -30,7 +32,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierGroup $modifierGroup
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItemPrice> $prices
  * @property-read int|null $prices_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem query()
@@ -47,7 +48,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierItem whereWeight($value)
- *
  * @mixin \Eloquent
  */
 final class IikoMenuItemModifierItem extends Model

@@ -87,11 +87,14 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
         $foodRequestData = new EditFoodRequestData(
             $itemContext->category->id->id,
             $itemContext->organizationSetting->welcomeGroupDefaultWorkshopId->id,
-            $itemContext->food->name,
-            $itemContext->food->description,
-            $itemContext->food->weight,
+            $this->item->name,
+            $this->item->description,
+            $this->item->weight,
+//            $itemContext->food->description,
+//            $itemContext->food->weight,
             $itemContext->food->caloricity,
-            $itemContext->food->price,
+            $this->item->prices->first()->price,
+//            $itemContext->food->price,
         );
 
         try {
@@ -114,13 +117,15 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 
         // Получили размеры блюда с ценами, кбжу, модификаторами
         $iikoMenuItemSizes = $iikoMenuItemSizeRepository->findForWithAllRelations($itemContext->item);
+        logger('foood', [$itemContext->item->id]);
 
         $foodBuilder = FoodBuilder::fromExisted($foodResponse->toDomainEntity())
             ->setWorkshopId($itemContext->organizationSetting->welcomeGroupDefaultWorkshopId)
             ->setInternalFoodCategoryId($itemContext->category->id)
+            ->setIikoItemId($itemContext->item->id)
             ->setExternalFoodCategoryId($itemContext->category->externalId)
             ->setId($itemContext->food->id);
-
+//        logger('foodBuilder', [$foodBuilder]);
         $updatedFood = $welcomeGroupFoodRepository->update($foodBuilder->build());
 
         $food = $foodBuilder->build();
@@ -1086,9 +1091,13 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
         if (! $menu || ! $organizationSetting || ! $category) {
             return null;
         }
-
         $food = $foodRepository->findByIikoItemId($item->id); // Или соответствующий метод получения еды
-        $restaurantFood = $restaurantFoodRepository->findByInternalFoodAndRestaurantId($food->id, $organizationSetting->id);
+        $restaurantFood = $restaurantFoodRepository->findByInternalFoodAndRestaurantId($food->externalId, $organizationSetting->welcomeGroupRestaurantId);
+        logger('food, orgset', [
+            $food->toArray(),
+            $organizationSetting->toArray(),
+            $restaurantFood,
+        ]);
 
         return new ItemContext($item, $itemBuilder, $food, $organizationSetting, $category, $foodRepository, $restaurantFood);
     }

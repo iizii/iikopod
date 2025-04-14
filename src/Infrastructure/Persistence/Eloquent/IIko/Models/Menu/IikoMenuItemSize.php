@@ -15,6 +15,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $iiko_menu_item_id
  * @property string|null $external_id
@@ -31,7 +33,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read int|null $nutritions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemPrice> $prices
  * @property-read int|null $prices_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize query()
@@ -44,7 +45,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereSku($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemSize whereWeight($value)
- *
  * @mixin \Eloquent
  */
 final class IikoMenuItemSize extends Model

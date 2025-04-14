@@ -98,6 +98,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         $foodRequest = $foodBuilder->build();
 
         try {
+            logger("foodReq", [$foodRequest]);
             $foodResponse = $welcomeGroupConnector->createFood(
                 new CreateFoodRequestData(
                     $foodRequest->externalFoodCategoryId->id,
@@ -105,7 +106,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                     $foodRequest->name,
                     $foodRequest->description,
                     $foodRequest->weight,
-                    $foodRequest->caloricity,
+                    $foodRequest->caloricity < 1 ? 1 : $foodRequest->caloricity,
                     $foodRequest->price,
                 ),
             );

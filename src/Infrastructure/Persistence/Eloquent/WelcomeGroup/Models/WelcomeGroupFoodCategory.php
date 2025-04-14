@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $iiko_menu_item_group_id
  * @property int $external_id
@@ -18,7 +20,6 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood> $foods
  * @property-read int|null $foods_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory query()
@@ -28,7 +29,6 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereIikoMenuItemGroupId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupFoodCategory whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class WelcomeGroupFoodCategory extends Model

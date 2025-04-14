@@ -32,7 +32,7 @@ final class CreateOrderItemJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private readonly Order $order, public readonly Item $item)
+    public function __construct(private readonly Order $order, public readonly Item $item, public readonly string $sourceKey)
     {
         $this->queue = Queue::INTEGRATIONS->value;
     }

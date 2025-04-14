@@ -14,6 +14,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $iiko_menu_item_size_id
  * @property string $external_id
@@ -29,7 +31,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize $itemSize
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem> $items
  * @property-read int|null $items_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup query()
@@ -45,7 +46,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereSku($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereSplittable($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class IikoMenuItemModifierGroup extends Model

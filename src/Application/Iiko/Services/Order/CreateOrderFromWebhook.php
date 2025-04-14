@@ -23,6 +23,7 @@ use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Exceptions\OrganizationNotFoundException;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
+use Exception;
 use Illuminate\Support\ItemNotFoundException;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\EventData;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Items;
@@ -51,6 +52,8 @@ final readonly class CreateOrderFromWebhook
          * Фактически можно просто все передавать
          * Но справедливости ради отмечу, что чико работают обычно по полной оплате разом
         */
+        $existedOrder = $this->orderRepository->findByIikoId(new StringId($eventData->id));
+
         $eventPayment = $eventData
             ->order
             ->payments
@@ -69,6 +72,29 @@ final readonly class CreateOrderFromWebhook
             throw new OrganizationNotFoundException();
         }
 
+        if ($organization->blockOrders && ! $existedOrder) {
+            logger()
+                ->channel('block_orders')
+                ->warning(
+                    'Заказ не поступил в обработку т.к. у заведения стоит блок с модуле связи',
+                    $eventData->toArray(),
+                );
+
+            throw new Exception("Заказ {$eventData->id} не поступил в обработку т.к. у заведения стоит блок с модуле связи");
+        }
+
+        if (! in_array($eventData->order->orderType->id, $organization->orderTypes) && ! $existedOrder) {
+            logger()
+                ->channel('block_orders')
+                ->warning(
+                    'Заказ не поступил в обработку т.к. у него не соответствует тип заказа (его нет в перечне принимаемых типов в настройках ресторана модуля связи',
+                    $eventData->toArray(),
+                );
+
+            throw new Exception("Заказ {$eventData->id} не поступил в обработку т.к. у него не соответствует тип заказа (его нет в перечне принимаемых типов в настройках ресторана модуля связи");
+        }
+
+        //        $eventData->order->sourceKey
         $order = new Order(
             new IntegerId(),
             $organization->id,
@@ -131,8 +157,6 @@ final readonly class CreateOrderFromWebhook
                 $order->addItem($item);
             });
 
-        $existedOrder = $this->orderRepository->findByIikoId(new StringId($eventData->id));
-
         if ($existedOrder) {
             $orderBuilder = OrderBuilder::fromExisted($order);
             $order = $orderBuilder
@@ -144,10 +168,6 @@ final readonly class CreateOrderFromWebhook
             return;
         }
 
-        if (! $existedOrder && $organization->blockOrders) {
-            throw new RuntimeException("Новый заказ не был передан в под по причине блокировки заведения в модуле связи. Данные заказа: \n".$order->toJson());
-        }
-
-        $this->storeOrder->store($order);
+        $this->storeOrder->store($order, $eventData->order->sourceKey);
     }
 }

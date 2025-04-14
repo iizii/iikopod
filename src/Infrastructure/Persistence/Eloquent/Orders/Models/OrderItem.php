@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $order_id
  * @property int $iiko_menu_item_id
@@ -24,7 +26,6 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier> $modifiers
  * @property-read int|null $modifiers_count
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\Order $order
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem query()
@@ -37,7 +38,6 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class OrderItem extends Model

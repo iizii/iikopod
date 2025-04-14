@@ -13,6 +13,6 @@ final readonly class SendOrderListener
 
     public function handle(OrderCreatedEvent $orderCreatedEvent): void
     {
-        $this->orderSender->send($orderCreatedEvent->order);
+        $this->orderSender->send($orderCreatedEvent->order, $orderCreatedEvent->sourceKey);
     }
 }

@@ -57,18 +57,23 @@ final readonly class IikoImportMenuService
     ) {}
 
     /**
+     * Основной метод импорта меню из Iiko
+     *
      * @throws ConnectionException
      * @throws RequestException
      * @throws \Throwable
      */
     public function handle(): void
     {
+        // Получаем список всех организаций с настройками
         $organizations = $this->organizationSettingRepository->all();
 
         $organizations->each(function (OrganizationSetting $organizationSetting): void {
+            // Для каждой ценовой категории организации
             $organizationSetting->priceCategories->each(
                 function (PriceCategory $priceCategory) use ($organizationSetting): void {
                     try {
+                        // Запрашиваем меню из Iiko API
                         $responseEntity = $this
                             ->iikoConnector
                             ->getMenu(
@@ -79,8 +84,9 @@ final readonly class IikoImportMenuService
                                 ),
                                 $this->authenticator->getAuthToken($organizationSetting->iikoApiKey),
                             )
-                            ->toDomainEntity();
+                            ->toDomainEntity(); // Преобразуем DTO в доменную сущность
                     } catch (\Throwable $e) {
+                        // Обработка ошибок запроса
                         throw new \RuntimeException(
                             sprintf(
                                 'Не удалось получить меню из Iiko, для ресторана: %s, меню: %s, ценовая категория %s ошибка: %s',
@@ -92,6 +98,7 @@ final readonly class IikoImportMenuService
                         );
                     }
 
+                    // Сохраняем данные меню и связанных сущностей в транзакции
                     /**
                      * Обновление и создание меню не обсервится(на момент написания кода) и не вызывает
                      * при created|updated никаких последующих методов.
@@ -102,10 +109,13 @@ final readonly class IikoImportMenuService
                             $menuBuilder = MenuBuilder::fromExisted($responseEntity);
                             $menuBuilder = $menuBuilder->setOrganizationSettingId($organizationSetting->id);
 
+                            // Создание или обновление самого меню
                             $createdMenu = $this->menuRepository->createOrUpdate($menuBuilder->build());
 
+                            // Повторная установка ID созданного меню в билдер
                             $menuBuilder = $menuBuilder->setId($createdMenu->id);
 
+                            // Обработка групп блюд
                             $this->handleItemGroups($menuBuilder->build(), $priceCategory);
                         });
                 },
@@ -113,6 +123,9 @@ final readonly class IikoImportMenuService
         });
     }
 
+    /**
+     * Обработка групп блюд меню
+     */
     private function handleItemGroups(Menu $menu, PriceCategory $priceCategory): void
     {
         /**
@@ -124,36 +137,48 @@ final readonly class IikoImportMenuService
                 $itemGroupBuilder = ItemGroupBuilder::fromExisted($itemGroup);
                 $itemGroupBuilder = $itemGroupBuilder
                     ->setIikoMenuId($menu->id)
-                    ->setExternalId(new StringId(sprintf('%s:%s', $priceCategory->prefix, $itemGroup->externalId->id)))
+                    ->setExternalId(new StringId(sprintf('%s:%s', $priceCategory->prefix, $itemGroup->externalId->id))) // Тестово отказались ->setExternalId(new StringId(sprintf('%s:%s', $priceCategory->prefix, $itemGroup->externalId->id)))
                     ->setName(sprintf('%s %s', $priceCategory->prefix, $itemGroup->name));
 
+                // Создание/обновление группы
                 $createdGroup = $this->iikoMenuItemGroupRepository->createOrUpdate($itemGroupBuilder->build());
 
                 $itemGroupBuilder = $itemGroupBuilder->setId($createdGroup->id);
 
-                $this->handleItemGroupItems($itemGroupBuilder->build());
+                // Обработка блюд внутри группы
+                $this->handleItemGroupItems($itemGroupBuilder->build(), $priceCategory->prefix);
             });
     }
 
-    private function handleItemGroupItems(ItemGroup $itemGroup): void
+    /**
+     * Обработка блюд в группе
+     */
+    private function handleItemGroupItems(ItemGroup $itemGroup, string $priceCategoryPrefix): void
     {
         /**
          * IikoMenuItem обсервится и при update|create вызываются ивенты продолжающие выполнять связанный с этим местом код
          */
         $itemGroup
             ->items
-            ->each(function (Item $item) use ($itemGroup) {
+            ->each(function (Item $item) use ($itemGroup, $priceCategoryPrefix) {
                 $itemBuilder = ItemBuilder::fromExisted($item);
-                $itemBuilder = $itemBuilder->setItemGroupId($itemGroup->id);
+                $itemBuilder = $itemBuilder
+                    ->setItemGroupId($itemGroup->id)
+                    ->setPrefix($priceCategoryPrefix);
 
+                // Создание/обновление блюда
                 $createdItem = $this->iikoMenuItemRepository->createOrUpdate($itemBuilder->build());
 
                 $itemBuilder = $itemBuilder->setId($createdItem->id);
 
+                // Обработка размеров блюда
                 $this->handleItemGroupItemSizes($itemBuilder->build());
             });
     }
 
+    /**
+     * Обработка размеров блюда
+     */
     private function handleItemGroupItemSizes(Item $item): void
     {
         $item
@@ -162,18 +187,23 @@ final readonly class IikoImportMenuService
                 $itemSizeBuilder = ItemSizeBuilder::fromExisted($itemSize);
                 $itemSizeBuilder = $itemSizeBuilder->setItemId($item->id);
 
+                // Создание/обновление размера блюда
                 $createdItemSize = $this->iikoMenuItemSizeRepository->createOrUpdate($itemSizeBuilder->build());
 
                 $itemSize = $itemSizeBuilder
                     ->setId($createdItemSize->id)
                     ->build();
 
+                // Обработка цен, нутриентов и модификаторов
                 $this->handleItemSizePrices($itemSize);
                 $this->handleItemSizeNutritions($itemSize);
                 $this->handleItemModifierGroups($itemSize);
             });
     }
 
+    /**
+     * Обработка цен конкретного размера блюда
+     */
     private function handleItemSizePrices(ItemSize $itemSize): void
     {
         $itemSize
@@ -186,6 +216,9 @@ final readonly class IikoImportMenuService
             });
     }
 
+    /**
+     * Обработка нутриентов (белки, жиры, углеводы и т.п.)
+     */
     private function handleItemSizeNutritions(ItemSize $itemSize): void
     {
         $itemSize
@@ -198,6 +231,9 @@ final readonly class IikoImportMenuService
             });
     }
 
+    /**
+     * Обработка групп модификаторов (например: добавить сыр, убрать соус)
+     */
     private function handleItemModifierGroups(ItemSize $itemSize): void
     {
         $itemSize
@@ -212,10 +248,14 @@ final readonly class IikoImportMenuService
 
                 $itemModifierBuilder = $itemModifierBuilder->setId($createdModifierGroup->id);
 
+                // Обработка модификаторов внутри группы
                 $this->handleModifierItems($itemModifierBuilder->build());
             });
     }
 
+    /**
+     * Обработка самих модификаторов (например: сыр, бекон, соус)
+     */
     private function handleModifierItems(ItemModifierGroup $modifierGroup): void
     {
         $modifierGroup
@@ -228,10 +268,14 @@ final readonly class IikoImportMenuService
 
                 $itemBuilder = $itemBuilder->setId($createdItem->id);
 
+                // Обработка цен модификатора
                 $this->handleModifierItemPrices($itemBuilder->build());
             });
     }
 
+    /**
+     * Обработка цен для модификатора
+     */
     private function handleModifierItemPrices(Item $item): void
     {
         $item

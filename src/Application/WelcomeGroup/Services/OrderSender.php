@@ -16,14 +16,14 @@ final readonly class OrderSender
 {
     public function __construct(private Dispatcher $dispatcher) {}
 
-    public function send(Order $order): void
+    public function send(Order $order, string $sourceKey): void
     {
         $jobCollection = new Collection();
         $jobCollection->add(new CreateOrderJob($order));
 
         $order
             ->items
-            ->each(static fn (Item $item) => $jobCollection->add(new CreateOrderItemJob($order, $item)));
+            ->each(static fn (Item $item) => $jobCollection->add(new CreateOrderItemJob($order, $item, $sourceKey)));
 
         $jobCollection->add(new CreateOrderPaymentJob($order));
 

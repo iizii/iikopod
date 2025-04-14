@@ -8,6 +8,7 @@ use Application\Iiko\Events\DeliveryOrderErrorEvent;
 use Application\Iiko\Events\DeliveryOrderUpdateEvent;
 use Application\Iiko\Events\StopListUpdateEvent;
 use Domain\Iiko\Events\ItemCreatedEvent;
+use Domain\Iiko\Events\ItemDeletedEvent;
 use Domain\Iiko\Events\ItemGroupCreatedEvent;
 use Domain\Iiko\Events\ItemGroupUpdatedEvent;
 use Domain\Iiko\Events\ItemUpdatedEvent;
@@ -19,6 +20,7 @@ use Infrastructure\Listeners\Iiko\DeliveryOrderUpdateListener;
 use Infrastructure\Listeners\Iiko\StopListUpdateListener;
 use Infrastructure\Listeners\WelcomeGroup\SendCreatedFoodCategoryListener;
 use Infrastructure\Listeners\WelcomeGroup\SendCreatedFoodListener;
+use Infrastructure\Listeners\WelcomeGroup\SendDeletedFoodListener;
 use Infrastructure\Listeners\WelcomeGroup\SendOrderListener;
 use Infrastructure\Listeners\WelcomeGroup\SendUpdatedFoodCategoryListener;
 use Infrastructure\Listeners\WelcomeGroup\SendUpdatedFoodListener;
@@ -41,6 +43,9 @@ final class EventServiceProvider extends LaravelEventServiceProvider
         ],
         ItemCreatedEvent::class => [
             SendCreatedFoodListener::class,
+        ],
+        ItemDeletedEvent::class => [
+            SendDeletedFoodListener::class,
         ],
         OrderCreatedEvent::class => [
             SendOrderListener::class,

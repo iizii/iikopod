@@ -141,7 +141,8 @@ final class EditOrganizationSetting extends EditRecord
                         $data['price_categories'],
                     ),
                 ),
-            ),
+                new StringId($data['iiko_courier_id']),
+                (array) $data['order_types']            ),
         );
     }
 }

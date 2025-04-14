@@ -12,6 +12,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $welcome_group_modifier_type_id
  * @property int $iiko_menu_item_modifier_item_id
@@ -24,7 +26,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @property string $iiko_external_modifier_id
  * @property-read IikoMenuItemModifierItem $iikoModifier
  * @property-read \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType $modifierType
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier query()
@@ -38,7 +39,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WelcomeGroupModifier whereWelcomeGroupModifierTypeId($value)
- *
  * @mixin \Eloquent
  */
 final class WelcomeGroupModifier extends Model
