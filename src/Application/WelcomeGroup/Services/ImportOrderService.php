@@ -157,6 +157,13 @@ final readonly class ImportOrderService
         if ($order->id < config('app.order_before_which_to_skip_all_orders')) {
             return;
         }
+
+        $wgStatus = \Domain\WelcomeGroup\Enums\OrderStatus::from($order->status);
+
+        if ($wgStatus === \Domain\WelcomeGroup\Enums\OrderStatus::NEW) {
+            return; // Заказы со статусом новый не обрабатываются по указанию Сергея
+        }
+
         $internalOrder = $this->orderRepository->findByWelcomeGroupId(new IntegerId($order->id));
 
         if ($internalOrder) {
@@ -165,7 +172,6 @@ final readonly class ImportOrderService
                 'timestamp' => $timestamp,
             ]);
 
-            $wgStatus = \Domain\WelcomeGroup\Enums\OrderStatus::from($order->status);
 
             if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::FINISHED) {
                 $this
