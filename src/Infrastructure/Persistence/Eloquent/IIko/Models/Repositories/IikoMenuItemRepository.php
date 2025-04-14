@@ -66,13 +66,6 @@ final class IikoMenuItemRepository extends AbstractPersistenceRepository impleme
             $item->externalId,
         ) ?? new IikoMenuItem();
 
-        logger('Найденная модель айтема', [
-            $this->findEloquentByMenuIdAndExternalId(
-                $item->itemGroupId,
-                $item->externalId,
-            )->toArray()
-        ]);
-
         $iikoItem->fromDomainEntity($item);
         $iikoItem->save();
 
