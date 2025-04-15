@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $iiko_menu_item_group_id
@@ -56,7 +56,17 @@ final class WelcomeGroupFoodCategory extends Model
         ]);
     }
 
-    public static function toDomainEntity(self $iikoMenuItemModifierGroup): FoodCategory
+    public function toDomainEntity(): FoodCategory
+    {
+        return new FoodCategory(
+            new IntegerId($this->id),
+            new IntegerId($this->iiko_menu_item_group_id),
+            new IntegerId($this->external_id),
+            $this->name,
+        );
+    }
+
+    public static function toDomainEntityStatic(self $iikoMenuItemModifierGroup): FoodCategory
     {
         return new FoodCategory(
             new IntegerId($iikoMenuItemModifierGroup->id),

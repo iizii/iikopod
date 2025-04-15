@@ -87,7 +87,24 @@ final class WelcomeGroupFood extends Model
         ]);
     }
 
-    public static function toDomainEntity(self $iikoMenuItemModifierGroup): Food
+    public function toDomainEntity(): Food
+    {
+        return new Food(
+            new IntegerId($this->id),
+            new IntegerId($this->iiko_menu_item_id),
+            new IntegerId($this->welcome_group_food_category_id),
+            new IntegerId($this->external_id),
+            new IntegerId($this->external_food_category_id),
+            new IntegerId($this->workshop_id),
+            $this->name,
+            $this->description,
+            $this->weight,
+            $this->caloricity,
+            $this->price,
+        );
+    }
+
+    public static function toDomainEntityStatic(self $iikoMenuItemModifierGroup): Food
     {
         return new Food(
             new IntegerId($iikoMenuItemModifierGroup->id),

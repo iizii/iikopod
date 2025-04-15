@@ -22,7 +22,7 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
         $welcomeGroupRestaurantFood->fromDomainEntity($restaurantFood);
         $welcomeGroupRestaurantFood->save();
 
-        return WelcomeGroupRestaurantFood::toDomainEntity($welcomeGroupRestaurantFood);
+        return WelcomeGroupRestaurantFood::toDomainEntityStatic($welcomeGroupRestaurantFood);
     }
 
     public function update(RestaurantFood $restaurantFood): ?RestaurantFood
@@ -38,7 +38,7 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
 //        $welcomeGroupRestaurantFood->id = $restaurantFood->id->id;
         $welcomeGroupRestaurantFood->save();
 
-        return WelcomeGroupRestaurantFood::toDomainEntity($welcomeGroupRestaurantFood);
+        return WelcomeGroupRestaurantFood::toDomainEntityStatic($welcomeGroupRestaurantFood);
     }
 
     public function findById(IntegerId $integerId): ?RestaurantFood
@@ -51,7 +51,7 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
             return null;
         }
 
-        return WelcomeGroupRestaurantFood::toDomainEntity($result);
+        return WelcomeGroupRestaurantFood::toDomainEntityStatic($result);
     }
 
     public function findByExternalFoodId(IntegerId $id): ?RestaurantFood
@@ -65,7 +65,7 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
             return null;
         }
 
-        return WelcomeGroupRestaurantFood::toDomainEntity($result);
+        return WelcomeGroupRestaurantFood::toDomainEntityStatic($result);
     }
 
     public function findByInternalFoodAndRestaurantId(IntegerId $internalFoodid, IntegerId $internalRestaurantId): ?RestaurantFood
@@ -81,6 +81,6 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
             return null;
         }
 
-        return WelcomeGroupRestaurantFood::toDomainEntity($result);
+        return WelcomeGroupRestaurantFood::toDomainEntityStatic($result);
     }
 }

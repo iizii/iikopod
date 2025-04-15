@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $welcome_group_restaurant_id
@@ -55,14 +55,28 @@ final class WelcomeGroupRestaurantModifier extends Model
             'external_id' => $restaurantModifier->externalId->id,
             'welcome_group_restaurant_id' => $restaurantModifier->welcomeGroupRestaurantId->id,
             'restaurant_id' => $restaurantModifier->restaurantId->id,
-            'welcome_group_modifier_id' => $restaurantModifier->modifierId->id,
+            'welcome_group_modifier_id' => $restaurantModifier->welcomeGroupModifierId->id,
             'modifier_id' => $restaurantModifier->modifierId->id,
             'status' => $restaurantModifier->status,
             'status_comment' => $restaurantModifier->statusComment,
         ]);
     }
 
-    public static function toDomainEntity(self $restaurantModifier): RestaurantModifier
+    public function toDomainEntity(): RestaurantModifier
+    {
+        return new RestaurantModifier(
+            new IntegerId($this->id),
+            new IntegerId($this->restaurant_id),
+            new IntegerId($this->modifier_id),
+            new IntegerId($this->external_id),
+            new IntegerId($this->welcome_group_restaurant_id),
+            new IntegerId($this->welcome_group_modifier_id),
+            $this->status_comment,
+            $this->status,
+        );
+    }
+
+    public static function toDomainEntityStatic(self $restaurantModifier): RestaurantModifier
     {
         return new RestaurantModifier(
             new IntegerId($restaurantModifier->id),

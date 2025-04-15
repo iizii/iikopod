@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\WelcomeGroup\Repositories;
 
-use _PHPStan_6dcda722c\Nette\Neon\Exception;
 use Domain\WelcomeGroup\Entities\FoodModifier;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepositoryInterface;
+use Exception;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodModifier;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
@@ -23,7 +23,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
         $welcomeGroupFoodModifier->fromDomainEntity($foodModifier);
         $welcomeGroupFoodModifier->save();
 
-        return WelcomeGroupFoodModifier::toDomainEntity($welcomeGroupFoodModifier);
+        return WelcomeGroupFoodModifier::toDomainEntityStatic($welcomeGroupFoodModifier);
     }
 
     public function findByInternalFoodAndModifierIds(IntegerId $internalFoodId, IntegerId $internalModifierId): ?FoodModifier
@@ -38,7 +38,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return WelcomeGroupFoodModifier::toDomainEntity($result);
+        return WelcomeGroupFoodModifier::toDomainEntityStatic($result);
 
     }
 
@@ -54,7 +54,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return WelcomeGroupFoodModifier::toDomainEntity($result);
+        return WelcomeGroupFoodModifier::toDomainEntityStatic($result);
 
     }
 
@@ -69,7 +69,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return WelcomeGroupFoodModifier::toDomainEntity($result);
+        return WelcomeGroupFoodModifier::toDomainEntityStatic($result);
 
     }
 
@@ -83,7 +83,7 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return WelcomeGroupFoodModifier::toDomainEntity($result);
+        return WelcomeGroupFoodModifier::toDomainEntityStatic($result);
 
     }
 
@@ -109,6 +109,6 @@ final class WelcomeGroupFoodModifierRepository extends AbstractPersistenceReposi
         $welcomeGroupFoodModifier->fromDomainEntity($foodModifier);
         $welcomeGroupFoodModifier->save();
 
-        return WelcomeGroupFoodModifier::toDomainEntity($welcomeGroupFoodModifier);
+        return WelcomeGroupFoodModifier::toDomainEntityStatic($welcomeGroupFoodModifier);
     }
 }

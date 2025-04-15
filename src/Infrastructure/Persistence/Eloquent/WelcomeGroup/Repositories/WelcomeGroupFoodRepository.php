@@ -23,7 +23,7 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
         $welcomeGroupFood->fromDomainEntity($food);
         $welcomeGroupFood->save();
 
-        return WelcomeGroupFood::toDomainEntity($welcomeGroupFood);
+        return WelcomeGroupFood::toDomainEntityStatic($welcomeGroupFood);
     }
 
     public function findById(IntegerId $integerId): ?Food
@@ -36,7 +36,7 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
             return null;
         }
 
-        return WelcomeGroupFood::toDomainEntity($result);
+        return WelcomeGroupFood::toDomainEntityStatic($result);
     }
 
     public function findByIikoItemId(IntegerId $integerId): ?Food
@@ -50,7 +50,7 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
             return null;
         }
 
-        return WelcomeGroupFood::toDomainEntity($result);
+        return WelcomeGroupFood::toDomainEntityStatic($result);
     }
 
     public function update(Food $food): Food
@@ -63,7 +63,7 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
         $currentFood->fromDomainEntity($food);
         $currentFood->save();
 
-        return WelcomeGroupFood::toDomainEntity($currentFood);
+        return WelcomeGroupFood::toDomainEntityStatic($currentFood);
     }
 
 
@@ -81,6 +81,6 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
             return null;
         }
 
-        return WelcomeGroupFood::toDomainEntity($welcomeGroupFood);
+        return WelcomeGroupFood::toDomainEntityStatic($welcomeGroupFood);
     }
 }

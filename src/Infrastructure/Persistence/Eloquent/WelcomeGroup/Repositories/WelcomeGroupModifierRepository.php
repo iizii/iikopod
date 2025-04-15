@@ -24,7 +24,7 @@ final class WelcomeGroupModifierRepository extends AbstractPersistenceRepository
         $welcomeGroupModifier->fromDomainEntity($modifier);
         $welcomeGroupModifier->save();
 
-        return WelcomeGroupModifier::toDomainEntity($welcomeGroupModifier);
+        return WelcomeGroupModifier::toDomainEntityStatic($welcomeGroupModifier);
     }
 
     public function findByIikoId(IntegerId $id): ?Modifier
@@ -38,18 +38,19 @@ final class WelcomeGroupModifierRepository extends AbstractPersistenceRepository
             return null;
         }
 
-        return WelcomeGroupModifier::toDomainEntity($welcomeGroupModifier);
+        return WelcomeGroupModifier::toDomainEntityStatic($welcomeGroupModifier);
     }
 
     public function update(Modifier $modifier): Modifier
     {
-        $welcomeGroupModifier = new WelcomeGroupModifier();
+        $welcomeGroupModifier = $this
+            ->query()
+            ->find($modifier->id->id) ?? new WelcomeGroupModifier();
 
         $welcomeGroupModifier->fromDomainEntity($modifier);
-        $welcomeGroupModifier->id = $modifier->id->id;
         $welcomeGroupModifier->save();
 
-        return WelcomeGroupModifier::toDomainEntity($welcomeGroupModifier);
+        return WelcomeGroupModifier::toDomainEntityStatic($welcomeGroupModifier);
     }
 
     public function findById(IntegerId $id): ?Modifier
@@ -60,7 +61,7 @@ final class WelcomeGroupModifierRepository extends AbstractPersistenceRepository
             return null;
         }
 
-        return WelcomeGroupModifier::toDomainEntity($result);
+        return WelcomeGroupModifier::toDomainEntityStatic($result);
     }
 
     public function findByInternalModifierTypeIdAndIikoExternalId(IntegerId $internalModifierTypeId, StringId $externalIikoModifierId): ?Modifier
@@ -75,6 +76,6 @@ final class WelcomeGroupModifierRepository extends AbstractPersistenceRepository
             return null;
         }
 
-        return WelcomeGroupModifier::toDomainEntity($result);
+        return WelcomeGroupModifier::toDomainEntityStatic($result);
     }
 }

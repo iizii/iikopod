@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $welcome_group_food_id
@@ -94,7 +94,23 @@ final class WelcomeGroupFoodModifier extends Model
         ]);
     }
 
-    public static function toDomainEntity(self $modifier): FoodModifier
+    public function toDomainEntity(): FoodModifier
+    {
+        return new FoodModifier(
+            new IntegerId($this->id),
+            new IntegerId($this->welcome_group_food_id),
+            new IntegerId($this->welcome_group_modifier_id),
+            new IntegerId($this->external_id),
+            new IntegerId($this->external_food_id),
+            new IntegerId($this->external_modifier_id),
+            $this->weight,
+            $this->caloricity,
+            $this->price,
+            $this->duration,
+        );
+    }
+
+    public static function toDomainEntityStatic(self $modifier): FoodModifier
     {
         return new FoodModifier(
             new IntegerId($modifier->id),

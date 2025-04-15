@@ -12,7 +12,7 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $welcome_group_modifier_type_id
@@ -90,7 +90,21 @@ final class WelcomeGroupModifier extends Model
         ]);
     }
 
-    public static function toDomainEntity(self $modifier): Modifier
+    public function toDomainEntity(): Modifier
+    {
+        return new Modifier(
+            new IntegerId($this->id),
+            new IntegerId($this->welcome_group_modifier_type_id),
+            new IntegerId($this->iiko_menu_item_modifier_item_id),
+            new IntegerId($this->external_id),
+            new IntegerId($this->external_modifier_type_id),
+            new StringId($this->iiko_external_modifier_id),
+            $this->name,
+            $this->is_default,
+        );
+    }
+
+    public static function toDomainEntityStatic(self $modifier): Modifier
     {
         return new Modifier(
             new IntegerId($modifier->id),

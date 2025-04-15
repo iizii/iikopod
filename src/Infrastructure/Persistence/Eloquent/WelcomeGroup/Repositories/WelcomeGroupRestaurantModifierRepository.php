@@ -22,7 +22,7 @@ final class WelcomeGroupRestaurantModifierRepository extends AbstractPersistence
         $welcomeGroupRestaurantModifier->fromDomainEntity($restaurantModifier);
         $welcomeGroupRestaurantModifier->save();
 
-        return WelcomeGroupRestaurantModifier::toDomainEntity($welcomeGroupRestaurantModifier);
+        return WelcomeGroupRestaurantModifier::toDomainEntityStatic($welcomeGroupRestaurantModifier);
     }
 
     public function findById(IntegerId $integerId): ?RestaurantModifier
@@ -37,8 +37,8 @@ final class WelcomeGroupRestaurantModifierRepository extends AbstractPersistence
     {
         return $this
             ->query()
-            ->where('welcome_group_restaurant_id', $internalRestaurantId->id)
-            ->where('welcome_group_modifier_id', $internalModifierId->id)
+            ->where('restaurant_id', $internalRestaurantId->id)
+            ->where('modifier_id', $internalModifierId->id)
             ->first()
             ?->toDomainEntity();
     }
@@ -53,12 +53,13 @@ final class WelcomeGroupRestaurantModifierRepository extends AbstractPersistence
 
     public function update(RestaurantModifier $restaurantModifier): RestaurantModifier
     {
-        $welcomeGroupRestaurantModifier = new WelcomeGroupRestaurantModifier();
+        $welcomeGroupRestaurantModifier = $this
+            ->query()
+            ->find($restaurantModifier->id->id) ?? new WelcomeGroupRestaurantModifier();
 
         $welcomeGroupRestaurantModifier->fromDomainEntity($restaurantModifier);
-        $welcomeGroupRestaurantModifier->id = $restaurantModifier->id->id;
         $welcomeGroupRestaurantModifier->save();
 
-        return WelcomeGroupRestaurantModifier::toDomainEntity($welcomeGroupRestaurantModifier);
+        return WelcomeGroupRestaurantModifier::toDomainEntityStatic($welcomeGroupRestaurantModifier);
     }
 }

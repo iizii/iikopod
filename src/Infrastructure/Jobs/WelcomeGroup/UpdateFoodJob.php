@@ -256,7 +256,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 
                                 $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity())
                                     ->setId(new IntegerId($modifierType->id))
-                                    ->setIikoMenuItemModifierGroupId(new IntegerId($modifierGroup->id->id));
+                                    ->setIikoMenuItemModifierGroupId($modifierGroup->id);
 
                                 // Закончили обновление типа модификатора
                                 $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
@@ -315,6 +315,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                             $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity())
                                                 ->setExternalId(new IntegerId($modifierResponse->id))
                                                 ->setInternalModifierTypeId($modifierType->id)
+                                                ->setInternalIikoItemId($item->id)
                                                 ->setIikoExternalModifierId($item->externalId);
                                             // Сохраняем модификатор в нашу базу
                                             $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
@@ -445,7 +446,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 
                             $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity())
                                 ->setId(new IntegerId($modifierType->id))
-                                ->setIikoMenuItemModifierGroupId(new IntegerId($modifierGroup->id->id));
+                                ->setIikoMenuItemModifierGroupId($modifierGroup->id);
 
                             // Закончили обновление типа модификатора
                             $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
@@ -485,6 +486,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                         $modifierBuilder = ModifierBuilder::fromExisted($updateModifierResponse->toDomainEntity())
                                             ->setExternalId(new IntegerId($updateModifierResponse->id))
                                             ->setIikoExternalModifierId($item->externalId)
+                                            ->setInternalIikoItemId($item->id)
                                             ->setInternalModifierTypeId($modifierType->id)
                                             ->setId($modifier->id);
 
@@ -503,6 +505,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 
                                         $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity())
                                             ->setExternalId(new IntegerId($modifierResponse->id))
+                                            ->setInternalIikoItemId($item->id)
                                             ->setInternalModifierTypeId($modifierType->id)
                                             ->setIikoExternalModifierId($item->externalId);
                                         // Сохраняем модификатор в нашу базу
@@ -591,8 +594,8 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                             );
 
                         $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity());
-                        $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
-                        $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
+                        $modifierTypeBuilder = $modifierTypeBuilder->setId(new IntegerId($modifierType->id))
+                            ->setIikoMenuItemModifierGroupId($modifierGroup->id);
 
                         // Обновили тип модификатора
                         $welcomeGroupModifierTypeRepository->update($modifierTypeBuilder->build());
@@ -856,8 +859,8 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                             );
 
                         $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($updatedModifierTypeResponse->toDomainEntity());
-                        $modifierTypeBuilder->setId(new IntegerId($modifierType->id));
-                        $modifierTypeBuilder->setIikoMenuItemModifierGroupId(new IntegerId($modifierType->id));
+                        $modifierTypeBuilder = $modifierTypeBuilder->setId(new IntegerId($modifierType->id))
+                            ->setIikoMenuItemModifierGroupId($modifierGroup->id);
 
                         // Обновили тип модификатора
                         $welcomeGroupModifierTypeRepository->update($modifierTypeBuilder->build());
@@ -898,11 +901,12 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 //                                        ->setExternalId(new IntegerId($updateModifierResponse->id))
                                         ->setIikoExternalModifierId($item->externalId)
                                         ->setInternalModifierTypeId($modifierType->id)
+                                        ->setInternalIikoItemId($item->id)
                                         ->setId($modifier->id);
 
                                     $modifier = $modifierBuilder->build();
                                     // Сохраняем обновлённый модификатор во внутреннюю таблицу WG
-                                    $updatedModifier = $welcomeGroupModifierRepository->update($modifier);
+                                    $welcomeGroupModifierRepository->update($modifier);
                                 } else {
                                     // Если модификатор не был найден, то создаём его в вг и внутренней базе
                                     $modifierResponse = $welcomeGroupConnector->createModifier(

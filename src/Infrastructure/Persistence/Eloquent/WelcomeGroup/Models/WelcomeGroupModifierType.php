@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $external_id
@@ -53,7 +53,18 @@ final class WelcomeGroupModifierType extends Model
         ]);
     }
 
-    public static function toDomainEntity(self $groupModifierType): ModifierType
+    public function toDomainEntity(): ModifierType
+    {
+        return new ModifierType(
+            new IntegerId($this->id),
+            new IntegerId($this->external_id),
+            new IntegerId($this->iiko_menu_item_modifier_group_id),
+            $this->name,
+            ModifierTypeBehaviour::from($this->behaviour),
+        );
+    }
+
+    public static function toDomainEntityStatic(self $groupModifierType): ModifierType
     {
         return new ModifierType(
             new IntegerId($groupModifierType->id),

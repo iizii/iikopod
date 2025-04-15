@@ -62,7 +62,21 @@ final class WelcomeGroupRestaurantFood extends Model
         ]);
     }
 
-    public static function toDomainEntity(self $restaurantFood): RestaurantFood
+    public function toDomainEntity(): RestaurantFood
+    {
+        return new RestaurantFood(
+            new IntegerId($this->id),
+            new IntegerId($this->restaurant_id),
+            new IntegerId($this->food_id),
+            new IntegerId($this->external_id),
+            new IntegerId($this->welcome_group_restaurant_id),
+            new IntegerId($this->welcome_group_food_id),
+            $this->status_comment,
+            $this->status,
+        );
+    }
+
+    public static function toDomainEntityStatic(self $restaurantFood): RestaurantFood
     {
         return new RestaurantFood(
             new IntegerId($restaurantFood->id),

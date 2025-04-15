@@ -24,18 +24,18 @@ final class WelcomeGroupModifierTypeRepository extends AbstractPersistenceReposi
         $welcomeGroupModifierType->fromDomainEntity($modifierType);
         $welcomeGroupModifierType->save();
 
-        return WelcomeGroupModifierType::toDomainEntity($welcomeGroupModifierType);
+        return WelcomeGroupModifierType::toDomainEntityStatic($welcomeGroupModifierType);
     }
 
     public function update(ModifierType $modifierType): ModifierType
     {
-        $welcomeGroupModifierType = new WelcomeGroupModifierType();
+        $welcomeGroupModifierType = $this->query()
+            ->find($modifierType->id->id) ?? new WelcomeGroupModifierType();
 
         $welcomeGroupModifierType->fromDomainEntity($modifierType);
-        $welcomeGroupModifierType->id = $modifierType->id->id;
         $welcomeGroupModifierType->save();
 
-        return WelcomeGroupModifierType::toDomainEntity($welcomeGroupModifierType);
+        return WelcomeGroupModifierType::toDomainEntityStatic($welcomeGroupModifierType);
     }
 
     public function getByIikoModifierGroupIdAndName(IntegerId $iikoModifierGroupId, string $groupName): Collection

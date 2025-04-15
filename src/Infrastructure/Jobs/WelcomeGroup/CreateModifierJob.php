@@ -62,11 +62,11 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
             ->setInternalModifierTypeId($this->modifierType->id);
 
         $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
-        $modifier = $modifierBuilder->setId($createdModifier->id);
-
+        $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
+        $modifier = $modifierBuilder->build();
         $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
             new CreateRestaurantModifierRequestData(
-                $this->organizationSetting->id->id,
+                $this->organizationSetting->welcomeGroupRestaurantId->id,
                 $createdModifier->externalId->id
             )
         );
@@ -74,15 +74,17 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
         $restaurantModifier = $restaurantModifierBuilder
             ->setWelcomeGroupRestaurantId($this->organizationSetting->welcomeGroupRestaurantId)
-            ->setWelcomeGroupModifierId($createdModifier->id);
+            ->setRestaurantId($this->organizationSetting->id)
+            ->setModifierId($modifier->id)
+            ->setWelcomeGroupModifierId($createdModifier->externalId);
 
-        $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+        $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
 
         $dispatcher->dispatch(
             new CreateFoodModifierJob(
                 $this->food,
                 $this->item,
-                $modifier->build(),
+                $modifier,
             ),
         );
     }

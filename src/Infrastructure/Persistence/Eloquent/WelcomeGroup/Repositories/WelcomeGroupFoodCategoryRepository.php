@@ -23,7 +23,7 @@ final class WelcomeGroupFoodCategoryRepository extends AbstractPersistenceReposi
         $welcomeGroupFoodCategory->fromDomainEntity($foodCategory);
         $welcomeGroupFoodCategory->save();
 
-        return WelcomeGroupFoodCategory::toDomainEntity($welcomeGroupFoodCategory);
+        return WelcomeGroupFoodCategory::toDomainEntityStatic($welcomeGroupFoodCategory);
     }
 
     public function update(FoodCategory $foodCategory): FoodCategory
@@ -37,7 +37,7 @@ final class WelcomeGroupFoodCategoryRepository extends AbstractPersistenceReposi
         $welcomeGroupFoodCategory->fromDomainEntity($foodCategory);
         $welcomeGroupFoodCategory->save();
 
-        return WelcomeGroupFoodCategory::toDomainEntity($welcomeGroupFoodCategory);
+        return WelcomeGroupFoodCategory::toDomainEntityStatic($welcomeGroupFoodCategory);
     }
 
     public function findByIikoMenuItemGroupId(IntegerId $id): ?FoodCategory
@@ -51,6 +51,6 @@ final class WelcomeGroupFoodCategoryRepository extends AbstractPersistenceReposi
             return null;
         }
 
-        return WelcomeGroupFoodCategory::toDomainEntity($welcomeGroupFoodCategory);
+        return WelcomeGroupFoodCategory::toDomainEntityStatic($welcomeGroupFoodCategory);
     }
 }
