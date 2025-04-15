@@ -94,7 +94,12 @@ final readonly class CreateOrderFromWebhook
             throw new Exception("Заказ {$eventData->id} не поступил в обработку т.к. у него не соответствует тип заказа (его нет в перечне принимаемых типов в настройках ресторана модуля связи");
         }
 
-        //        $eventData->order->sourceKey
+        $targetUser = $eventData->order->sourceKey;
+
+        $matched = collect($organization->price_categories->toArray())->first(function ($item) use ($targetUser) {
+            return in_array($targetUser, $item['menu_users']);
+        });
+
         $order = new Order(
             new IntegerId(),
             $organization->id,
@@ -118,8 +123,8 @@ final readonly class CreateOrderFromWebhook
             ->order
             ->items
             ->toCollection()
-            ->each(function (Items $items) use ($order): void {
-                $iikoItem = $this->menuItemRepository->findByExternalId(new StringId($items->product->id));
+            ->each(function (Items $items) use ($order, $matched): void {
+                $iikoItem = $this->menuItemRepository->findByExternalIdAndSourceKey(new StringId($items->product->id), $matched['prefix']);
 
                 if (! $iikoItem) {
                     throw new ItemNotFoundException(sprintf('Iiko item not found for %s', $items->product->name));

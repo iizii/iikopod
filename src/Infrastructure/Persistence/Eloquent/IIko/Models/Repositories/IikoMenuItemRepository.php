@@ -41,6 +41,21 @@ final class IikoMenuItemRepository extends AbstractPersistenceRepository impleme
         return IikoMenuItem::toDomainEntity($result);
     }
 
+    public function findByExternalIdAndSourceKey(StringId $id, string $sourceKey): ?Item
+    {
+        $result = $this
+            ->query()
+            ->where('external_id', $id->id)
+            ->where('name', 'LIKE', $sourceKey)
+            ->first();
+
+        if (! $result) {
+            return null;
+        }
+
+        return IikoMenuItem::toDomainEntity($result);
+    }
+
     //    public function getAllItemsByExternalId(StringId $id)
     //    {
     //        $result = $this
