@@ -25,7 +25,6 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
  *
  * @property int $id
  * @property int $organization_setting_id

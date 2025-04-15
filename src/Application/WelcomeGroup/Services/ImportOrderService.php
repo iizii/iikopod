@@ -327,6 +327,17 @@ final readonly class ImportOrderService
                 $deliveryTime,
             );
 
+            if ($newOrder->payment) {
+                $paymentTypes = $organizationSetting->paymentTypes;
+
+                // Поиск iiko_payment_code на основе welcome_group_payment_code
+                $matchedPaymentCode = $paymentTypes->firstWhere('welcome_group_payment_code', $newOrder->payment->type);
+
+                if (! $matchedPaymentCode || ! isset($matchedPaymentCode['iiko_payment_code'])) {
+                    throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти соответствие типа оплаты для кода: '.$order->payment->type);
+                }
+            }
+
             $storedOrder = $this->orderRepository->store($newOrder);
 
             logger()->channel('import_orders_from_wg_to_iiko')->info('Новый заказ создан.', [
