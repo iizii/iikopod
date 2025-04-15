@@ -68,7 +68,7 @@ final class WelcomeGroupModifierRepository extends AbstractPersistenceRepository
         $result = $this
             ->query()
             ->where('welcome_group_modifier_type_id', $internalModifierTypeId->id)
-            ->where('iiko_external_modifier_id', $externalIikoModifierId)
+            ->where('iiko_external_modifier_id', $externalIikoModifierId->id)
             ->first();
 
         if (! $result) {

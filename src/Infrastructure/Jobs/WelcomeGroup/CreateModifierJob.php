@@ -66,7 +66,7 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
 
         $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
             new CreateRestaurantModifierRequestData(
-                $this->organizationSetting->welcomeGroupRestaurantId->id,
+                $this->organizationSetting->id->id,
                 $createdModifier->externalId->id
             )
         );

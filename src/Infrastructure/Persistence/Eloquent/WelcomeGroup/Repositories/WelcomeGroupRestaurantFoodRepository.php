@@ -25,12 +25,17 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
         return WelcomeGroupRestaurantFood::toDomainEntity($welcomeGroupRestaurantFood);
     }
 
-    public function update(RestaurantFood $restaurantFood): RestaurantFood
+    public function update(RestaurantFood $restaurantFood): ?RestaurantFood
     {
-        $welcomeGroupRestaurantFood = new WelcomeGroupRestaurantFood();
+        $welcomeGroupRestaurantFood = $this->query()
+            ->find($restaurantFood->id->id) ?? new WelcomeGroupRestaurantFood();
+
+        if (!$welcomeGroupRestaurantFood) {
+            return null;
+        }
 
         $welcomeGroupRestaurantFood->fromDomainEntity($restaurantFood);
-        $welcomeGroupRestaurantFood->id = $restaurantFood->id->id;
+//        $welcomeGroupRestaurantFood->id = $restaurantFood->id->id;
         $welcomeGroupRestaurantFood->save();
 
         return WelcomeGroupRestaurantFood::toDomainEntity($welcomeGroupRestaurantFood);
@@ -65,12 +70,13 @@ final class WelcomeGroupRestaurantFoodRepository extends AbstractPersistenceRepo
 
     public function findByInternalFoodAndRestaurantId(IntegerId $internalFoodid, IntegerId $internalRestaurantId): ?RestaurantFood
     {
+        logger('findig ids', ['a' => $internalFoodid->id, 'b' => $internalRestaurantId->id]);
         $result = $this
             ->query()
-            ->where('food_id', $internalFoodid->id)
-            ->where('restaurant_id', $internalRestaurantId->id)
+            ->where('welcome_group_food_id', $internalFoodid->id)
+            ->where('welcome_group_restaurant_id', $internalRestaurantId->id)
             ->first();
-
+        logger('restFood', ['res' => $result]);
         if (! $result) {
             return null;
         }

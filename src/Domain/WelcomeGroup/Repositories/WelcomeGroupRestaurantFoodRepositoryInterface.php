@@ -11,7 +11,7 @@ interface WelcomeGroupRestaurantFoodRepositoryInterface
 {
     public function save(RestaurantFood $restaurantFood): RestaurantFood;
 
-    public function update(RestaurantFood $restaurantFood): RestaurantFood;
+    public function update(RestaurantFood $restaurantFood): ?RestaurantFood;
 
     public function findById(IntegerId $integerId): ?RestaurantFood;
 

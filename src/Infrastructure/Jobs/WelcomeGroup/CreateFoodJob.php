@@ -98,7 +98,6 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         $foodRequest = $foodBuilder->build();
 
         try {
-            logger("foodReq", [$foodRequest]);
             $foodResponse = $welcomeGroupConnector->createFood(
                 new CreateFoodRequestData(
                     $foodRequest->externalFoodCategoryId->id,
@@ -145,7 +144,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         $restaurantFoodBuilder = RestaurantFoodBuilder::fromExisted($restaurantFoodResponse->toDomainEntity());
         $restaurantFoodBuilder = $restaurantFoodBuilder
             ->setWelcomeGroupFoodId($createdFood->id)
-            ->setWelcomeGroupRestaurantId($organizationSetting->welcomeGroupRestaurantId);
+            ->setWelcomeGroupRestaurantId($organizationSetting->id);
 
         $createdRestaurantFood = $welcomeGroupRestaurantFoodRepository->save($restaurantFoodBuilder->build());
 

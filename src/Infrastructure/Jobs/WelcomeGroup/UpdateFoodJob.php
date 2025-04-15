@@ -34,6 +34,7 @@ use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantModifierRepositoryInt
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Food\EditFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
@@ -78,28 +79,44 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
         ModifierHandlerService $modifierService
     ): void {
         // Получаем блюдо айки из ивента
+        $iikoItem = $this->item;
         $itemContext = $this->fetchItemContext($iikoMenuRepository, $organizationSettingRepository, $welcomeGroupFoodCategoryRepository, $welcomeGroupFoodRepository, $welcomeGroupRestaurantFoodRepository);
+
+        // Получили размеры блюда с ценами, кбжу, модификаторами
+        $iikoMenuItemSizes = $iikoMenuItemSizeRepository->findForWithAllRelations($iikoItem);
+
+        $iikoItemBuilder = ItemBuilder::fromExisted($iikoItem);
+        $iikoItemBuilder = $iikoItemBuilder
+            ->setItemSizes($iikoMenuItemSizes)
+            ->build();
+
+        logger('$iikoItemBuilder', $iikoItemBuilder->toArray());
+
+        $foodBuilder = FoodBuilder::fromIikoItem($iikoItemBuilder)
+            ->setWorkshopId($itemContext->organizationSetting->welcomeGroupDefaultWorkshopId)
+            ->setInternalFoodCategoryId($itemContext->category->id)
+            ->setExternalFoodCategoryId(($itemContext->category->externalId));
 
         if (! $itemContext) {
             return;
         }
 
+        $foodRequest = $foodBuilder->build();
+        logger('$foodBuilder', $foodRequest->toArray());
+
         $foodRequestData = new EditFoodRequestData(
-            $itemContext->category->id->id,
-            $itemContext->organizationSetting->welcomeGroupDefaultWorkshopId->id,
-            $this->item->name,
-            $this->item->description,
-            $this->item->weight,
-//            $itemContext->food->description,
-//            $itemContext->food->weight,
-            $itemContext->food->caloricity,
-            $this->item->prices->first()->price,
-//            $itemContext->food->price,
+            (int) $foodRequest->externalFoodCategoryId->id,
+            (int) $foodRequest->workshopId->id,
+            $foodRequest->name,
+            $foodRequest->description ?? '',
+            $foodRequest->weight,
+            $foodRequest->caloricity < 1 ? 1 : $foodRequest->caloricity,
+            $foodRequest->price,
         );
 
         try {
             $foodResponse = $welcomeGroupConnector->updateFood($foodRequestData, $itemContext->food->id);
-        } catch (RequestException $e) {
+        } catch (RequestException|ConnectionException $e) {
             logger()
                 ->channel('food_update')
                 ->error(
@@ -112,30 +129,20 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                 );
             throw new FoodUpdateException('Не удалось произвести обновление товара. Причина: '.$e->getMessage(), $e->getCode());
         }
-
-        //        $modifierService->handleModifierGroups($itemContext->food, $itemContext->itemBuilder->modifiers);
-
-        // Получили размеры блюда с ценами, кбжу, модификаторами
-        $iikoMenuItemSizes = $iikoMenuItemSizeRepository->findForWithAllRelations($itemContext->item);
-        logger('foood', [$itemContext->item->id]);
-
-        $foodBuilder = FoodBuilder::fromExisted($foodResponse->toDomainEntity())
-            ->setWorkshopId($itemContext->organizationSetting->welcomeGroupDefaultWorkshopId)
-            ->setInternalFoodCategoryId($itemContext->category->id)
-            ->setIikoItemId($itemContext->item->id)
-            ->setExternalFoodCategoryId($itemContext->category->externalId)
+        $foodBuilder = $foodBuilder
+            ->setExternalId(new IntegerId($foodResponse->id))
             ->setId($itemContext->food->id);
-//        logger('foodBuilder', [$foodBuilder]);
-        $updatedFood = $welcomeGroupFoodRepository->update($foodBuilder->build());
 
         $food = $foodBuilder->build();
 
+        $welcomeGroupFoodRepository->update($food);
+
         $restaurantFoodResponse = $welcomeGroupConnector->updateRestaurantFood(
             new EditRestaurantFoodRequestData(
-                $itemContext->organizationSetting->welcomeGroupDefaultWorkshopId->id,
-                $food->externalId->id,
+                (int) $itemContext->organizationSetting->welcomeGroupRestaurantId->id,
+                (int) $food->externalId->id,
             ),
-            $itemContext->restaurantFood->id,
+            $itemContext->restaurantFood->externalId,
         );
 
         $restaurantFoodBuilder = RestaurantFoodBuilder::fromExisted(
@@ -216,7 +223,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
         $maxQuantity = $modifierGroup->maxQuantity;
 
         $existedModifierTypeCollection = WelcomeGroupModifierType::query()
-            ->where('iiko_menu_item_modifier_group_id', $modifierGroup->id)
+            ->where('iiko_menu_item_modifier_group_id', $modifierGroup->id->id)
             ->get();
 
         for ($i = 0; $i < $maxQuantity; $i++) {
@@ -798,9 +805,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                     ->setWelcomeGroupRestaurantId($itemContext->organizationSetting->welcomeGroupRestaurantId)
                                     ->setWelcomeGroupModifierId($createdModifier->id);
 
-                                $createdRestaurantModifier = $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
-
-                                $restaurantModifier->setExternalId($createdRestaurantModifier->id);
+                                $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
 
                                 $itemPrice = $item->prices->first();
 
@@ -908,7 +913,6 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
                                     );
 
                                     $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity())
-//                                        ->setExternalId(new IntegerId($modifierResponse->id))
                                         ->setInternalModifierTypeId($modifierType->id)
                                         ->setIikoExternalModifierId($item->externalId);
 
@@ -1092,11 +1096,12 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
             return null;
         }
         $food = $foodRepository->findByIikoItemId($item->id); // Или соответствующий метод получения еды
-        $restaurantFood = $restaurantFoodRepository->findByInternalFoodAndRestaurantId($food->externalId, $organizationSetting->welcomeGroupRestaurantId);
+        $restaurantFood = $restaurantFoodRepository->findByInternalFoodAndRestaurantId($food->id, $organizationSetting->id);
         logger('food, orgset', [
             $food->toArray(),
             $organizationSetting->toArray(),
             $restaurantFood,
+            $this->item->toArray(),
         ]);
 
         return new ItemContext($item, $itemBuilder, $food, $organizationSetting, $category, $foodRepository, $restaurantFood);

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $welcome_group_restaurant_id
@@ -53,9 +53,9 @@ final class WelcomeGroupRestaurantFood extends Model
     {
         return $this->fill([
             'external_id' => $restaurantFood->externalId->id,
-            'welcome_group_restaurant_id' => $restaurantFood->restaurantId->id,
+            'welcome_group_restaurant_id' => $restaurantFood->welcomeGroupRestaurantId->id,
             'restaurant_id' => $restaurantFood->restaurantId->id,
-            'welcome_group_food_id' => $restaurantFood->foodId->id,
+            'welcome_group_food_id' => $restaurantFood->welcomeGroupFoodId->id,
             'food_id' => $restaurantFood->foodId->id,
             'status' => $restaurantFood->status,
             'status_comment' => $restaurantFood->statusComment,

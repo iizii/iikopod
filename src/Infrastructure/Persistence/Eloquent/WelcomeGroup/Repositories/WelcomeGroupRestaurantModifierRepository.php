@@ -37,8 +37,8 @@ final class WelcomeGroupRestaurantModifierRepository extends AbstractPersistence
     {
         return $this
             ->query()
-            ->where('welcome_group_restaurant_id', $internalRestaurantId)
-            ->where('welcome_group_modifier_id', $internalModifierId)
+            ->where('welcome_group_restaurant_id', $internalRestaurantId->id)
+            ->where('welcome_group_modifier_id', $internalModifierId->id)
             ->first()
             ?->toDomainEntity();
     }

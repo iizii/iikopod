@@ -53,22 +53,6 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
         return WelcomeGroupFood::toDomainEntity($result);
     }
 
-//    public function update(Food $food): Food
-//    {
-//        /** @var WelcomeGroupFood $currentFood */
-//        $currentFood = $this
-//            ->query()
-//            ->find($food->id->id);
-////        logger('fooood', [$food->iikoItemId]);
-//        $newFood = new WelcomeGroupFood();
-//        $newFood->fromDomainEntity($food);
-//        $newFood->iiko_menu_item_id = $food->iikoItemId->id;
-//        $newFood->id = $currentFood->id;
-//
-//        $newFood->save();
-//
-//        return WelcomeGroupFood::toDomainEntity($newFood);
-//    }
     public function update(Food $food): Food
     {
         /** @var WelcomeGroupFood $currentFood */
@@ -77,8 +61,6 @@ final class WelcomeGroupFoodRepository extends AbstractPersistenceRepository imp
             ->find($food->id->id);
 
         $currentFood->fromDomainEntity($food);
-        $currentFood->iiko_menu_item_id = $food->iikoItemId->id;
-
         $currentFood->save();
 
         return WelcomeGroupFood::toDomainEntity($currentFood);
