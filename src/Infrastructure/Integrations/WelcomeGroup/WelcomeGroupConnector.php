@@ -442,7 +442,7 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      */
     public function getOrdersByRestaurantId(GetOrdersByRestaurantRequestData $getOrdersByRestaurantRequestData): LazyCollection
     {
-        /** @var LazyCollection<array-key, FindPhoneResponseData> */
+        /** @var LazyCollection<array-key, GetOrdersByRestaurantResponseData> */
         return $this->send(new GetOrdersByRestaurantRequest($getOrdersByRestaurantRequestData));
     }
 
