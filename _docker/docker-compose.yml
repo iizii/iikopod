@@ -38,6 +38,29 @@ services:
         networks:
             - application
     
+    php-schedule:
+        container_name: ${COMPOSE_PROJECT_NAME}-php-schedule
+        image: ${COMPOSE_PROJECT_NAME}-php-schedule
+        build:
+            context: php/schedule
+            dockerfile: Dockerfile
+            args:
+                WORK_DIR: ${WORK_DIR}
+                BASE_IMAGE: ${COMPOSE_PROJECT_NAME}-php-base
+        environment:
+            BASE_IMAGE: ${COMPOSE_PROJECT_NAME}-php-base
+        volumes:
+            - ./php/schedule/cron:/etc/cron.d/schedule
+            - ${CODE_DIR}:${WORK_DIR}
+        profiles:
+            - php
+            - application
+        depends_on:
+            - php-base
+        tty: true
+        networks:
+            - application
+    
     frankenphp:
         container_name: ${COMPOSE_PROJECT_NAME}-frankenphp
         image: ${COMPOSE_PROJECT_NAME}-frankenphp

@@ -5,6 +5,10 @@ FROM ${BASE_IMAGE} as schedule
 RUN apt-get update \
     && apt-get upgrade -y --no-install-recommends \
     && apt-get install -y --no-install-recommends \
-        supervisor \
+        cron \
+        nano  \
+        procps \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+CMD ["cron", "-f"]

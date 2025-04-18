@@ -15,6 +15,3 @@ RUN apt-get update \
 
 RUN ( curl -sSLf https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - || echo 'return 1' ) | sh -s \
       @composer xhprof sockets excimer excimer excimer opcache pdo_mysql pcntl sodium intl zip redis
-
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
