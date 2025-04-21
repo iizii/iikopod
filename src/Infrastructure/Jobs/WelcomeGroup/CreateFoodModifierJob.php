@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Infrastructure\Jobs\WelcomeGroup;
 
 use Application\WelcomeGroup\Builders\FoodModifierBuilder;
-use Domain\Iiko\Entities\Menu\Item;
+use Domain\Iiko\Entities\Menu\Item as ModifierItem;
 use Domain\Iiko\Exceptions\PriceNotLoadedException;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\WelcomeGroup\Entities\Food;
@@ -23,17 +23,16 @@ final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
     use InteractsWithQueue;
     use Queueable;
 
-    public $delay = 150;
-
     /**
      * Create a new job instance.
      */
     public function __construct(
         public readonly Food $food,
-        public readonly Item $item,
+        public readonly ModifierItem $item,
         public readonly Modifier $modifier,
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
+        $this->delay(150);
     }
 
     /**
@@ -51,9 +50,9 @@ final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
 
         $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
             new CreateFoodModifierRequestData(
-                $this->food->externalId->id,
-                $this->modifier->externalId->id,
-                $this->item->weight,
+                (int) $this->food->externalId->id,
+                (int) $this->modifier->externalId->id,
+                (int) $this->item->weight,
                 $itemPrice->price ?? 0,
             ),
         );
@@ -61,6 +60,7 @@ final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
         $foodModifierBuilder = FoodModifierBuilder::fromExisted(
             $createFoodModifierResponse->toDomainEntity(),
         );
+
         $foodModifierBuilder = $foodModifierBuilder
             ->setInternalModifierId($this->modifier->id)
             ->setInternalFoodId($this->food->id);

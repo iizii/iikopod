@@ -37,14 +37,13 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
     use InteractsWithQueue;
     use Queueable;
 
-    public $delay = 60;
-
     /**
      * Create a new job instance.
      */
     public function __construct(public readonly Item $item)
     {
         $this->queue = Queue::INTEGRATIONS->value;
+        $this->delay(60);
     }
 
     /**
@@ -101,8 +100,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         try {
             $foodResponse = $welcomeGroupConnector->createFood(
                 new CreateFoodRequestData(
-                    $foodRequest->externalFoodCategoryId->id,
-                    $foodRequest->workshopId->id,
+                    (int) $foodRequest->externalFoodCategoryId->id,
+                    (int) $foodRequest->workshopId->id,
                     $foodRequest->name,
                     $foodRequest->description,
                     $foodRequest->weight,
@@ -127,8 +126,8 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         try {
             $restaurantFoodResponse = $welcomeGroupConnector->createRestaurantFood(
                 new CreateRestaurantFoodRequestData(
-                    $organizationSetting->welcomeGroupRestaurantId->id,
-                    $createdFood->externalId->id,
+                    (int) $organizationSetting->welcomeGroupRestaurantId->id,
+                    (int) $createdFood->externalId->id,
                 ),
             );
         } catch (\Throwable $e) {

@@ -56,12 +56,12 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    public $delay = 60;
-
     /**
      * Create a new job instance.
      */
-    public function __construct(public readonly Item $item) {}
+    public function __construct(public readonly Item $item) {
+        $this->delay(60);
+    }
 
     /**
      * Execute the job.

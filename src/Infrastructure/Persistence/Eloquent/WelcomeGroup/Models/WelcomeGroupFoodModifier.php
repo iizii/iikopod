@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $welcome_group_food_id

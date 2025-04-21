@@ -15,6 +15,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\QueueingDispatcher;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
@@ -26,8 +28,6 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
     use InteractsWithQueue;
     use Queueable;
 
-    public $delay = 90;
-
     /**
      * Create a new job instance.
      */
@@ -38,6 +38,7 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
         public readonly OrganizationSetting $organizationSetting,
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
+        $this->delay(90);
     }
 
     /**
@@ -49,20 +50,65 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
     ): void {
         $modifierType = WelcomeGroupModifierType::query()
-            ->where('name', 'LIKE', "%{$this->createModifierTypeRequestData->name}%")
-            ->first()?->toDomainEntity();
+            ->where(
+                'name',
+                'LIKE',
+                "%{$this->createModifierTypeRequestData->name}%"
+            )
+            ->first()
+            ?->toDomainEntity();
 
         if (! $modifierType) {
-            $modifierTypeResponse = $welcomeGroupConnector->createModifierType($this->createModifierTypeRequestData);
-            $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($modifierTypeResponse->toDomainEntity());
+            try {
+                $modifierTypeResponse = $welcomeGroupConnector
+                    ->createModifierType(
+                        $this
+                            ->createModifierTypeRequestData
+                    );
+            } catch (ConnectionException|RequestException $e) {
+                logger()
+                    ->channel('welcome_group_connector')
+                    ->error(
+                        'При создании типа модификатора произошла ошибка',
+                        [
+                            'error' => $e,
+                            'data' => $this
+                                ->createModifierTypeRequestData
+                                ->toArray(),
+                        ]
+                    );
+
+                throw new \RuntimeException(
+                    sprintf(
+                        'При создании типа модификатора %s произошла ошибка %s',
+                        $this
+                            ->createModifierTypeRequestData
+                            ->name,
+                        $e->getMessage(),
+                    ),
+                );
+            }
+            $modifierTypeBuilder = ModifierTypeBuilder::fromExisted(
+                $modifierTypeResponse
+                    ->toDomainEntity()
+            )
+                ->setIikoMenuItemModifierGroupId($this->modifierGroup->id);
 
             $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
+
+            $modifierTypeBuilder = $modifierTypeBuilder
+                ->setId($modifierType->id);
+
+            $modifierType = $modifierTypeBuilder->build();
         }
 
         $this
             ->modifierGroup
             ->items
-            ->each(function (Item $item) use ($dispatcher, $modifierType): void {
+            ->each(function (Item $item) use (
+                $dispatcher,
+                $modifierType
+            ): void {
                 $dispatcher->dispatch(
                     new CreateModifierJob(
                         $this->food,

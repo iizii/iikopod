@@ -11,7 +11,7 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $iiko_menu_item_id

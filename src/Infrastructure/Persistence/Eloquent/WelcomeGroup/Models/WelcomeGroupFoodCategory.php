@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $iiko_menu_item_group_id

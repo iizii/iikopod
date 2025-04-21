@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $welcome_group_restaurant_id

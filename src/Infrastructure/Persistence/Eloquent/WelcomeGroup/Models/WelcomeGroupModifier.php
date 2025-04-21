@@ -12,7 +12,7 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $welcome_group_modifier_type_id

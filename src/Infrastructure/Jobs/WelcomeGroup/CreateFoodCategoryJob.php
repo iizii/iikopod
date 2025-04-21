@@ -18,14 +18,13 @@ final class CreateFoodCategoryJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    public $delay = 30;
-
     /**
      * Create a new job instance.
      */
     public function __construct(public readonly FoodCategory $foodCategory)
     {
         $this->queue = Queue::INTEGRATIONS->value;
+        $this->delay(30);
     }
 
     /**

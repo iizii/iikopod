@@ -6,7 +6,7 @@ namespace Infrastructure\Jobs\WelcomeGroup;
 
 use Application\WelcomeGroup\Builders\ModifierBuilder;
 use Application\WelcomeGroup\Builders\RestaurantModifierBuilder;
-use Domain\Iiko\Entities\Menu\Item;
+use Domain\Iiko\Entities\Menu\Item as ModifierItem;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Settings\OrganizationSetting;
 use Domain\WelcomeGroup\Entities\Food;
@@ -30,20 +30,19 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
     use InteractsWithQueue;
     use Queueable;
 
-    public $delay = 120;
-
     /**
      * Create a new job instance.
      */
     public function __construct(
         public readonly Food $food,
-        public readonly Item $item,
+        public readonly ModifierItem $item,
         public readonly ModifierType $modifierType,
         public readonly CreateModifierRequestData $createModifierRequestData,
         public readonly OrganizationSetting $organizationSetting,
 
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
+        $this->delay(120);
     }
 
     /**
@@ -56,23 +55,23 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
         WelcomeGroupRestaurantModifierRepositoryInterface $welcomeGroupRestaurantModifierRepository,
     ): void {
-        $modifier = WelcomeGroupModifier::query()
-            ->where('name', 'LIKE', "%{$this->createModifierRequestData->name}%")
-            ->first()?->toDomainEntity();
+        //        $modifier = WelcomeGroupModifier::query()
+        //            ->where('name', 'LIKE', "%{$this->createModifierRequestData->name}%")
+        //            ->first()?->toDomainEntity();
 
-        if (! $modifier) {
-            $modifierResponse = $welcomeGroupConnector->createModifier($this->createModifierRequestData);
+        //        if (! $modifier) {
+        $modifierResponse = $welcomeGroupConnector->createModifier($this->createModifierRequestData);
 
-            $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
-            $modifierBuilder = $modifierBuilder
-                ->setInternalIikoItemId($this->item->id)
-                ->setIikoExternalModifierId($this->item->externalId)
-                ->setInternalModifierTypeId($this->modifierType->id);
+        $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
+        $modifierBuilder = $modifierBuilder
+            ->setInternalIikoItemId($this->item->id)
+            ->setIikoExternalModifierId($this->item->externalId)
+            ->setInternalModifierTypeId($this->modifierType->id);
 
-            $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
-            $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
-            $modifier = $modifierBuilder->build();
-        }
+        $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
+        $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
+        $modifier = $modifierBuilder->build();
+        //        }
 
         $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
             new CreateRestaurantModifierRequestData(
@@ -83,17 +82,15 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
 
         $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
         $restaurantModifier = $restaurantModifierBuilder
-            ->setWelcomeGroupRestaurantId($this->organizationSetting->welcomeGroupRestaurantId) // Это может быть нелогично, но это единственное место, где welcome_group_restaurant_id это id внешнего сервиса
-            ->setRestaurantId($this->organizationSetting->id)
-            ->setModifierId($modifier->id)
-            ->setWelcomeGroupModifierId($modifier->externalId); // Это может быть нелогично, но это единственное место, где welcome_group_modifier_id это id внешнего сервиса
+            ->setWelcomeGroupRestaurantId($this->organizationSetting->id)
+            ->setWelcomeGroupModifierId($modifier->id);
 
         $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
 
         $dispatcher->dispatch(
             new CreateFoodModifierJob(
                 $this->food,
-                $this->item,
+                $this->item, // айтем модификатора (в случае с айкой схож по структуре с обычным айтемом (блюдом)
                 $modifier,
             ),
         );

@@ -73,6 +73,7 @@ final readonly class IikoImportMenuService
             $organizationSetting->priceCategories->each(
                 function (PriceCategory $priceCategory) use ($organizationSetting): void {
                     try {
+                        sleep(10);
                         // Запрашиваем меню из Iiko API
                         $responseEntity = $this
                             ->iikoConnector
