@@ -30,6 +30,8 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
     use InteractsWithQueue;
     use Queueable;
 
+    public $delay = 120;
+
     /**
      * Create a new job instance.
      */

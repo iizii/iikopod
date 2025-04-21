@@ -23,6 +23,8 @@ final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
     use InteractsWithQueue;
     use Queueable;
 
+    public $delay = 150;
+
     /**
      * Create a new job instance.
      */

@@ -24,6 +24,8 @@ final readonly class SendCreatedFoodListener
      */
     public function handle(ItemCreatedEvent $event): void
     {
-        $this->dispatcher->dispatch(new CreateFoodJob($event->item));
+        $this
+            ->dispatcher
+            ->dispatch(new CreateFoodJob($event->item));
     }
 }
