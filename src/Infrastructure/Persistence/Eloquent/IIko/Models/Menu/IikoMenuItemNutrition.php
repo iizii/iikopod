@@ -8,9 +8,10 @@ use Domain\Iiko\Entities\Menu\Nutrition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $iiko_menu_item_size_id
@@ -23,6 +24,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @property float|null $sugar
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $price_category_id
  * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize $itemSize
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition newQuery()
@@ -33,6 +35,7 @@ use Shared\Domain\ValueObjects\IntegerId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereFats($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereIikoMenuItemSizeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition wherePriceCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereProteins($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereSalt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemNutrition whereSaturatedFattyAcid($value)
@@ -44,6 +47,7 @@ final class IikoMenuItemNutrition extends Model
 {
     protected $fillable = [
         'iiko_menu_item_size_id',
+        'price_category_id',
         'fats',
         'proteins',
         'carbs',
@@ -63,6 +67,7 @@ final class IikoMenuItemNutrition extends Model
         return $this->fill([
             'iiko_menu_item_size_id' => $nutrition->itemSizeId->id,
             'fats' => $nutrition->fats,
+            'price_category_id' => $nutrition->priceCategoryId->id,
             'proteins' => $nutrition->proteins,
             'carbs' => $nutrition->carbs,
             'energy' => $nutrition->energy,
@@ -77,6 +82,7 @@ final class IikoMenuItemNutrition extends Model
         return new Nutrition(
             new IntegerId($iikoMenuItemNutrition->id),
             new IntegerId($iikoMenuItemNutrition->iiko_menu_item_size_id),
+            new StringId($iikoMenuItemNutrition->price_category_id),
             $iikoMenuItemNutrition->fats,
             $iikoMenuItemNutrition->proteins,
             $iikoMenuItemNutrition->carbs,

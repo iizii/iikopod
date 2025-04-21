@@ -9,6 +9,7 @@ use Domain\Iiko\Repositories\IikoMenuItemModifierItemPriceRepositoryInterface;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItemPrice;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
 
 /**
@@ -29,8 +30,9 @@ final class IikoMenuItemModifierItemPriceRepository extends AbstractPersistenceR
 
     public function createOrUpdate(Price $price): Price
     {
-        $iikoMenuItemPrice = $this->findEloquentByExternalId(
-            $price->itemId
+        $iikoMenuItemPrice = $this->findByInternalModifierIdAndPriceCategoryId(
+            $price->itemId,
+            $price->priceCategoryId
         ) ?? new IikoMenuItemModifierItemPrice();
 
         $iikoMenuItemPrice->fromDomainEntity($price);
@@ -44,6 +46,15 @@ final class IikoMenuItemModifierItemPriceRepository extends AbstractPersistenceR
         return $this
             ->query()
             ->where('iiko_menu_item_modifier_item_id', $iikoMenuItemSizeId->id)
+            ->first();
+    }
+
+    public function findByInternalModifierIdAndPriceCategoryId(IntegerId $internalModifierId, StringId $priceCategoryId): ?IikoMenuItemModifierItemPrice
+    {
+        return $this
+            ->query()
+            ->where('iiko_menu_item_modifier_item_id', $internalModifierId->id)
+            ->where('price_category_id', $priceCategoryId->id)
             ->first();
     }
 }

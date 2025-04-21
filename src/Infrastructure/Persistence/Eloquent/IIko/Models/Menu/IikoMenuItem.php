@@ -13,6 +13,7 @@ use Domain\WelcomeGroup\Repositories\WelcomeGroupRestaurantFoodRepositoryInterfa
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
@@ -79,11 +80,11 @@ final class IikoMenuItem extends Model
     }
 
     /**
-     * @return HasMany<array-key, IikoMenuItemSize>
+     * @return BelongsToMany
      */
-    public function itemSizes(): HasMany
+    public function itemSizes(): BelongsToMany
     {
-        return $this->hasMany(IikoMenuItemSize::class, 'iiko_menu_item_id', 'id');
+        return $this->belongsToMany(IikoMenuItemSize::class, 'iiko_menu_items_iiko_menu_item_sizes');
     }
 
     public function food(): HasOne

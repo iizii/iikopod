@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrastructure\Persistence\Eloquent\IIko\Models\Repositories;
 
+use Application\Iiko\Builders\ItemModifierGroupBuilder;
 use Domain\Iiko\Entities\Menu\ItemModifierGroup;
 use Domain\Iiko\Entities\Menu\ItemSize;
 use Domain\Iiko\Repositories\IikoMenuItemModifierGroupRepositoryInterface;
@@ -48,15 +49,21 @@ final class IikoMenuItemModifierGroupRepository extends AbstractPersistenceRepos
 
     public function createOrUpdate(ItemModifierGroup $itemModifierGroup): ItemModifierGroup
     {
-        $iikoMenuItemModifierGroup = $this->findEloquentByMenuIdAndExternalId(
-            $itemModifierGroup->itemSizeId,
+        $iikoMenuItemModifierGroup = $this->findEloquentByExternalId(
             $itemModifierGroup->externalId,
         ) ?? new IikoMenuItemModifierGroup();
 
         $iikoMenuItemModifierGroup->fromDomainEntity($itemModifierGroup);
         $iikoMenuItemModifierGroup->save();
 
-        return IikoMenuItemModifierGroup::toDomainEntity($iikoMenuItemModifierGroup);
+        if (! $iikoMenuItemModifierGroup->itemSizes()->where('iiko_menu_item_sizes.id', $itemModifierGroup->itemSizeId->id)->exists()) {
+            $iikoMenuItemModifierGroup->itemSizes()->attach($itemModifierGroup->itemSizeId->id);
+        }
+
+        $builded = ItemModifierGroupBuilder::fromExisted(IikoMenuItemModifierGroup::toDomainEntity($iikoMenuItemModifierGroup));
+        $builded = $builded->setItemSizeId($itemModifierGroup->itemSizeId);
+
+        return $builded->build();
     }
 
     private function findEloquentByMenuIdAndExternalId(
@@ -66,6 +73,14 @@ final class IikoMenuItemModifierGroupRepository extends AbstractPersistenceRepos
         return $this
             ->query()
             ->where('iiko_menu_item_size_id', $iikoMenuItemSizeId->id)
+            ->where('external_id', $externalId->id)
+            ->first();
+    }
+
+    public function findEloquentByExternalId(StringId $externalId): ?IikoMenuItemModifierGroup
+    {
+        return $this
+            ->query()
             ->where('external_id', $externalId->id)
             ->first();
     }

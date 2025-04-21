@@ -6,6 +6,7 @@ namespace Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuResponse;
 
 use Domain\Iiko\Entities\Menu\Price as DomainPrice;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\ResponseData;
 
 final class Price extends ResponseData
@@ -23,6 +24,7 @@ final class Price extends ResponseData
         return new DomainPrice(
             new IntegerId(),
             new IntegerId(),
+            new StringId(),
             $this->price,
         );
     }

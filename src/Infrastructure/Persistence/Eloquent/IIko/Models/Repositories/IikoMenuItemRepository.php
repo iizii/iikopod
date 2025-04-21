@@ -46,7 +46,7 @@ final class IikoMenuItemRepository extends AbstractPersistenceRepository impleme
         $result = $this
             ->query()
             ->where('external_id', $id->id)
-            ->where('name', 'LIKE', $sourceKey)
+            ->where('name', 'LIKE', "%$sourceKey%")
             ->first();
 
         if (! $result) {

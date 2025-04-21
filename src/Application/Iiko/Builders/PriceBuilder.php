@@ -6,12 +6,14 @@ namespace Application\Iiko\Builders;
 
 use Domain\Iiko\Entities\Menu\Price;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 final class PriceBuilder
 {
     public function __construct(
         private IntegerId $id,
         private IntegerId $itemId,
+        private StringId $priceCategoryId,
         private ?int $price,
     ) {}
 
@@ -20,6 +22,7 @@ final class PriceBuilder
         return new self(
             $price->id,
             $price->itemId,
+            new StringId(),
             $price->price,
         );
     }
@@ -48,11 +51,20 @@ final class PriceBuilder
         return $clone;
     }
 
+    public function setPriceCategoryId(StringId $priceCategoryId): PriceBuilder
+    {
+        $clone = clone $this;
+        $clone->priceCategoryId = $priceCategoryId;
+
+        return $clone;
+    }
+
     public function build(): Price
     {
         return new Price(
             $this->id,
             $this->itemId,
+            $this->priceCategoryId,
             $this->price,
         );
     }

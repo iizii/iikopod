@@ -61,11 +61,12 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
     ): void {
         $iikoItem = $this->item;
 
-        $iikoMenuItemSizes = $iikoMenuItemSizeRepository->findForWithAllRelations($iikoItem);
+        //        Смысл этой конструкции мне не ясен, ибо это всё уже есть в айко айтем
+        //        $iikoMenuItemSizes = $iikoMenuItemSizeRepository->findForWithAllRelations($iikoItem);
 
         $iikoItemBuilder = ItemBuilder::fromExisted($iikoItem);
         $iikoItemBuilder = $iikoItemBuilder
-            ->setItemSizes($iikoMenuItemSizes)
+//            ->setItemSizes($iikoMenuItemSizes) Тоже какой смысл,всё есть в айко айтем
             ->build();
 
         $foodCategory = $welcomeGroupFoodCategoryRepository->findByIikoMenuItemGroupId($iikoItemBuilder->itemGroupId);
@@ -92,8 +93,6 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ->setWorkshopId($organizationSetting->welcomeGroupDefaultWorkshopId)
             ->setInternalFoodCategoryId($foodCategory->id)
             ->setExternalFoodCategoryId($foodCategory->externalId);
-
-//        if ($foodBuilder->)
 
         $foodRequest = $foodBuilder->build();
 
@@ -146,23 +145,24 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ->setWelcomeGroupFoodId($createdFood->id)
             ->setWelcomeGroupRestaurantId($organizationSetting->id);
 
-        $createdRestaurantFood = $welcomeGroupRestaurantFoodRepository->save($restaurantFoodBuilder->build());
-
-        $restaurantFood = $restaurantFoodBuilder
-            ->setId($createdRestaurantFood->id)
-            ->build();
+        $welcomeGroupRestaurantFoodRepository->save($restaurantFoodBuilder->build());
 
         $food = $foodBuilder
             ->setId($createdFood->id)
             ->build();
 
-        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
-            $itemSize->itemModifierGroups->each(
-                function (ItemModifierGroup $itemModifierGroup) use ($dispatcher, $food, $organizationSetting): void {
-                    $this->handleModifierGroup($dispatcher, $food, $itemModifierGroup, $organizationSetting);
-                },
-            );
-        });
+        //        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
+        $iikoItem
+            ->itemSizes
+            ->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
+                $itemSize
+                    ->itemModifierGroups
+                    ->each(
+                        function (ItemModifierGroup $itemModifierGroup) use ($dispatcher, $food, $organizationSetting): void {
+                            $this->handleModifierGroup($dispatcher, $food, $itemModifierGroup, $organizationSetting);
+                        },
+                    );
+            });
     }
 
     /**

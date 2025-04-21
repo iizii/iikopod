@@ -22,7 +22,7 @@ final readonly class StoreOrder
     /**
      * @throws \Throwable
      */
-    public function store(Order $order, string $sourceKey): Order
+    public function store(Order $order, ?string $sourceKey): Order
     {
         $this->databaseManager->beginTransaction();
 

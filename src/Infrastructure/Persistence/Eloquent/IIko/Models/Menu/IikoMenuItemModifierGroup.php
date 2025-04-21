@@ -9,15 +9,15 @@ use Domain\Iiko\Entities\Menu\ItemModifierGroup;
 use Domain\Iiko\ValueObjects\Menu\ItemCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
+ *
  *
  * @property int $id
- * @property int $iiko_menu_item_size_id
  * @property string $external_id
  * @property int $max_quantity
  * @property string $name
@@ -28,7 +28,8 @@ use Shared\Domain\ValueObjects\StringId;
  * @property bool $child_modifiers_have_min_max_restrictions
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize $itemSize
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemSize> $itemSizes
+ * @property-read int|null $item_sizes_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemModifierItem> $items
  * @property-read int|null $items_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup newModelQuery()
@@ -39,7 +40,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereExternalId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereIikoMenuItemSizeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereIsHidden($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereMaxQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|IikoMenuItemModifierGroup whereName($value)
@@ -51,7 +51,7 @@ use Shared\Domain\ValueObjects\StringId;
 final class IikoMenuItemModifierGroup extends Model
 {
     protected $fillable = [
-        'iiko_menu_item_size_id',
+//        'iiko_menu_item_size_id',
         'external_id',
         'max_quantity',
         'name',
@@ -62,10 +62,10 @@ final class IikoMenuItemModifierGroup extends Model
         'child_modifiers_have_min_max_restrictions',
     ];
 
-    public function itemSize(): BelongsTo
-    {
-        return $this->belongsTo(IikoMenuItemSize::class, 'iiko_menu_item_size_id', 'id');
-    }
+//    public function itemSize(): BelongsTo
+//    {
+//        return $this->belongsTo(IikoMenuItemSize::class, 'iiko_menu_item_size_id', 'id');
+//    }
 
     /**
      * @return HasMany<array-key, IikoMenuItemModifierItem>
@@ -73,6 +73,11 @@ final class IikoMenuItemModifierGroup extends Model
     public function items(): HasMany
     {
         return $this->hasMany(IikoMenuItemModifierItem::class, 'iiko_menu_item_modifier_group_id', 'id');
+    }
+
+    public function itemSizes(): BelongsToMany
+    {
+        return $this->belongsToMany(IikoMenuItemSize::class, 'iiko_menu_item_sizes_iiko_menu_item_modifier_groups');
     }
 
     public function casts(): array
@@ -88,7 +93,7 @@ final class IikoMenuItemModifierGroup extends Model
     public function fromDomainEntity(ItemModifierGroup $itemModifierGroup): self
     {
         return $this->fill([
-            'iiko_menu_item_size_id' => $itemModifierGroup->itemSizeId->id,
+//            'iiko_menu_item_size_id' => $itemModifierGroup->itemSizeId->id,
             'external_id' => $itemModifierGroup->externalId->id,
             'max_quantity' => $itemModifierGroup->maxQuantity,
             'name' => $itemModifierGroup->name,
@@ -104,7 +109,7 @@ final class IikoMenuItemModifierGroup extends Model
     {
         return new ItemModifierGroup(
             new IntegerId($iikoMenuItemModifierGroup->id),
-            new IntegerId($iikoMenuItemModifierGroup->iiko_menu_item_size_id),
+            new IntegerId(),
             new StringId($iikoMenuItemModifierGroup->external_id),
             $iikoMenuItemModifierGroup->max_quantity,
             $iikoMenuItemModifierGroup->name,

@@ -139,23 +139,46 @@ final class IikoMenuItemSizeRepository extends AbstractPersistenceRepository imp
 
     public function createOrUpdate(ItemSize $itemSize): ItemSize
     {
-        $iikoItemSize = $this->findEloquentByExternalId(
-            $itemSize->itemId,
-            $itemSize->externalId,
-        ) ?? new IikoMenuItemSize();
+        // 1. Ищем itemSize только по external_id
+        $iikoItemSize = $this->findEloquentBySku($itemSize->sku);
 
+        // 2. Если не найден — создаём новый
+        if (! $iikoItemSize) {
+            $iikoItemSize = new IikoMenuItemSize();
+        }
+
+        // 3. Обновляем/заполняем данные
         $iikoItemSize->fromDomainEntity($itemSize);
         $iikoItemSize->save();
 
-        return IikoMenuItemSize::toDomainEntity($iikoItemSize);
+        // 4. Проверяем, есть ли связь с iikoItem
+        if (! $iikoItemSize->menuItems()->where('iiko_menu_items.id', $itemSize->itemId->id)->exists()) {
+            $iikoItemSize->menuItems()->attach($itemSize->itemId->id);
+        }
+
+        // 5. Возвращаем доменный объект
+        $builder = ItemSizeBuilder::fromExisted(IikoMenuItemSize::toDomainEntity($iikoItemSize))
+            ->setItemId($itemSize->itemId);
+
+        return $builder->build();
     }
 
-    private function findEloquentByExternalId(IntegerId $iikoMenuItemId, StringId $externalId): ?IikoMenuItemSize
+    /*
+     * external_id для itemSize может быть null, поэтому не уверен даже в смысле этого метода
+     */
+    private function findEloquentByExternalId(StringId $externalId): ?IikoMenuItemSize
     {
         return $this
             ->query()
-            ->where('iiko_menu_item_id', $iikoMenuItemId->id)
             ->where('external_id', $externalId->id)
+            ->first();
+    }
+
+    private function findEloquentBySku(string $sku): ?IikoMenuItemSize
+    {
+        return $this
+            ->query()
+            ->where('sku', $sku)
             ->first();
     }
 }

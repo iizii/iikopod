@@ -6,12 +6,14 @@ namespace Application\Iiko\Builders;
 
 use Domain\Iiko\Entities\Menu\Nutrition;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 
 final class NutritionBuilder
 {
     public function __construct(
         private IntegerId $id,
         private IntegerId $itemSizeId,
+        private StringId $priceCategoryId,
         private float $fats,
         private float $proteins,
         private float $carbs,
@@ -26,6 +28,7 @@ final class NutritionBuilder
         return new self(
             $nutrition->id,
             $nutrition->itemSizeId,
+            new StringId(),
             $nutrition->fats,
             $nutrition->proteins,
             $nutrition->carbs,
@@ -48,6 +51,14 @@ final class NutritionBuilder
     {
         $clone = clone $this;
         $clone->itemSizeId = $itemSizeId;
+
+        return $clone;
+    }
+
+    public function setPriceCategoryId(StringId $priceCategoryId): NutritionBuilder
+    {
+        $clone = clone $this;
+        $clone->priceCategoryId = $priceCategoryId;
 
         return $clone;
     }
@@ -113,6 +124,7 @@ final class NutritionBuilder
         return new Nutrition(
             $this->id,
             $this->itemSizeId,
+            $this->priceCategoryId,
             $this->fats,
             $this->proteins,
             $this->carbs,

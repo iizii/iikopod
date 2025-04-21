@@ -8,8 +8,10 @@ use Domain\Iiko\Entities\Menu\ItemSize;
 use Domain\Iiko\Entities\Menu\Nutrition;
 use Domain\Iiko\Repositories\IikoMenuItemNutritionRepositoryInterface;
 use Domain\Iiko\ValueObjects\Menu\NutritionCollection;
+use Domain\Settings\ValueObjects\PriceCategory;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItemNutrition;
 use Shared\Domain\ValueObjects\IntegerId;
+use Shared\Domain\ValueObjects\StringId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
 
 /**
@@ -46,7 +48,8 @@ final class IikoMenuItemNutritionRepository extends AbstractPersistenceRepositor
 
     public function createOrUpdate(Nutrition $nutrition): Nutrition
     {
-        $ikoMenuItemNutrition = $this->findEloquentByExternalId($nutrition->itemSizeId) ?? new IikoMenuItemNutrition();
+        $ikoMenuItemNutrition = $this
+            ->findByInternalSizeIdAndPriceCategoryId($nutrition->itemSizeId, $nutrition->priceCategoryId) ?? new IikoMenuItemNutrition();
 
         $ikoMenuItemNutrition->fromDomainEntity($nutrition);
         $ikoMenuItemNutrition->save();
@@ -59,6 +62,15 @@ final class IikoMenuItemNutritionRepository extends AbstractPersistenceRepositor
         return $this
             ->query()
             ->where('iiko_menu_item_size_id', $iikoMenuItemSizeId->id)
+            ->first();
+    }
+
+    public function findByInternalSizeIdAndPriceCategoryId(IntegerId $iikoMenuItemSizeId, StringId $priceCategoryId): ?IikoMenuItemNutrition
+    {
+        return $this
+            ->query()
+            ->where('iiko_menu_item_size_id', $iikoMenuItemSizeId->id)
+            ->where('price_category_id', $priceCategoryId->id)
             ->first();
     }
 }

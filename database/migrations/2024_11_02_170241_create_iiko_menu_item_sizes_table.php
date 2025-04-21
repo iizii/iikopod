@@ -16,22 +16,14 @@ return new class() extends Migration
     {
         Schema::create('iiko_menu_item_sizes', static function (Blueprint $table) {
             $table->id();
-            $table
-                ->foreignIdFor(IikoMenuItem::class)
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
-            $table
-                ->string('external_id')
-                ->nullable();
+            $table->string('external_id')->nullable();
             $table->string('sku');
             $table->string('measure_unit_type');
-            $table
-                ->boolean('is_default')
-                ->default(false);
+            $table->boolean('is_default')->default(false);
             $table->integer('weight');
             $table->timestamps();
         });
+
     }
 
     /**

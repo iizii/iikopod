@@ -18,6 +18,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\CreateModifierTypeRequestData;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifierType;
 use Infrastructure\Queue\Queue;
 
 final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
@@ -45,17 +46,21 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupModifierTypeRepositoryInterface $welcomeGroupModifierTypeRepository,
     ): void {
-        $modifierTypeResponse = $welcomeGroupConnector->createModifierType($this->createModifierTypeRequestData);
+        $modifierType = WelcomeGroupModifierType::query()
+            ->where('name', 'LIKE', "%{$this->createModifierTypeRequestData->name}%")
+            ->first()?->toDomainEntity();
 
-        $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($modifierTypeResponse->toDomainEntity())
-            ->setIikoMenuItemModifierGroupId($this->modifierGroup->id);
+        if (! $modifierType) {
+            $modifierTypeResponse = $welcomeGroupConnector->createModifierType($this->createModifierTypeRequestData);
+            $modifierTypeBuilder = ModifierTypeBuilder::fromExisted($modifierTypeResponse->toDomainEntity());
 
-        $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
+            $modifierType = $welcomeGroupModifierTypeRepository->save($modifierTypeBuilder->build());
+        }
 
         $this
             ->modifierGroup
             ->items
-            ->each(function (Item $item) use ($dispatcher, $modifierType, $modifierTypeResponse): void {
+            ->each(function (Item $item) use ($dispatcher, $modifierType): void {
                 $dispatcher->dispatch(
                     new CreateModifierJob(
                         $this->food,
@@ -63,7 +68,7 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
                         $modifierType,
                         new CreateModifierRequestData(
                             $item->name,
-                            $modifierTypeResponse->id,
+                            (int) $modifierType->externalId->id,
                         ),
                         $this->organizationSetting
                     ),

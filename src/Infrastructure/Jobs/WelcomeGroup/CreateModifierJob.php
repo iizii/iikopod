@@ -22,6 +22,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierRequestData;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Infrastructure\Queue\Queue;
 
 final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
@@ -53,30 +54,37 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
         WelcomeGroupRestaurantModifierRepositoryInterface $welcomeGroupRestaurantModifierRepository,
     ): void {
-        $modifierResponse = $welcomeGroupConnector->createModifier($this->createModifierRequestData);
+        $modifier = WelcomeGroupModifier::query()
+            ->where('name', 'LIKE', "%{$this->createModifierRequestData->name}%")
+            ->first()?->toDomainEntity();
 
-        $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
-        $modifierBuilder = $modifierBuilder
-            ->setInternalIikoItemId($this->item->id)
-            ->setIikoExternalModifierId($this->item->externalId)
-            ->setInternalModifierTypeId($this->modifierType->id);
+        if (! $modifier) {
+            $modifierResponse = $welcomeGroupConnector->createModifier($this->createModifierRequestData);
 
-        $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
-        $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
-        $modifier = $modifierBuilder->build();
+            $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
+            $modifierBuilder = $modifierBuilder
+                ->setInternalIikoItemId($this->item->id)
+                ->setIikoExternalModifierId($this->item->externalId)
+                ->setInternalModifierTypeId($this->modifierType->id);
+
+            $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
+            $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
+            $modifier = $modifierBuilder->build();
+        }
+
         $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
             new CreateRestaurantModifierRequestData(
-                $this->organizationSetting->welcomeGroupRestaurantId->id,
-                $createdModifier->externalId->id
+                (int) $this->organizationSetting->welcomeGroupRestaurantId->id,
+                (int) $modifier->externalId->id
             )
         );
 
         $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
         $restaurantModifier = $restaurantModifierBuilder
-            ->setWelcomeGroupRestaurantId($this->organizationSetting->welcomeGroupRestaurantId)
+            ->setWelcomeGroupRestaurantId($this->organizationSetting->welcomeGroupRestaurantId) // Это может быть нелогично, но это единственное место, где welcome_group_restaurant_id это id внешнего сервиса
             ->setRestaurantId($this->organizationSetting->id)
             ->setModifierId($modifier->id)
-            ->setWelcomeGroupModifierId($createdModifier->externalId);
+            ->setWelcomeGroupModifierId($modifier->externalId); // Это может быть нелогично, но это единственное место, где welcome_group_modifier_id это id внешнего сервиса
 
         $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
 

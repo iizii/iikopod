@@ -37,13 +37,13 @@ final class ModifierTypeBuilder
         return $clone;
     }
 
-    public function setIikoMenuItemModifierGroupId(IntegerId $iikoMenuItemModifierGroupId): ModifierTypeBuilder
-    {
-        $clone = clone $this;
-        $clone->iikoMenuItemModifierGroupId = $iikoMenuItemModifierGroupId;
-
-        return $clone;
-    }
+//    public function setIikoMenuItemModifierGroupId(IntegerId $iikoMenuItemModifierGroupId): ModifierTypeBuilder
+//    {
+//        $clone = clone $this;
+//        $clone->iikoMenuItemModifierGroupId = $iikoMenuItemModifierGroupId;
+//
+//        return $clone;
+//    }
 
     public function setExternalId(IntegerId $externalId): ModifierTypeBuilder
     {
