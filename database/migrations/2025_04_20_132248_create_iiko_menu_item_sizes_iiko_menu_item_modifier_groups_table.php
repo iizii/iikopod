@@ -26,7 +26,7 @@ return new class() extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
 
-            $table->foreign('iiko_menu_item_size_id', 'item_size_fk')
+            $table->foreign('iiko_menu_item_size_id', 'item_menu_item_size_fk')
                 ->references('id')
                 ->on('iiko_menu_item_sizes')
                 ->cascadeOnUpdate()
