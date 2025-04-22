@@ -26,6 +26,6 @@ final readonly class SendCreatedFoodListener
     {
         $this
             ->dispatcher
-            ->dispatch(new CreateFoodJob($event->item));
+            ->dispatch(new CreateFoodJob($event->item, $event->priceCategoryId));
     }
 }

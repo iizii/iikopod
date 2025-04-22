@@ -34,6 +34,7 @@ use Domain\Settings\ValueObjects\PriceCategory;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Cache;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetMenuRequestData;
 use Infrastructure\Integrations\IIko\IikoAuthenticator;
 use Shared\Domain\ValueObjects\StringId;
@@ -72,6 +73,7 @@ final readonly class IikoImportMenuService
             // Для каждой ценовой категории организации
             $organizationSetting->priceCategories->each(
                 function (PriceCategory $priceCategory) use ($organizationSetting): void {
+                    Cache::set('current_import_price_category_id', $priceCategory->categoryId->id, 1000);
                     try {
                         sleep(10);
                         // Запрашиваем меню из Iiko API
@@ -87,6 +89,7 @@ final readonly class IikoImportMenuService
                             )
                             ->toDomainEntity(); // Преобразуем DTO в доменную сущность
                     } catch (\Throwable $e) {
+                        Cache::delete('current_import_price_category_id');
                         // Обработка ошибок запроса
                         throw new \RuntimeException(
                             sprintf(
@@ -121,6 +124,7 @@ final readonly class IikoImportMenuService
                         });
                 },
             );
+            Cache::delete('current_import_price_category_id');
         });
     }
 

@@ -9,5 +9,5 @@ use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 
 final readonly class ItemCreatedEvent implements ShouldDispatchAfterCommit
 {
-    public function __construct(public Item $item) {}
+    public function __construct(public Item $item, public string $priceCategoryId) {}
 }

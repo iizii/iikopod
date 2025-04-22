@@ -30,8 +30,9 @@ final class FoodBuilder
         private ?int $price,
     ) {}
 
-    public static function fromIikoItem(Item $item): self
+    public static function fromIikoItem(Item $item, string $priceCategoryId): self
     {
+
         /** @var ItemSize|null $itemSize */
         $itemSize = $item->itemSizes->first();
 
@@ -40,7 +41,10 @@ final class FoodBuilder
         }
 
         /** @var Price|null $price */
-        $price = $itemSize->prices->first();
+        $price = $itemSize
+            ->prices
+            ->where('priceCategoryId.id', '=', $priceCategoryId)
+            ->first();
 
         if (! $price) {
             throw new PriceNotLoadedException();

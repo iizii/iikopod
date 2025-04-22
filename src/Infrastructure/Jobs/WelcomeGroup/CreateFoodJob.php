@@ -40,7 +40,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public readonly Item $item)
+    public function __construct(public readonly Item $item, public string $priceCategoryId)
     {
         $this->queue = Queue::INTEGRATIONS->value;
         $this->delay(60);
@@ -63,11 +63,11 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         $iikoItem = $this->item;
 
         //        Смысл этой конструкции мне не ясен, ибо это всё уже есть в айко айтем
-        //        $iikoMenuItemSizes = $iikoMenuItemSizeRepository->findForWithAllRelations($iikoItem);
+        $iikoMenuItemSizes = $iikoMenuItemSizeRepository->findForWithAllRelations($iikoItem);
 
         $iikoItemBuilder = ItemBuilder::fromExisted($iikoItem);
         $iikoItemBuilder = $iikoItemBuilder
-//            ->setItemSizes($iikoMenuItemSizes) Тоже какой смысл,всё есть в айко айтем
+            ->setItemSizes($iikoMenuItemSizes)
             ->build();
 
         $foodCategory = $welcomeGroupFoodCategoryRepository->findByIikoMenuItemGroupId($iikoItemBuilder->itemGroupId);
@@ -90,7 +90,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             throw new \RuntimeException('Organization Setting not found');
         }
 
-        $foodBuilder = FoodBuilder::fromIikoItem($iikoItemBuilder)
+        $foodBuilder = FoodBuilder::fromIikoItem($iikoItemBuilder, $this->priceCategoryId)
             ->setWorkshopId($organizationSetting->welcomeGroupDefaultWorkshopId)
             ->setInternalFoodCategoryId($foodCategory->id)
             ->setExternalFoodCategoryId($foodCategory->externalId);

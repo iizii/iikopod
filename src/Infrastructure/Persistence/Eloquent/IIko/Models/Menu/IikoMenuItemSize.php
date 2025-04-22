@@ -15,7 +15,7 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string|null $external_id
@@ -51,7 +51,6 @@ use Shared\Domain\ValueObjects\StringId;
 final class IikoMenuItemSize extends Model
 {
     protected $fillable = [
-        //        'iiko_menu_item_id',
         'external_id',
         'sku',
         'measure_unit_type',
@@ -70,11 +69,11 @@ final class IikoMenuItemSize extends Model
     }
 
     /**
-     * @return HasMany<array-key, IikoMenuItemModifierGroup>
+     * @return BelongsToMany
      */
-    public function itemModifierGroups(): HasMany
+    public function itemModifierGroups(): BelongsToMany
     {
-        return $this->hasMany(IikoMenuItemModifierGroup::class, 'iiko_menu_item_size_id', 'id');
+        return $this->belongsToMany(IikoMenuItemModifierGroup::class, 'iiko_menu_item_sizes_iiko_menu_item_modifier_groups');
     }
 
     /**
@@ -103,7 +102,6 @@ final class IikoMenuItemSize extends Model
     public function fromDomainEntity(ItemSize $itemSize): self
     {
         return $this->fill([
-            //            'iiko_menu_item_id' => $itemSize->itemId->id,
             'external_id' => $itemSize->externalId->id,
             'sku' => $itemSize->sku,
             'measure_unit_type' => $itemSize->measureUnitType,
@@ -116,7 +114,6 @@ final class IikoMenuItemSize extends Model
     {
         return new ItemSize(
             new IntegerId($iikoMenuItemSize->id),
-//            new IntegerId($iikoMenuItemSize->iiko_menu_item_id),
             new IntegerId(),
             new StringId($iikoMenuItemSize->external_id),
             $iikoMenuItemSize->sku,

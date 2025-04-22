@@ -59,7 +59,8 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public readonly Item $item) {
+    public function __construct(public readonly Item $item, public readonly string $priceCategoryId)
+    {
         $this->delay(60);
     }
 
@@ -94,7 +95,7 @@ final class UpdateFoodJob implements ShouldBeUnique, ShouldQueue
 
         logger('$iikoItemBuilder', $iikoItemBuilder->toArray());
 
-        $foodBuilder = FoodBuilder::fromIikoItem($iikoItemBuilder)
+        $foodBuilder = FoodBuilder::fromIikoItem($iikoItemBuilder, $this->priceCategoryId)
             ->setWorkshopId($itemContext->organizationSetting->welcomeGroupDefaultWorkshopId)
             ->setInternalFoodCategoryId($itemContext->category->id)
             ->setExternalFoodCategoryId(($itemContext->category->externalId));

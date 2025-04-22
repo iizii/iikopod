@@ -24,6 +24,6 @@ final readonly class SendUpdatedFoodListener
      */
     public function handle(ItemUpdatedEvent $event): void
     {
-        $this->dispatcher->dispatch(new UpdateFoodJob($event->item));
+        $this->dispatcher->dispatch(new UpdateFoodJob($event->item, $event->priceCategoryId));
     }
 }

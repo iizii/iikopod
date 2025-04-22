@@ -9,6 +9,7 @@ use Domain\Iiko\Events\ItemDeletedEvent;
 use Domain\Iiko\Events\ItemUpdatedEvent;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Facades\Cache;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 
 final readonly class ItemObserver implements ShouldHandleEventsAfterCommit
@@ -22,7 +23,7 @@ final readonly class ItemObserver implements ShouldHandleEventsAfterCommit
     {
         $this
             ->dispatcher
-            ->dispatch(new ItemCreatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem)));
+            ->dispatch(new ItemCreatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem), Cache::get('current_import_price_category_id')));
     }
 
     /**
@@ -32,7 +33,7 @@ final readonly class ItemObserver implements ShouldHandleEventsAfterCommit
     {
         $this
             ->dispatcher
-            ->dispatch(new ItemUpdatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem)));
+            ->dispatch(new ItemUpdatedEvent(IikoMenuItem::toDomainEntity($iikoMenuItem), Cache::get('current_import_price_category_id')));
     }
 
     /**

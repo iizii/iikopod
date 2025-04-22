@@ -67,7 +67,9 @@ final class IikoMenuItemSizeRepository extends AbstractPersistenceRepository imp
                 'prices',
                 'itemModifierGroups.items.prices',
             ])
-            ->where('iiko_menu_item_id', $item->id->id)
+            ->whereHas('menuItems', static function ($query) use ($item) {
+                $query->where('iiko_menu_items.id', $item->id->id);
+            })
             ->get();
 
         return new ItemSizeCollection(
