@@ -18,7 +18,7 @@ final class OrderInfo extends ResponseData
 {
     public function __construct(
         public readonly string $id,
-        public readonly string $posId,
+        public readonly ?string $posId,
         public readonly string $externalNumber,
         public readonly string $organizationId,
         public readonly int $timestamp,
