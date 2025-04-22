@@ -86,6 +86,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\CreateModifierReq
 use Infrastructure\Integrations\WelcomeGroup\Requests\Modifier\EditModifierRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\CreateModifierTypeRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\ModifierType\EditModifierTypeRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\ApproveOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
@@ -323,6 +324,18 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     {
         /** @var UpdateOrderResponseData $response */
         $response = $this->send(new UpdateOrderRequest($orderId, $updateOrderRequestData));
+
+        return $response;
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function approveOrder(IntegerId $orderId)
+    {
+        /** @var UpdateOrderResponseData $response */
+        $response = $this->send(new ApproveOrderRequest($orderId));
 
         return $response;
     }

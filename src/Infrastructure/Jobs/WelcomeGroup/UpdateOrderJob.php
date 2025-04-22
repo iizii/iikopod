@@ -37,9 +37,12 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
      */
     public function handle(WelcomeGroupConnectorInterface $welcomeGroupConnector): void
     {
-        $order = $this->order;
+        $order = \Infrastructure\Persistence\Eloquent\Orders\Models\Order::toDomainEntity(
+            \Infrastructure\Persistence\Eloquent\Orders\Models\Order::query()->find($this->order->id->id)
+        );
 
         try {
+            // Тут есть платёжки, но нет её анализа и передачи
             $welcomeGroupConnector->updateOrder(
                 $order->welcomeGroupExternalId,
                 new UpdateOrderRequestData(

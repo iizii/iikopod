@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Shared\Domain\ValueObjects\IntegerId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $external_id
@@ -40,6 +40,7 @@ final class WelcomeGroupModifierType extends Model
         'external_id',
         'name',
         'behaviour',
+        'iiko_menu_item_modifier_group_id',
     ];
 
     public function fromDomainEntity(ModifierType $modifierType): self

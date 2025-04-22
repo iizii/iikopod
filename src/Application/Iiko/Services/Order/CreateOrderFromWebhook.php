@@ -94,7 +94,7 @@ final readonly class CreateOrderFromWebhook
             throw new Exception("Заказ {$eventData->id} не поступил в обработку т.к. у него не соответствует тип заказа (его нет в перечне принимаемых типов в настройках ресторана модуля связи");
         }
 
-        $targetUser = $eventData->order->sourceKey;
+        $targetUser = $eventData->order->sourceKey ?? 'default';
 
         $matched = collect($organization->price_categories->toArray())->first(function ($item) use ($targetUser) {
             return in_array($targetUser, $item['menu_users']);
@@ -142,9 +142,10 @@ final readonly class CreateOrderFromWebhook
                 $items
                     ->modifiers
                     ->toCollection()
-                    ->each(function (Modifiers $modifiers) use ($item): void {
+                    ->each(function (Modifiers $modifiers) use ($item, $iikoItem): void {
                         $modifier = $this->menuItemModifierItemRepository->findByExternalId(
                             new StringId($modifiers->product->id),
+                            $iikoItem
                         );
 
                         if (! $modifier) {
@@ -168,7 +169,7 @@ final readonly class CreateOrderFromWebhook
                 ->setId($existedOrder->id)
                 ->setWelcomeGroupExternalId($existedOrder->welcomeGroupExternalId);
 
-            $this->updateOrder->update($order->build());
+            $this->updateOrder->update($order->build()); // Сюда полагаю тоже сорскей бы
 
             return;
         }

@@ -24,7 +24,7 @@ final class IikoMenuItemModifierItemRepository extends AbstractPersistenceReposi
         $result = $this
             ->query()
             ->whereHas('modifierGroup', static function (Builder $builder) use ($itemSize) {
-                return $builder->whereHas('itemSize', static function (Builder $builder) use ($itemSize) {
+                return $builder->whereHas('itemSizes', static function (Builder $builder) use ($itemSize) {
                     return $builder->where('id', $itemSize->id->id);
                 });
             })
@@ -39,11 +39,18 @@ final class IikoMenuItemModifierItemRepository extends AbstractPersistenceReposi
         );
     }
 
-    public function findByExternalId(StringId $id): ?Item
+    public function findByExternalId(StringId $id, Item $item): ?Item
     {
         $result = $this
             ->query()
             ->where('external_id', $id->id)
+            ->whereHas('modifierGroup', static function (Builder $builder) use ($item) {
+                $builder->whereHas('itemSizes', static function (Builder $builder) use ($item) {
+                    $builder->whereHas('menuItems', static function (Builder $builder) use ($item) {
+                        $builder->where('iiko_menu_items.id', $item->id->id);
+                    });
+                });
+            })
             ->first();
 
         if (! $result) {

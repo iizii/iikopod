@@ -164,6 +164,8 @@ interface WelcomeGroupConnectorInterface
      */
     public function updateOrder(IntegerId $orderId, UpdateOrderRequestData $updateOrderRequestData): UpdateOrderResponseData;
 
+    public function approveOrder(IntegerId $orderId);
+
     /**
      * @throws RequestException
      * @throws ConnectionException

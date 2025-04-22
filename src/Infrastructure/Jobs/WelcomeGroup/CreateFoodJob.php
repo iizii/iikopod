@@ -153,7 +153,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ->build();
 
         //        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
-        $iikoItem
+        $iikoItemBuilder
             ->itemSizes
             ->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
                 $itemSize
