@@ -20,6 +20,7 @@ use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Settings\OrganizationSetting;
+use Domain\Settings\ValueObjects\PaymentType;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Address;
@@ -171,7 +172,6 @@ final readonly class ImportOrderService
                 'orderId' => $order->id,
                 'timestamp' => $timestamp,
             ]);
-
 
             if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::FINISHED) {
                 $this
@@ -331,10 +331,12 @@ final readonly class ImportOrderService
                 $paymentTypes = $organizationSetting->paymentTypes;
 
                 // Поиск iiko_payment_code на основе welcome_group_payment_code
-                $matchedPaymentCode = $paymentTypes->firstWhere('welcome_group_payment_code', $newOrder->payment->type);
+                $matchedPaymentCode = $paymentTypes->first(
+                    static fn (PaymentType $paymentType) => $paymentType->welcomeGroupPaymentCode === $newOrder->payment->type
+                );
 
-                if (! $matchedPaymentCode || ! isset($matchedPaymentCode['iiko_payment_code'])) {
-                    throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти соответствие типа оплаты для кода: '.$order->payment->type);
+                if (! $matchedPaymentCode || ! isset($matchedPaymentCode?->iikoPaymentCode)) {
+                    throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти соответствие типа оплаты для кода: '.$newOrder->payment->type);
                 }
             }
 

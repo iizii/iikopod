@@ -17,7 +17,7 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $iiko_api_key
@@ -99,6 +99,7 @@ final class OrganizationSetting extends Model
                     ->map(static fn (array $data): PriceCategory => new PriceCategory(
                         new StringId($data['category_id']),
                         $data['prefix'],
+                        $data['menu_users']
                     )),
             ),
             new StringId($this->iiko_courier_id),

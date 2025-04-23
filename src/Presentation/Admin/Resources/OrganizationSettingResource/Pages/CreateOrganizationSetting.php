@@ -138,6 +138,7 @@ final class CreateOrganizationSetting extends CreateRecord
                         static fn (array $paymentType): PriceCategory => new PriceCategory(
                             new StringId($paymentType['category_id']),
                             $paymentType['prefix'],
+                            $paymentType['menu_users']
                         ),
                         $data['price_categories'],
                     ),

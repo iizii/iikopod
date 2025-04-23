@@ -17,5 +17,6 @@ final class PriceCategory extends ValueObject
     public function __construct(
         public readonly StringId $categoryId,
         public readonly string $prefix,
+        public readonly array $menuUsers,
     ) {}
 }

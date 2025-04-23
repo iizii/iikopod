@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Application\Iiko\Services\Order;
 
-use _PHPStan_e6dc705b2\Symfony\Component\String\Exception\RuntimeException;
 use Application\Orders\Builders\OrderBuilder;
 use Application\Orders\Services\StoreOrder;
 use Application\Orders\Services\UpdateOrder;
@@ -23,6 +22,7 @@ use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Exceptions\OrganizationNotFoundException;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
+use Domain\Settings\ValueObjects\PriceCategory;
 use Exception;
 use Illuminate\Support\ItemNotFoundException;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\EventData;
@@ -96,8 +96,8 @@ final readonly class CreateOrderFromWebhook
 
         $targetUser = $eventData->order->sourceKey ?? 'default';
 
-        $matched = collect($organization->price_categories->toArray())->first(function ($item) use ($targetUser) {
-            return in_array($targetUser, $item['menu_users']);
+        $matched = $organization->priceCategories->first(static function (PriceCategory $item) use ($targetUser) {
+            return in_array($targetUser, $item->menuUsers);
         });
 
         $order = new Order(
