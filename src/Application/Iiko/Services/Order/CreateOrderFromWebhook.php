@@ -96,6 +96,7 @@ final readonly class CreateOrderFromWebhook
 
         $targetUser = $eventData->order->sourceKey ?? 'default';
 
+        /** @var PriceCategory $matched */
         $matched = $organization->priceCategories->first(static function (PriceCategory $item) use ($targetUser) {
             return in_array($targetUser, $item->menuUsers);
         });
@@ -124,7 +125,7 @@ final readonly class CreateOrderFromWebhook
             ->items
             ->toCollection()
             ->each(function (Items $items) use ($order, $matched): void {
-                $iikoItem = $this->menuItemRepository->findByExternalIdAndSourceKey(new StringId($items->product->id), $matched['prefix']);
+                $iikoItem = $this->menuItemRepository->findByExternalIdAndSourceKey(new StringId($items->product->id), $matched->prefix);
 
                 if (! $iikoItem) {
                     throw new ItemNotFoundException(sprintf('Iiko item not found for %s', $items->product->name));
