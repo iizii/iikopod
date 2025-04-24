@@ -36,6 +36,7 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
         public readonly CreateModifierTypeRequestData $createModifierTypeRequestData,
         public readonly ItemModifierGroup $modifierGroup,
         public readonly OrganizationSetting $organizationSetting,
+        public readonly string $priceCategoryId
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
         $this->delay(90);
@@ -118,7 +119,8 @@ final class CreateModifierTypeJob implements ShouldBeUnique, ShouldQueue
                             $item->name,
                             (int) $modifierType->externalId->id,
                         ),
-                        $this->organizationSetting
+                        $this->organizationSetting,
+                        $this->priceCategoryId,
                     ),
                 );
             });

@@ -152,15 +152,16 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
             ->setId($createdFood->id)
             ->build();
 
+        $priceCategoryId = $this->priceCategoryId;
         //        $iikoMenuItemSizes->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
         $iikoItemBuilder
             ->itemSizes
-            ->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting): void {
+            ->each(function (ItemSize $itemSize) use ($dispatcher, $food, $organizationSetting, $priceCategoryId): void {
                 $itemSize
                     ->itemModifierGroups
                     ->each(
-                        function (ItemModifierGroup $itemModifierGroup) use ($dispatcher, $food, $organizationSetting): void {
-                            $this->handleModifierGroup($dispatcher, $food, $itemModifierGroup, $organizationSetting);
+                        function (ItemModifierGroup $itemModifierGroup) use ($dispatcher, $food, $organizationSetting, $priceCategoryId): void {
+                            $this->handleModifierGroup($dispatcher, $food, $itemModifierGroup, $organizationSetting, $priceCategoryId);
                         },
                     );
             });
@@ -187,6 +188,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
         Food $food,
         ItemModifierGroup $modifierGroup,
         OrganizationSetting $organizationSetting,
+        string $priceCategoryId
     ): void {
         $maxQuantity = $modifierGroup->maxQuantity;
 
@@ -200,6 +202,7 @@ final class CreateFoodJob implements ShouldBeUnique, ShouldQueue
                     ),
                     $modifierGroup,
                     $organizationSetting,
+                    $priceCategoryId
                 ),
             );
         }

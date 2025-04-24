@@ -16,6 +16,7 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\FoodModifier\CreateFoodModifierRequestData;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodModifier;
 use Infrastructure\Queue\Queue;
 
 final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
@@ -30,6 +31,7 @@ final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
         public readonly Food $food,
         public readonly ModifierItem $item,
         public readonly Modifier $modifier,
+        public readonly string $priceCategoryId
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
         $this->delay(150);
@@ -42,30 +44,41 @@ final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupConnectorInterface $welcomeGroupConnector,
         WelcomeGroupFoodModifierRepositoryInterface $welcomeGroupFoodModifierRepository,
     ): void {
-        $itemPrice = $this->item->prices->first();
+        $itemPrice = $this
+            ->item
+            ->prices
+            ->where('priceCategoryId.id', '=', $this->priceCategoryId)
+            ->first();
 
         if (! $itemPrice) {
             throw new PriceNotLoadedException(sprintf('Price not loaded for item %s', $this->item->id->id));
         }
 
-        $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
-            new CreateFoodModifierRequestData(
-                (int) $this->food->externalId->id,
-                (int) $this->modifier->externalId->id,
-                (int) $this->item->weight,
-                $itemPrice->price ?? 0,
-            ),
-        );
+        $foodModifier = WelcomeGroupFoodModifier::query()
+            ->where('welcome_group_food_id', $this->food->id)
+            ->where('welcome_group_modifier_id', $this->modifier->id)
+            ->first()?->toDomainEntity();
 
-        $foodModifierBuilder = FoodModifierBuilder::fromExisted(
-            $createFoodModifierResponse->toDomainEntity(),
-        );
+        if (! $foodModifier) {
+            $createFoodModifierResponse = $welcomeGroupConnector->createFoodModifier(
+                new CreateFoodModifierRequestData(
+                    (int) $this->food->externalId->id,
+                    (int) $this->modifier->externalId->id,
+                    (int) $this->item->weight,
+                    $itemPrice->price ?? 0,
+                ),
+            );
 
-        $foodModifierBuilder = $foodModifierBuilder
-            ->setInternalModifierId($this->modifier->id)
-            ->setInternalFoodId($this->food->id);
+            $foodModifierBuilder = FoodModifierBuilder::fromExisted(
+                $createFoodModifierResponse->toDomainEntity(),
+            );
 
-        $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
+            $foodModifierBuilder = $foodModifierBuilder
+                ->setInternalModifierId($this->modifier->id)
+                ->setInternalFoodId($this->food->id);
+
+            $welcomeGroupFoodModifierRepository->save($foodModifierBuilder->build());
+        }
     }
 
     /**

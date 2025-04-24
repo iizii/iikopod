@@ -23,6 +23,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Modifier\CreateModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierRequestData;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
+use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupRestaurantModifier;
 use Infrastructure\Queue\Queue;
 
 final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
@@ -39,6 +40,7 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         public readonly ModifierType $modifierType,
         public readonly CreateModifierRequestData $createModifierRequestData,
         public readonly OrganizationSetting $organizationSetting,
+        public readonly string $priceCategoryId
 
     ) {
         $this->queue = Queue::INTEGRATIONS->value;
@@ -55,43 +57,52 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         WelcomeGroupModifierRepositoryInterface $welcomeGroupModifierRepository,
         WelcomeGroupRestaurantModifierRepositoryInterface $welcomeGroupRestaurantModifierRepository,
     ): void {
-        //        $modifier = WelcomeGroupModifier::query()
-        //            ->where('name', 'LIKE', "%{$this->createModifierRequestData->name}%")
-        //            ->first()?->toDomainEntity();
+        $modifier = WelcomeGroupModifier::query()
+            ->where('name', 'LIKE', "%{$this->createModifierRequestData->name}%")
+            ->where('iiko_menu_item_modifier_item_id')
+            ->first()?->toDomainEntity();
 
-        //        if (! $modifier) {
-        $modifierResponse = $welcomeGroupConnector->createModifier($this->createModifierRequestData);
+        if (! $modifier) {
+            $modifierResponse = $welcomeGroupConnector->createModifier($this->createModifierRequestData);
 
-        $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
-        $modifierBuilder = $modifierBuilder
-            ->setInternalIikoItemId($this->item->id)
-            ->setIikoExternalModifierId($this->item->externalId)
-            ->setInternalModifierTypeId($this->modifierType->id);
+            $modifierBuilder = ModifierBuilder::fromExisted($modifierResponse->toDomainEntity());
+            $modifierBuilder = $modifierBuilder
+                ->setInternalIikoItemId($this->item->id)
+                ->setIikoExternalModifierId($this->item->externalId)
+                ->setInternalModifierTypeId($this->modifierType->id);
 
-        $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
-        $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
-        $modifier = $modifierBuilder->build();
-        //        }
+            $createdModifier = $welcomeGroupModifierRepository->save($modifierBuilder->build());
+            $modifierBuilder = $modifierBuilder->setId($createdModifier->id);
+            $modifier = $modifierBuilder->build();
+        }
 
-        $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
-            new CreateRestaurantModifierRequestData(
-                (int) $this->organizationSetting->welcomeGroupRestaurantId->id,
-                (int) $modifier->externalId->id
-            )
-        );
+        $restaurantModifier = WelcomeGroupRestaurantModifier::query()
+            ->where('welcome_group_restaurant_id', $this->organizationSetting->id)
+            ->where('welcome_group_modifier_id', $modifier->id)
+            ->first()?->toDomainEntity();
 
-        $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
-        $restaurantModifier = $restaurantModifierBuilder
-            ->setWelcomeGroupRestaurantId($this->organizationSetting->id)
-            ->setWelcomeGroupModifierId($modifier->id);
+        if (! $restaurantModifier) {
+            $restaurantModifierResponse = $welcomeGroupConnector->createRestaurantModifier(
+                new CreateRestaurantModifierRequestData(
+                    (int) $this->organizationSetting->welcomeGroupRestaurantId->id,
+                    (int) $modifier->externalId->id
+                )
+            );
 
-        $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+            $restaurantModifierBuilder = RestaurantModifierBuilder::fromExisted($restaurantModifierResponse->toDomainEntity());
+            $restaurantModifier = $restaurantModifierBuilder
+                ->setWelcomeGroupRestaurantId($this->organizationSetting->id)
+                ->setWelcomeGroupModifierId($modifier->id);
+
+            $welcomeGroupRestaurantModifierRepository->save($restaurantModifier->build());
+        }
 
         $dispatcher->dispatch(
             new CreateFoodModifierJob(
                 $this->food,
                 $this->item, // айтем модификатора (в случае с айкой схож по структуре с обычным айтемом (блюдом)
                 $modifier,
+                $this->priceCategoryId
             ),
         );
     }
