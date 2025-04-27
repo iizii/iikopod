@@ -59,7 +59,7 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
     ): void {
         $modifier = WelcomeGroupModifier::query()
             ->where('name', 'LIKE', "%{$this->createModifierRequestData->name}%")
-            ->where('iiko_menu_item_modifier_item_id')
+            ->where('iiko_menu_item_modifier_item_id', $this->item->id->id)
             ->first()?->toDomainEntity();
 
         if (! $modifier) {
@@ -77,8 +77,8 @@ final class CreateModifierJob implements ShouldBeUnique, ShouldQueue
         }
 
         $restaurantModifier = WelcomeGroupRestaurantModifier::query()
-            ->where('welcome_group_restaurant_id', $this->organizationSetting->id)
-            ->where('welcome_group_modifier_id', $modifier->id)
+            ->where('welcome_group_restaurant_id', $this->organizationSetting->id->id)
+            ->where('welcome_group_modifier_id', $modifier->id->id)
             ->first()?->toDomainEntity();
 
         if (! $restaurantModifier) {

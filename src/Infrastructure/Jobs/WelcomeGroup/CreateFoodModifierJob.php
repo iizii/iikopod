@@ -55,8 +55,8 @@ final class CreateFoodModifierJob implements ShouldBeUnique, ShouldQueue
         }
 
         $foodModifier = WelcomeGroupFoodModifier::query()
-            ->where('welcome_group_food_id', $this->food->id)
-            ->where('welcome_group_modifier_id', $this->modifier->id)
+            ->where('welcome_group_food_id', $this->food->id->id)
+            ->where('welcome_group_modifier_id', $this->modifier->id->id)
             ->first()?->toDomainEntity();
 
         if (! $foodModifier) {
