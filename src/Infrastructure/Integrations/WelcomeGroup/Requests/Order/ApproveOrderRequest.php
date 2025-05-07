@@ -24,7 +24,7 @@ final readonly class ApproveOrderRequest implements RequestInterface, ResponseDa
 
     public function endpoint(): string
     {
-        return "/api/order/approve/start/{$this->orderId->id}";
+        return "/api/order/operator/approve/{$this->orderId->id}";
     }
 
     public function headers(): array|Arrayable

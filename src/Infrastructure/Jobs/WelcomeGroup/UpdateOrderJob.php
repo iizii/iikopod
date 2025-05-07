@@ -42,13 +42,17 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
         );
 
         try {
-            // Тут есть платёжки, но нет её анализа и передачи
-            $welcomeGroupConnector->updateOrder(
-                $order->welcomeGroupExternalId,
-                new UpdateOrderRequestData(
-                    OrderStatus::toWelcomeGroupStatus($order->status),
-                ),
-            );
+            if (! in_array(OrderStatus::toWelcomeGroupStatus($order->status), [\Domain\WelcomeGroup\Enums\OrderStatus::FINISHED, \Domain\WelcomeGroup\Enums\OrderStatus::DELIVERING, \Domain\WelcomeGroup\Enums\OrderStatus::DELIVERED])) {
+                // Тут есть платёжки, но нет её анализа и передачи
+                $welcomeGroupConnector->updateOrder(
+                    $order->welcomeGroupExternalId,
+                    new UpdateOrderRequestData(
+                        OrderStatus::toWelcomeGroupStatus($order->status),
+                    ),
+                );
+            } else {
+                logger()->channel('delivery_order_update')->warning('Изменение статуса заказа было пропущено т.к. мы не устанавливаем статусы: доставляется, доставлен, архив. Заказ:', [$order]);
+            }
         } catch (\Throwable $e) {
             throw new \RuntimeException(
                 sprintf(

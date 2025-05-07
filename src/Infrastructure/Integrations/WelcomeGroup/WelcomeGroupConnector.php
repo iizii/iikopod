@@ -332,7 +332,7 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function approveOrder(IntegerId $orderId)
+    public function approveOrder(IntegerId $orderId): UpdateOrderResponseData
     {
         /** @var UpdateOrderResponseData $response */
         $response = $this->send(new ApproveOrderRequest($orderId));
