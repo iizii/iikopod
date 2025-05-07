@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
 use Infrastructure\Queue\Queue;
 
@@ -20,6 +21,17 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
 {
     use InteractsWithQueue;
     use Queueable;
+
+    private const ORDER_TO_ITEM_STATUS_MAP = [
+        'new' => 'new',
+        'cancelled' => 'cancelled',
+        'producing' => 'producing',
+        'delivery_waiting' => 'delivery_waiting',
+        'delivering' => 'delivering',
+        'delivered' => 'delivered',
+        'rejected' => 'rejected',
+        'finished' => 'finished',
+    ];
 
     /**
      * Create a new job instance.
@@ -37,17 +49,31 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
      */
     public function handle(WelcomeGroupConnectorInterface $welcomeGroupConnector): void
     {
-        $order = \Infrastructure\Persistence\Eloquent\Orders\Models\Order::toDomainEntity(
-            \Infrastructure\Persistence\Eloquent\Orders\Models\Order::query()->find($this->order->id->id)
-        );
+        $eloquentOrder = \Infrastructure\Persistence\Eloquent\Orders\Models\Order::query()->find($this->order->id->id);
+        $order = \Infrastructure\Persistence\Eloquent\Orders\Models\Order::toDomainEntity($eloquentOrder);
 
         try {
             if (! in_array(OrderStatus::toWelcomeGroupStatus($order->status), [\Domain\WelcomeGroup\Enums\OrderStatus::FINISHED, \Domain\WelcomeGroup\Enums\OrderStatus::DELIVERING, \Domain\WelcomeGroup\Enums\OrderStatus::DELIVERED])) {
-                // Тут есть платёжки, но нет её анализа и передачи
+                $welcomeGroupStatus = OrderStatus::toWelcomeGroupStatus($order->status);
+                $itemStatus = $this->getItemStatusForOrderStatus($order->status->value);
+
+                // Обновляем статус блюд, если есть соответствующий статус
+                $orderItems = $welcomeGroupConnector
+                    ->getOrderItems($order->welcomeGroupExternalId);
+                if ($itemStatus !== null) {
+                    foreach ($orderItems as $item) {
+                        $welcomeGroupConnector->updateOrderItem(
+                            $item->id,
+                            new UpdateOrderItemRequestData($itemStatus)
+                        );
+                    }
+                }
+
+                // Обновляем статус заказа
                 $welcomeGroupConnector->updateOrder(
                     $order->welcomeGroupExternalId,
                     new UpdateOrderRequestData(
-                        OrderStatus::toWelcomeGroupStatus($order->status),
+                        $welcomeGroupStatus,
                     ),
                 );
             } else {
@@ -78,5 +104,13 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
     public function backoff(): int
     {
         return 60;
+    }
+
+    /**
+     * Get corresponding item status for order status
+     */
+    private function getItemStatusForOrderStatus(string $orderStatus): ?string
+    {
+        return self::ORDER_TO_ITEM_STATUS_MAP[$orderStatus] ?? null;
     }
 }

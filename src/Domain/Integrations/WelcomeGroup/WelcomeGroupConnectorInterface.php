@@ -36,6 +36,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Ed
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
@@ -193,4 +194,12 @@ interface WelcomeGroupConnectorInterface
     public function getAddress(IntegerId $id): GetAddressResponseData;
 
     public function getOrderItems(IntegerId $id): LazyCollection;
+
+    /**
+     * Update order item status in Welcome Group
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     * @throws \Illuminate\Http\Client\ConnectionException
+     */
+    public function updateOrderItem(string $externalId, UpdateOrderItemRequestData $data);
 }
