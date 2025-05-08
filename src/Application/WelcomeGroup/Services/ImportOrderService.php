@@ -276,6 +276,10 @@ final readonly class ImportOrderService
 
             $deliveryTime = CarbonImmutable::now()->addSeconds($totalTimeInSeconds);
 
+            if ($order->isPreorder) {
+                $deliveryTime = $order->timePreorder;
+            }
+
             /** @var EndpointAddress $deliveryPoint */
             $deliveryPoint = EndpointAddress::query()
                 ->where('order_id', $order->id)
