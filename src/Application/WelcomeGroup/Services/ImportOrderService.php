@@ -640,10 +640,14 @@ final readonly class ImportOrderService
                     // Если новая позиция просто заменяет удаленную того же типа, пропускаем
                     // Исправляем условие: если localItemsOfThisType = 0, то это новый тип блюда, которого еще нет в заказе
                     // и его нужно добавить в любом случае
-                                        if ($localItemsOfThisType > 0 && $activePlusRestoredItems > 0 &&
-                                            ($activePlusRestoredItems + $localItemsOfThisType) <= count($activeWgItemsGrouped[$foodId] ?? [])) {
+//                                        if ($localItemsOfThisType > 0 && $activePlusRestoredItems > 0 &&
+//                                            ($activePlusRestoredItems + $localItemsOfThisType) <= count($activeWgItemsGrouped[$foodId] ?? [])) {
                     //                    if ($localItemsOfThisType > 0 && $activePlusRestoredItems >= $localItemsOfThisType) {
 //                    if (! ($localItemsOfThisType == 0 && $newItem->status != 'cancelled') || $activePlusRestoredItems >= $localItemsOfThisType) {
+
+                    $itemsToAdd = count($activeWgItemsGrouped[$foodId] ?? []) - $localItemsOfThisType; // Временное решение, надо перепроверить
+
+                    if ($itemsToAdd <= 0) {
                         // Пропускаем только если количество новых/восстановленных не превышает разницу
                         logger()->info('Пропускаем добавление новой позиции, так как она заменяет удаленную того же типа', [
                             'orderId' => $wgOrder->id,
