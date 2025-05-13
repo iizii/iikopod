@@ -19,6 +19,7 @@ final class Item extends DomainEntity
         public readonly int $amount,
         public readonly ?string $comment,
         public readonly ItemModifierCollection $modifiers,
+        public readonly ?IntegerId $welcomeGroupExternalId = null,
     ) {}
 
     public function addModifier(Modifier $modifier): self

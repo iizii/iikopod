@@ -17,8 +17,6 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- *
- *
  * @property int $id
  * @property string $iiko_api_key
  * @property string $iiko_restaurant_id

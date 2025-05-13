@@ -16,11 +16,12 @@ use Domain\Orders\Repositories\OrderRepositoryInterface;
 use Domain\Orders\ValueObjects\Item;
 use Domain\Orders\ValueObjects\ItemCollection;
 use Domain\Orders\ValueObjects\ItemModifierCollection;
-use Domain\Orders\ValueObjects\Modifier;
+use Domain\Orders\ValueObjects\Modifier as DomainModifier;
 use Domain\Orders\ValueObjects\Payment;
 use Domain\Settings\Interfaces\OrganizationSettingRepositoryInterface;
 use Domain\Settings\OrganizationSetting;
 use Domain\Settings\ValueObjects\PaymentType;
+use Infrastructure\Integrations\IIko\DataTransferObjects\AddOrderItemsRequest\AddOrderItemsRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Address;
@@ -29,6 +30,7 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Crea
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Customer;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\DeliveryPoint;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Items;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Modifier as IikoModifier;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Payments;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetAvailableTerminalsResponse\GetAvailableTerminalsResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse\GetPaymentTypesResponseData;
@@ -38,10 +40,12 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Address\GetAddr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Client\GetClientResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\GetPhoneResponseData;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest as CreateOrderItemRequestClass;
 use Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
@@ -173,6 +177,9 @@ final readonly class ImportOrderService
                 'timestamp' => $timestamp,
             ]);
 
+            // Проверяем изменения в позициях заказа
+            $this->handleOrderItemsChanges($internalOrder, $order, $organizationSetting);
+
             if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::FINISHED) {
                 $this
                     ->iikoConnector
@@ -249,12 +256,14 @@ final readonly class ImportOrderService
                     (int) ($orderItem->discount),
                     1, // В поде нет количества у позиции, товар = позиция
                     $orderItem->comment,
-                    new ItemModifierCollection()
+                    new ItemModifierCollection(),
+                    new IntegerId($orderItem->id) // Добавляем ID позиции из Welcome Group
                 );
 
                 foreach ($orderItem->FoodModifiersArray as $foodModifier) {
                     $modifier = WelcomeGroupModifier::query()->where('external_id', $foodModifier['modifier'])->firstOrFail();
-                    $item->addModifier(new Modifier(
+                    // Используем доменный класс DomainModifier для работы с доменной моделью Item
+                    $item->addModifier(new DomainModifier(
                         new IntegerId($food->iikoMenuItem->id),
                         new IntegerId($modifier->iikoModifier->id)
                     ));
@@ -360,6 +369,414 @@ final readonly class ImportOrderService
 
             // Было некогда создавать отдельный ексепшн, поэтому заюзал неподходящий по неймингу, но подкходящий по функционал
             throw new WelcomeGroupImportOrdersGeneralException("Ошибка при создании заказа в IIKO. Заказ: {$order->number}. Причина: {$e->getMessage()}");
+        }
+    }
+
+    private function handleOrderItemsChanges(Order $internalOrder, GetOrdersByRestaurantResponseData $wgOrder, OrganizationSetting $organizationSetting): void
+    {
+        try {
+            $currentItems = \Infrastructure\Persistence\Eloquent\Orders\Models\Order::query()
+                ->find($internalOrder->id->id)
+                ->items()
+                ->with(['iikoMenuItem', 'modifiers.modifier.modifierGroup'])
+                ->get();
+
+            // Получаем текущие позиции из Welcome Group
+            $wgOrderItems = $this->welcomeGroupConnector->getOrderItems(new IntegerId($wgOrder->id));
+
+            if ($wgOrderItems->isEmpty()) {
+                logger()->warning('Позиции заказа в Welcome Group не найдены', [
+                    'orderId' => $wgOrder->id,
+                ]);
+
+                return;
+            }
+
+            // Добавляем подробное логирование для отладки статусов
+            foreach ($wgOrderItems as $item) {
+                logger()->debug('Статус позиции из Welcome Group', [
+                    'orderId' => $wgOrder->id,
+                    'itemId' => $item->id,
+                    'status' => $item->status,
+                    'foodId' => $item->food,
+                ]);
+            }
+
+            logger()->info('Получены позиции из Welcome Group, обрабатываем', [
+                'orderId' => $wgOrder->id,
+                'itemsCount' => $wgOrderItems->count(),
+                'currentItemsCount' => $currentItems->count(),
+                'wgItemIds' => $wgOrderItems->pluck('id')->toArray(),
+            ]);
+
+            // Создаем массив для хранения ID позиций, которые уже есть в локальной базе
+            $existingWgItemIds = $currentItems->pluck('welcome_group_external_id')->toArray();
+            logger()->info('Существующие позиции в заказе', [
+                'orderId' => $wgOrder->id,
+                'existingWgItemIds' => $existingWgItemIds,
+            ]);
+
+            // Разделяем позиции на активные и отмененные
+            $activeWgItems = $wgOrderItems->filter(static function ($item) {
+                return $item->status !== 'cancelled';
+            });
+
+            $cancelledWgItems = $wgOrderItems->filter(static function ($item) {
+                return $item->status === 'cancelled';
+            });
+
+            // Получаем ID активных позиций в Welcome Group
+            $activeWgItemIds = $activeWgItems->pluck('id')->toArray();
+
+            // Группируем позиции в локальной базе по типу блюда (через WelcomeGroupFood)
+            $currentItemsGrouped = [];
+            foreach ($currentItems as $item) {
+                $food = WelcomeGroupFood::query()->where('iiko_menu_item_id', $item->iiko_menu_item_id)->first();
+                if ($food) {
+                    $foodId = $food->external_id;
+                    if (! isset($currentItemsGrouped[$foodId])) {
+                        $currentItemsGrouped[$foodId] = [];
+                    }
+                    $currentItemsGrouped[$foodId][] = $item;
+                }
+            }
+
+            // Группируем активные позиции из Welcome Group по типу блюда
+            $activeWgItemsGrouped = [];
+            foreach ($activeWgItems as $item) {
+                $foodId = $item->food;
+                if (! isset($activeWgItemsGrouped[$foodId])) {
+                    $activeWgItemsGrouped[$foodId] = [];
+                }
+                $activeWgItemsGrouped[$foodId][] = $item;
+            }
+
+            // Находим новые позиции, которые есть в Welcome Group, но отсутствуют в локальной базе
+            $newItems = $activeWgItems->filter(static function ($item) use ($existingWgItemIds) {
+                return ! in_array($item->id, $existingWgItemIds);
+            });
+
+            logger()->info('Новые позиции из Welcome Group', [
+                'orderId' => $wgOrder->id,
+                'newItemsIds' => $newItems->pluck('id')->toArray(),
+            ]);
+
+            // Находим позиции, которые есть в локальной базе, но отсутствуют среди активных в Welcome Group
+            // и при этом находятся в отмененных - это позиции, которые нужно восстановить
+            $itemsToRestore = $currentItems->filter(static function ($item) use ($activeWgItemIds, $cancelledWgItems) {
+                return ! in_array($item->welcome_group_external_id, $activeWgItemIds) &&
+                       $cancelledWgItems->contains('id', $item->welcome_group_external_id);
+            });
+
+            logger()->info('Позиции для восстановления', [
+                'orderId' => $wgOrder->id,
+                'itemsToRestoreIds' => $itemsToRestore->pluck('welcome_group_external_id')->toArray(),
+            ]);
+
+            // Восстанавливаем отмененные позиции
+            $restoredItemsCount = 0;
+
+            foreach ($itemsToRestore as $item) {
+                try {
+                    // Находим соответствующую отмененную позицию в Welcome Group
+                    $cancelledItem = $cancelledWgItems->firstWhere('id', $item->welcome_group_external_id);
+
+                    if (! $cancelledItem) {
+                        logger()->warning('Не найдена отмененная позиция в Welcome Group', [
+                            'orderId' => $wgOrder->id,
+                            'itemId' => $item->welcome_group_external_id,
+                        ]);
+
+                        continue;
+                    }
+
+                    $food = WelcomeGroupFood::query()->where('external_id', $cancelledItem->food)->firstOrFail();
+
+                    // Получаем модификаторы из локальной базы для этой позиции
+                    $itemModifiers = $item->modifiers()->with('modifier')->get();
+                    $modifiersArray = [];
+
+                    // Подробное логирование модификаторов
+                    logger()->info('Модификаторы позиции в локальной базе', [
+                        'orderId' => $wgOrder->id,
+                        'itemId' => $item->welcome_group_external_id,
+                        'foodId' => $cancelledItem->food,
+                        'modifiers' => $itemModifiers->map(static function ($mod) {
+                            return [
+                                'id' => $mod->iiko_menu_item_modifier_item_id,
+                                'name' => $mod->modifier->name ?? 'Неизвестно',
+                            ];
+                        })->toArray(),
+                    ]);
+
+                    // Формируем массив модификаторов в формате, требуемом Welcome Group
+                    foreach ($itemModifiers as $itemModifier) {
+                        // Находим соответствующий модификатор в Welcome Group через связь с таблицей welcome_group_food_modifiers
+                        $welcomeGroupModifier = WelcomeGroupModifier::query()
+                            ->where('iiko_menu_item_modifier_item_id', $itemModifier->iiko_menu_item_modifier_item_id)
+                            ->first();
+
+                        if ($welcomeGroupModifier) {
+                            // Находим связь между блюдом и модификатором в таблице welcome_group_food_modifiers
+                            $welcomeGroupFoodModifier = \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodModifier::query()
+                                ->where('welcome_group_food_id', $food->id)
+                                ->where('welcome_group_modifier_id', $welcomeGroupModifier->id)
+                                ->first();
+
+                            if ($welcomeGroupFoodModifier) {
+                                logger()->info('Найден связанный модификатор в таблице welcome_group_food_modifiers', [
+                                    'orderId' => $wgOrder->id,
+                                    'itemId' => $item->welcome_group_external_id,
+                                    'foodId' => $cancelledItem->food,
+                                    'iikoModifierId' => $itemModifier->iiko_menu_item_modifier_item_id,
+                                    'wgModifierId' => $welcomeGroupModifier->external_id,
+                                    'wgModifierName' => $welcomeGroupModifier->name,
+                                    'wgFoodModifierId' => $welcomeGroupFoodModifier->external_id,
+                                ]);
+
+                                // Используем ID из таблицы welcome_group_food_modifiers
+                                $modifiersArray[] = [
+                                    'modifier' => $welcomeGroupFoodModifier->external_id,
+                                    'amount' => 1,
+                                ];
+                            } else {
+                                logger()->warning('Не найдена связь между блюдом и модификатором в таблице welcome_group_food_modifiers', [
+                                    'orderId' => $wgOrder->id,
+                                    'itemId' => $item->welcome_group_external_id,
+                                    'foodId' => $cancelledItem->food,
+                                    'iikoModifierId' => $itemModifier->iiko_menu_item_modifier_item_id,
+                                    'wgModifierId' => $welcomeGroupModifier->external_id,
+                                    'wgModifierName' => $welcomeGroupModifier->name,
+                                ]);
+
+                                // Если не нашли связь, используем ID модификатора напрямую
+                                $modifiersArray[] = [
+                                    'modifier' => $welcomeGroupModifier->external_id,
+                                    'amount' => 1,
+                                ];
+                            }
+                        } else {
+                            logger()->warning('Не найден соответствующий модификатор в Welcome Group', [
+                                'orderId' => $wgOrder->id,
+                                'itemId' => $item->welcome_group_external_id,
+                                'iikoModifierId' => $itemModifier->iiko_menu_item_modifier_item_id,
+                            ]);
+                        }
+                    }
+
+                    logger()->info('Восстанавливаем позицию с модификаторами', [
+                        'orderId' => $wgOrder->id,
+                        'itemId' => $item->welcome_group_external_id,
+                        'modifiers' => $modifiersArray,
+                    ]);
+
+                    // Создаем новую позицию с теми же параметрами и модификаторами
+                    $this->welcomeGroupConnector->addOrderItem(
+                        new IntegerId($wgOrder->id),
+                        new CreateOrderItemRequestClass(
+                            new CreateOrderItemRequestData(
+                                $wgOrder->id,
+                                $cancelledItem->food,
+                                $modifiersArray, // Используем модификаторы из локальной базы
+                                $cancelledItem->comment ?? ''
+                            )
+                        )
+                    );
+
+                    $restoredItemsCount++;
+
+                    logger()->info('Позиция успешно восстановлена в Welcome Group', [
+                        'orderId' => $wgOrder->id,
+                        'itemId' => $cancelledItem->id,
+                        'foodId' => $cancelledItem->food,
+                    ]);
+                } catch (\Throwable $e) {
+                    logger()->error('Ошибка при восстановлении позиции в Welcome Group', [
+                        'orderId' => $wgOrder->id,
+                        'itemId' => $item->welcome_group_external_id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // Обрабатываем новые позиции, добавляя их в локальную базу данных и IIKO
+            $addedItemsCount = 0;
+
+            foreach ($newItems as $newItem) {
+                try {
+                    $foodId = $newItem->food;
+                    $food = WelcomeGroupFood::query()->where('external_id', $foodId)->firstOrFail();
+
+                    // Проверяем, не является ли новая позиция заменой удаленной того же типа
+                    // Если количество восстановленных позиций этого типа уже соответствует нужному,
+                    // то пропускаем добавление новой позиции (она уже учтена в восстановленных)
+                    $localItemsOfThisType = isset($currentItemsGrouped[$foodId]) ? count($currentItemsGrouped[$foodId]) : 0;
+                    $activePlusRestoredItems = 0;
+                    if (isset($activeWgItemsGrouped[$foodId])) {
+                        foreach ($activeWgItemsGrouped[$foodId] as $activeItem) {
+                            // Учитываем только те активные позиции, которых нет в существующих ИЛИ которые были восстановлены
+                            if (! in_array($activeItem->id, $existingWgItemIds) ||
+                                $itemsToRestore->pluck('welcome_group_external_id')->contains($activeItem->id)) {
+                                $activePlusRestoredItems++;
+                            }
+                        }
+                    }
+
+                    // Добавляем подробное логирование для отладки
+                    logger()->debug('Проверка условий для добавления новой позиции', [
+                        'orderId' => $wgOrder->id,
+                        'itemId' => $newItem->id,
+                        'foodId' => $foodId,
+                        'itemStatus' => $newItem->status,
+                        'localItemsOfThisType' => $localItemsOfThisType,
+                        'activePlusRestoredItems' => $activePlusRestoredItems,
+                        'existingWgItemIds' => $existingWgItemIds,
+                        'activeWgItemIds' => $activeWgItemIds,
+                        'itemsToRestoreIds' => $itemsToRestore->pluck('welcome_group_external_id')->toArray(),
+                        'condition' => ! ($localItemsOfThisType == 0 && $newItem->status != 'cancelled') || $activePlusRestoredItems >= $localItemsOfThisType ? 'SKIP' : 'ADD',
+//                        'condition' => ($activePlusRestoredItems >= $localItemsOfThisType) ? 'SKIP' : 'ADD',
+                    ]);
+
+                    // Если новая позиция просто заменяет удаленную того же типа, пропускаем
+                    // Исправляем условие: если localItemsOfThisType = 0, то это новый тип блюда, которого еще нет в заказе
+                    // и его нужно добавить в любом случае
+                                        if ($localItemsOfThisType > 0 && $activePlusRestoredItems > 0 &&
+                                            ($activePlusRestoredItems + $localItemsOfThisType) <= count($activeWgItemsGrouped[$foodId] ?? [])) {
+                    //                    if ($localItemsOfThisType > 0 && $activePlusRestoredItems >= $localItemsOfThisType) {
+//                    if (! ($localItemsOfThisType == 0 && $newItem->status != 'cancelled') || $activePlusRestoredItems >= $localItemsOfThisType) {
+                        // Пропускаем только если количество новых/восстановленных не превышает разницу
+                        logger()->info('Пропускаем добавление новой позиции, так как она заменяет удаленную того же типа', [
+                            'orderId' => $wgOrder->id,
+                            'itemId' => $newItem->id,
+                            'foodId' => $foodId,
+                            'localItemsOfThisType' => $localItemsOfThisType,
+                            'activePlusRestoredItems' => $activePlusRestoredItems,
+                        ]);
+
+                        continue;
+                    }
+
+                    // Добавляем новую позицию в локальную базу
+                    $orderItem = new OrderItem();
+                    $orderItem->order_id = $internalOrder->id->id;
+                    $orderItem->iiko_menu_item_id = $food->iiko_menu_item_id;
+                    $orderItem->welcome_group_external_id = $newItem->id;
+                    $orderItem->price = $newItem->price;
+                    $orderItem->discount = $newItem->discount;
+                    $orderItem->amount = 1; // В Welcome Group нет количества у позиции
+                    $orderItem->comment = $newItem->comment;
+                    $orderItem->save();
+
+                    // Добавляем модификаторы, если они есть
+                    if (! empty($newItem->FoodModifiersArray)) {
+                        foreach ($newItem->FoodModifiersArray as $foodModifier) {
+                            // Находим модификатор в базе данных
+                            $wgFoodModifier = \Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFoodModifier::query()
+                                ->where('external_id', $foodModifier['modifier'])
+                                ->first();
+
+                            if ($wgFoodModifier) {
+                                $wgModifier = WelcomeGroupModifier::query()->find($wgFoodModifier->welcome_group_modifier_id);
+
+                                if ($wgModifier && $wgModifier->iiko_menu_item_modifier_item_id) {
+                                    $orderItemModifier = new OrderItemModifier();
+                                    $orderItemModifier->order_item_id = $orderItem->id;
+                                    $orderItemModifier->iiko_menu_item_modifier_item_id = $wgModifier->iiko_menu_item_modifier_item_id;
+                                    $orderItemModifier->save();
+
+                                    logger()->info('Добавлен модификатор к новой позиции', [
+                                        'orderId' => $wgOrder->id,
+                                        'itemId' => $newItem->id,
+                                        'modifierId' => $wgModifier->iiko_menu_item_modifier_item_id,
+                                        'modifierName' => $wgModifier->name,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+
+                    // Добавляем позицию в IIKO
+                    try {
+                        $modifiers = [];
+                        $orderItem->load(['modifiers', 'iikoMenuItem']);
+
+                        foreach ($orderItem->modifiers as $modifier) {
+                            $modifier->load('modifier');
+                            $modifiers[] = new IikoModifier(
+                                $modifier->modifier->external_id,
+                                (float) number_format($modifier->modifier->prices->first()->price, 2, '.', ''),
+                                $modifier->modifier->modifierGroup->external_id
+                            );
+                        }
+
+                        $this->iikoConnector->addOrderItems(
+                            new AddOrderItemsRequestData(
+                                $organizationSetting->iikoRestaurantId->id,
+                                $internalOrder->iikoExternalId->id,
+                                [
+                                    new Items(
+                                        $orderItem->iikoMenuItem->external_id,
+                                        $modifiers,
+                                        (float) number_format($orderItem->price, 2, '.', ''),
+                                        'Product',
+                                        $orderItem->amount,
+                                        null,
+                                        null,
+                                        $orderItem->comment
+                                    ),
+                                ]
+                            ),
+                            $this->authenticator->getAuthToken($organizationSetting->iikoApiKey)
+                        );
+
+                        logger()->info('Позиция успешно добавлена в IIKO', [
+                            'orderId' => $wgOrder->id,
+                            'itemId' => $newItem->id,
+                        ]);
+
+                        $addedItemsCount++;
+
+                    } catch (\Throwable $e) {
+                        logger()->error('Ошибка при добавлении позиции в IIKO', [
+                            'orderId' => $wgOrder->id,
+                            'itemId' => $newItem->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+
+                } catch (\Throwable $e) {
+                    logger()->error('Ошибка при добавлении новой позиции из Welcome Group', [
+                        'orderId' => $wgOrder->id,
+                        'itemId' => $newItem->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // Выводим статистику по каждому типу блюда для отладки
+            foreach ($activeWgItemsGrouped as $foodId => $items) {
+                $localCount = isset($currentItemsGrouped[$foodId]) ? count($currentItemsGrouped[$foodId]) : 0;
+                $wgCount = count($items);
+
+                logger()->info('Сравнение количества позиций по типу блюда', [
+                    'orderId' => $wgOrder->id,
+                    'foodId' => $foodId,
+                    'localCount' => $localCount,
+                    'wgCount' => $wgCount,
+                ]);
+            }
+
+            logger()->info('Обработка позиций заказа завершена', [
+                'orderId' => $wgOrder->id,
+                'addedItemsCount' => $addedItemsCount,
+                'restoredItemsCount' => $restoredItemsCount,
+            ]);
+        } catch (\Throwable $e) {
+            logger()->error('Ошибка при обработке изменений в позициях заказа', [
+                'orderId' => $wgOrder->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
     }
 

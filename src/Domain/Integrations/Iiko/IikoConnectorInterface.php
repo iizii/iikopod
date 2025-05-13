@@ -20,6 +20,7 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest\Upda
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\AddOrderItemsRequest\AddOrderItemsRequestData;
 
 interface IikoConnectorInterface
 {
@@ -65,4 +66,6 @@ interface IikoConnectorInterface
     public function getActiveOrganizationCouriers(GetActiveOrganizationCouriersRequestData $getActiveOrganizationCouriersRequestData, string $authToken): LazyCollection;
 
     public function changeDeliveryDriverForOrder(ChangeDeliveryDriverForOrderRequestData $changeDeliveryDriverForOrderRequestData, string $authToken): ChangeDeliveryDriverForOrderResponseData;
+
+    public function addOrderItems(AddOrderItemsRequestData $data, string $token): void;
 }

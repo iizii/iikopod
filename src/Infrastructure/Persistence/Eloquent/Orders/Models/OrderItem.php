@@ -11,11 +11,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 
 /**
- * 
- *
  * @property int $id
  * @property int $order_id
  * @property int $iiko_menu_item_id
+ * @property int|null $welcome_group_external_id
  * @property int $price
  * @property int $discount
  * @property int $amount
@@ -38,6 +37,8 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereWelcomeGroupExternalId($value)
+ *
  * @mixin \Eloquent
  */
 final class OrderItem extends Model
@@ -45,6 +46,7 @@ final class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'iiko_menu_item_id',
+        'welcome_group_external_id',
         'price',
         'discount',
         'amount',
@@ -72,6 +74,7 @@ final class OrderItem extends Model
 
         return $this->fill([
             'iiko_menu_item_id' => $item->itemId->id,
+            'welcome_group_external_id' => $item->welcomeGroupExternalId?->id,
             'price' => $item->price,
             'discount' => $item->discount,
             'amount' => $item->amount,

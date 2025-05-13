@@ -25,7 +25,7 @@ final readonly class UpdateOrderItemRequest implements RequestInterface, Respons
 
     public function endpoint(): string
     {
-        return "/api/order/{$this->externalId}";
+        return "/api/order_item/{$this->externalId}";
     }
 
     public function headers(): array|Arrayable

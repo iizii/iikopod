@@ -15,7 +15,7 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string|null $external_id

@@ -9,24 +9,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 
- *
  * @property int $id
  * @property int $order_id
  * @property string $type
  * @property int $amount
+ * @property string|null $iiko_external_id
+ * @property int|null $welcome_group_external_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\Order $order
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereIikoExternalId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderPayment whereWelcomeGroupExternalId($value)
+ *
  * @mixin \Eloquent
  */
 final class OrderPayment extends Model

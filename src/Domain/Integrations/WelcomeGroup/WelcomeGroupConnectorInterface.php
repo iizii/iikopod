@@ -57,9 +57,11 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModif
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\CreateRestaurantModifierResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\EditRestaurantModifierRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantModifier\EditRestaurantModifierResponseData;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
+use Illuminate\Database\Eloquent\Collection;
 
 interface WelcomeGroupConnectorInterface
 {
@@ -193,7 +195,7 @@ interface WelcomeGroupConnectorInterface
 
     public function getAddress(IntegerId $id): GetAddressResponseData;
 
-    public function getOrderItems(IntegerId $id): LazyCollection;
+    public function getOrderItems(IntegerId $orderId): Collection;
 
     /**
      * Update order item status in Welcome Group
@@ -202,4 +204,8 @@ interface WelcomeGroupConnectorInterface
      * @throws \Illuminate\Http\Client\ConnectionException
      */
     public function updateOrderItem(string $externalId, UpdateOrderItemRequestData $data);
+
+    public function cancelOrderItem(IntegerId $orderItemId): void;
+
+    public function addOrderItem(IntegerId $orderId, CreateOrderItemRequest $request): void;
 }

@@ -51,6 +51,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\Creat
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequest as CreateOrderItemRequestDTO;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
@@ -108,6 +109,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\ConnectorLogger;
 use Shared\Infrastructure\Integrations\RequestInterface;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 final readonly class WelcomeGroupConnector extends AbstractConnector implements WelcomeGroupConnectorInterface
 {
@@ -360,13 +363,15 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function getOrderItems(IntegerId $id): LazyCollection
+    public function getOrderItems(IntegerId $orderId): EloquentCollection
     {
-        /** @var LazyCollection<array-key, GetOrderItemsResponseData> */
-        return $this
-            ->send(new GetOrderItemsRequest(
-                new GetOrderItemsRequestData($id->id)
-            ));
+        /** @var LazyCollection $response */
+        $response = $this->send(new GetOrderItemsRequest(new GetOrderItemsRequestData($orderId->id)));
+
+        // Преобразуем Collection в EloquentCollection
+        $eloquentCollection = new EloquentCollection($response->all());
+
+        return $eloquentCollection;
     }
 
     /**
@@ -502,6 +507,17 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
     public function updateOrderItem(string $externalId, UpdateOrderItemRequestData $data): void
     {
         $this->send(new UpdateOrderItemRequest($externalId, $data));
+    }
+
+    public function cancelOrderItem(IntegerId $orderItemId): void
+    {
+        $this->send(new Requests\Order\CancelOrderItemRequest($orderItemId));
+    }
+
+    public function addOrderItem(IntegerId $orderId, Requests\Order\CreateOrderItemRequest $request): void
+    {
+        // Используем orderId для формирования эндпоинта, если это необходимо
+        $this->send($request);
     }
 
     protected function getRequestException(Response $response, \Throwable $clientException): \Throwable

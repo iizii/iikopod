@@ -25,6 +25,7 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest\UpdateOrderRequestData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\AddOrderItemsRequest\AddOrderItemsRequestData;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestFailedEvent;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestSuccessesEvent;
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
@@ -38,6 +39,7 @@ use Infrastructure\Integrations\IIko\Requests\GetMenuRequest;
 use Infrastructure\Integrations\IIko\Requests\GetPaymentTypesRequest;
 use Infrastructure\Integrations\IIko\Requests\GetStopListRequest;
 use Infrastructure\Integrations\IIko\Requests\UpdateDeliveryStatus;
+use Infrastructure\Integrations\IIko\Requests\AddOrderItemsRequest;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\RequestInterface;
@@ -143,6 +145,17 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
                 $changeDeliveryDriverForOrderRequestData,
                 $authToken
             ));
+    }
+
+    /**
+     * Добавляет новые позиции к существующему заказу в IIKO
+     *
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function addOrderItems(AddOrderItemsRequestData $data, string $token): void
+    {
+        $this->send(new AddOrderItemsRequest($data, $token));
     }
 
     /**
