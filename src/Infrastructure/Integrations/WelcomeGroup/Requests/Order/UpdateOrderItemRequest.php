@@ -14,7 +14,7 @@ use Shared\Infrastructure\Integrations\ResponseDataInterface;
 final readonly class UpdateOrderItemRequest implements RequestInterface, ResponseDataInterface
 {
     public function __construct(
-        private string $externalId,
+        private int $externalId,
         private UpdateOrderItemRequestData $data,
     ) {}
 

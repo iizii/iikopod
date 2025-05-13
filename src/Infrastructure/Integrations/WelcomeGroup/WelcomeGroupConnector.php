@@ -504,7 +504,7 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
      * @throws \Illuminate\Http\Client\RequestException
      * @throws \Illuminate\Http\Client\ConnectionException
      */
-    public function updateOrderItem(string $externalId, UpdateOrderItemRequestData $data): void
+    public function updateOrderItem(int $externalId, UpdateOrderItemRequestData $data): void
     {
         $this->send(new UpdateOrderItemRequest($externalId, $data));
     }
