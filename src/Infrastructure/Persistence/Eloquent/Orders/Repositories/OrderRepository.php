@@ -79,6 +79,7 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
     {
         $persistenceOrder = $this
             ->query()
+            ->with(['items.modifiers', 'payments']) // важно подгрузить связанные модели
             ->find($order->id->id);
 
         if (! $persistenceOrder) {
@@ -111,48 +112,82 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
                 $newPayment = (new OrderPayment())->fromDomainEntity($payment);
                 $newPayment->order_id = $persistenceOrder->id;
                 $newPayment->save();
-
                 $processedPaymentIds[] = $newPayment->id;
             }
         });
 
-        // 🗑️ Удаляем неиспользуемые платежи
+        // 🗑️ Удаление неактуальных платежей
         $currentPayments->each(static function (OrderPayment $currentPayment) use ($processedPaymentIds, $welcomeGroupConnector) {
             if (! in_array($currentPayment->id, $processedPaymentIds, true)) {
                 if ($currentPayment->welcome_group_external_id) {
                     $welcomeGroupConnector->deletePayment(new IntegerId($currentPayment->welcome_group_external_id));
                 }
+
                 $currentPayment->delete();
             }
         });
 
-        $processedOrderItemIds = [];
+        // 🔁 Синхронизация позиций заказа и их модификаторов
+        $processedItemIds = [];
 
-        $order->items->each(static function (Item $item) use ($persistenceOrder, &$processedOrderItemIds) {
-            $existedOrderItem = OrderItem::whereIikoExternalId($item->positionId->id ?? 'not found')->get();
-
-            if ($existedOrderItem->count() === 0) {
-                $persistenceItem = new OrderItem();
-                $persistenceItem->fromDomainEntity($item);
-
-                $persistenceOrder->items()->save($persistenceItem);
-                $processedOrderItemIds[] = $persistenceItem->id;
-                $processedOrderItemModifierIds = [];
-                $item->modifiers->each(static function (Modifier $modifier) use ($persistenceItem, &$processedOrderItemModifierIds) {
-                    $existedOrderItemModifier = OrderItemModifier::query()
-                        ->whereIikoExternalId($modifier->positionId->id ?? 'not found')->get();
-
-                    if ($existedOrderItemModifier->count() === 0) {
-                        $persistenceModifier = new OrderItemModifier();
-                        $persistenceModifier->fromDomainEntity($modifier);
-
-                        $persistenceItem->modifiers()->save($persistenceModifier);
-                        $processedOrderItemModifierIds[] = $persistenceModifier->id;
-                    }
+        $order->items->each(static function (Item $item) use ($persistenceOrder, &$processedItemIds) {
+            /** @var OrderItem|null $existingItem */
+            $existingItem = $persistenceOrder->items
+                ->first(static function (OrderItem $orderItem) use ($item) {
+                    return $orderItem->iiko_external_id === $item->positionId->id;
                 });
+
+            if ($existingItem) {
+                $existingItem->fromDomainEntity($item);
+                $existingItem->save();
+                $orderItem = $existingItem;
+            } else {
+                $orderItem = new OrderItem();
+                $orderItem->fromDomainEntity($item);
+                $orderItem->order_id = $persistenceOrder->id;
+                $orderItem->save();
             }
+
+            $processedItemIds[] = $orderItem->id;
+
+            // Модификаторы
+            $processedModifierIds = [];
+
+            $item->modifiers->each(static function (Modifier $modifier) use ($orderItem, &$processedModifierIds) {
+                $existingModifier = $orderItem->modifiers
+                    ->first(static function (OrderItemModifier $mod) use ($modifier) {
+                        return $mod->iiko_external_id === $modifier->positionId->id;
+                    });
+
+                if ($existingModifier) {
+                    $existingModifier->fromDomainEntity($modifier);
+                    $existingModifier->save();
+                    $processedModifierIds[] = $existingModifier->id;
+                } else {
+                    $newModifier = new OrderItemModifier();
+                    $newModifier->fromDomainEntity($modifier);
+                    $newModifier->order_item_id = $orderItem->id;
+                    $newModifier->save();
+                    $processedModifierIds[] = $newModifier->id;
+                }
+            });
+
+            // 🗑️ Удаление старых модификаторов
+            $orderItem->modifiers()
+                ->whereNotIn('id', $processedModifierIds)
+                ->delete();
         });
 
+        // 🗑️ Удаление устаревших позиций
+        $persistenceOrder->items()
+            ->whereNotIn('id', $processedItemIds)
+            ->delete();
+        //            ->each(static function (OrderItem $itemToDelete) {
+        //                $itemToDelete->modifiers()->delete(); // сначала удалим модификаторы
+        //                $itemToDelete->delete();
+        //            });
+
+        // Обновление основной информации заказа
         $persistenceOrder->fromDomainEntity($order);
         $persistenceOrder->save();
 
