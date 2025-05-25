@@ -60,7 +60,7 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
             $persistenceItem->fromDomainEntity($item);
 
             $eloquentItem = $persistenceOrder->items()->save($persistenceItem);
-//            $item->itemId = new IntegerId($eloquentItem->id);
+            //            $item->itemId = new IntegerId($eloquentItem->id);
             $item->modifiers->each(static function (Modifier $modifier) use ($persistenceItem) {
                 $persistenceModifier = new OrderItemModifier();
                 $persistenceModifier->fromDomainEntity($modifier);
@@ -86,40 +86,39 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
         }
 
         $currentPayments = $persistenceOrder->payments;
-        $processedPaymentIds = []; // Массив для отслеживания обработанных платежей
+        $processedPaymentIds = [];
 
         $welcomeGroupConnector = app(WelcomeGroupConnectorInterface::class);
 
-        // Обрабатываем новые платежи
+        // 🔁 Синхронизация платежей
         $order->payments->each(static function (Payment $payment) use ($currentPayments, $persistenceOrder, &$processedPaymentIds) {
-            // Ищем первый непроцессированный платеж с такими же type и amount
-            $existingPayment = $currentPayments->first(static function (OrderPayment $current) use ($payment, &$processedPaymentIds) {
-                return ! in_array($current->id, $processedPaymentIds, true)
-                    && $current->type === $payment->type
-                    && $current->amount === $payment->amount;
-            });
+            /** @var OrderPayment|null $existingPayment */
+            $existingPayment = $currentPayments
+                ->whereNotIn('id', $processedPaymentIds)
+                ->first(static function (OrderPayment $current) use ($payment) {
+                    return $current->type === $payment->type
+                        && $current->amount === $payment->amount;
+                });
 
             if ($existingPayment) {
-                // Обновляем найденный платеж
-                $existingPayment->fromDomainEntity($payment);
-                $existingPayment->save();
-                $processedPaymentIds[] = $existingPayment->id; // Помечаем как обработанный
+                // 🔄 Обновляем существующий платёж (такое ощущение, что зачем его обрабатывать, если он сошёлся по типу и сумме)
+                //                $existingPayment->fromDomainEntity($payment);
+                //                $existingPayment->save();
+
+                $processedPaymentIds[] = $existingPayment->id;
             } else {
-                // Создаем новый платеж, если не нашли подходящий
+                // ➕ Новый платёж
                 $newPayment = (new OrderPayment())->fromDomainEntity($payment);
                 $newPayment->order_id = $persistenceOrder->id;
                 $newPayment->save();
+
+                $processedPaymentIds[] = $newPayment->id;
             }
         });
 
-        // Удаляем платежи, которых нет в новых данных
-        $currentPayments->each(static function (OrderPayment $currentPayment) use ($order, $welcomeGroupConnector) {
-            $existsInNew = $order->payments->contains(static function (Payment $payment) use ($currentPayment) {
-                return $payment->type === $currentPayment->type
-                    && $payment->amount === $currentPayment->amount;
-            });
-
-            if (! $existsInNew) {
+        // 🗑️ Удаляем неиспользуемые платежи
+        $currentPayments->each(static function (OrderPayment $currentPayment) use ($processedPaymentIds, $welcomeGroupConnector) {
+            if (! in_array($currentPayment->id, $processedPaymentIds, true)) {
                 if ($currentPayment->welcome_group_external_id) {
                     $welcomeGroupConnector->deletePayment(new IntegerId($currentPayment->welcome_group_external_id));
                 }
@@ -127,18 +126,31 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
             }
         });
 
-        $order->items->each(static function (Item $item) use ($persistenceOrder) {
-            $persistenceItem = new OrderItem();
-            $persistenceItem->fromDomainEntity($item);
+        $processedOrderItemIds = [];
 
-            $persistenceOrder->items()->save($persistenceItem);
+        $order->items->each(static function (Item $item) use ($persistenceOrder, &$processedOrderItemIds) {
+            $existedOrderItem = OrderItem::whereIikoExternalId($item->positionId->id ?? 'not found')->get();
 
-            $item->modifiers->each(static function (Modifier $modifier) use ($persistenceItem) {
-                $persistenceModifier = new OrderItemModifier();
-                $persistenceModifier->fromDomainEntity($modifier);
+            if ($existedOrderItem->count() === 0) {
+                $persistenceItem = new OrderItem();
+                $persistenceItem->fromDomainEntity($item);
 
-                $persistenceItem->modifiers()->save($persistenceModifier);
-            });
+                $persistenceOrder->items()->save($persistenceItem);
+                $processedOrderItemIds[] = $persistenceItem->id;
+                $processedOrderItemModifierIds = [];
+                $item->modifiers->each(static function (Modifier $modifier) use ($persistenceItem, &$processedOrderItemModifierIds) {
+                    $existedOrderItemModifier = OrderItemModifier::query()
+                        ->whereIikoExternalId($modifier->positionId->id ?? 'not found')->get();
+
+                    if ($existedOrderItemModifier->count() === 0) {
+                        $persistenceModifier = new OrderItemModifier();
+                        $persistenceModifier->fromDomainEntity($modifier);
+
+                        $persistenceItem->modifiers()->save($persistenceModifier);
+                        $processedOrderItemModifierIds[] = $persistenceModifier->id;
+                    }
+                });
+            }
         });
 
         $persistenceOrder->fromDomainEntity($order);
