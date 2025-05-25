@@ -15,6 +15,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
+use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem;
 use Infrastructure\Queue\Queue;
 
 final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
@@ -56,6 +57,11 @@ final class UpdateOrderJob implements ShouldBeUnique, ShouldQueue
             if (! in_array(OrderStatus::toWelcomeGroupStatus($order->status), [\Domain\WelcomeGroup\Enums\OrderStatus::FINISHED, \Domain\WelcomeGroup\Enums\OrderStatus::DELIVERING, \Domain\WelcomeGroup\Enums\OrderStatus::DELIVERED])) {
                 $welcomeGroupStatus = OrderStatus::toWelcomeGroupStatus($order->status);
                 $itemStatus = $this->getItemStatusForOrderStatus($order->status->value);
+
+                // Создаём новые блюда, если они есть
+                $eloquentOrder->items->each(function (OrderItem $orderItem) {
+
+                });
 
                 // Обновляем статус блюд, если есть соответствующий статус
                 $orderItems = $welcomeGroupConnector
