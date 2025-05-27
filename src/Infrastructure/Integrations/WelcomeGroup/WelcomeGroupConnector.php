@@ -51,9 +51,10 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\Creat
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\GetOrderItemsResponseData;
-use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequest as CreateOrderItemRequestDTO;
+//use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequest as CreateOrderItemRequestDTO;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\DeleteOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
@@ -92,6 +93,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Order\ApproveOrderRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderRequest;
+use Infrastructure\Integrations\WelcomeGroup\Requests\Order\DeleteOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrderItemsRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrderPaymentRequest;
 use Infrastructure\Integrations\WelcomeGroup\Requests\Order\GetOrdersByRestaurantRequest;
@@ -386,6 +388,14 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
         return $response;
     }
 
+    public function deletePayment(IntegerId $externalPaymentId): DeleteOrderPaymentResponseData
+    {
+        /** @var DeleteOrderPaymentResponseData $response */
+        $response = $this->send(new DeleteOrderPaymentRequest($externalPaymentId));
+
+        return $response;
+    }
+
     /**
      * @throws RequestException
      * @throws ConnectionException
@@ -509,9 +519,13 @@ final readonly class WelcomeGroupConnector extends AbstractConnector implements 
         $this->send(new UpdateOrderItemRequest($externalId, $data));
     }
 
-    public function cancelOrderItem(IntegerId $orderItemId): void
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function cancelOrderItem(IntegerId $orderItemId)
     {
-        $this->send(new Requests\Order\CancelOrderItemRequest($orderItemId));
+        return $this->send(new Requests\Order\CancelOrderItemRequest($orderItemId));
     }
 
     public function addOrderItem(IntegerId $orderId, Requests\Order\CreateOrderItemRequest $request): void

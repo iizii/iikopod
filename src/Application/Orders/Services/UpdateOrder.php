@@ -22,7 +22,7 @@ final readonly class UpdateOrder
     /**
      * @throws \Throwable
      */
-    public function update(Order $order): Order
+    public function update(Order $order, string $sourceKey): Order
     {
         $this->databaseManager->beginTransaction();
 

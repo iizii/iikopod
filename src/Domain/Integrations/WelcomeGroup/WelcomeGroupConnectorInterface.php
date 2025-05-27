@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Integrations\WelcomeGroup;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
@@ -43,6 +44,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\Creat
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentResponseData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\DeleteOrderPaymentResponseData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\GetOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneResponseData;
@@ -61,7 +63,6 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemReque
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Infrastructure\Integrations\RequestInterface;
 use Shared\Infrastructure\Integrations\ResponseData;
-use Illuminate\Database\Eloquent\Collection;
 
 interface WelcomeGroupConnectorInterface
 {
@@ -181,6 +182,8 @@ interface WelcomeGroupConnectorInterface
      */
     public function createPayment(CreateOrderPaymentRequestData $createOrderPaymentRequestData): CreateOrderPaymentResponseData;
 
+    public function deletePayment(IntegerId $externalPaymentId): DeleteOrderPaymentResponseData;
+
     public function getOrderPayment(GetOrderPaymentRequestData $getOrderPaymentRequestData): LazyCollection;
 
     public function createRestaurantModifier(CreateRestaurantModifierRequestData $createRestaurantModifierRequestData): CreateRestaurantModifierResponseData;
@@ -205,7 +208,7 @@ interface WelcomeGroupConnectorInterface
      */
     public function updateOrderItem(int $externalId, UpdateOrderItemRequestData $data);
 
-    public function cancelOrderItem(IntegerId $orderItemId): void;
+    public function cancelOrderItem(IntegerId $orderItemId);
 
     public function addOrderItem(IntegerId $orderId, CreateOrderItemRequest $request): void;
 }

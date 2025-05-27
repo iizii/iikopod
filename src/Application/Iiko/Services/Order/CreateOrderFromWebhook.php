@@ -28,6 +28,7 @@ use Illuminate\Support\ItemNotFoundException;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\EventData;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Items;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Modifiers;
+use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Payments;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
@@ -57,16 +58,18 @@ final readonly class CreateOrderFromWebhook
         $eventPayment = $eventData
             ->order
             ->payments
-            ->toCollection()
-            ->first();
+            ->toCollection();
 
-        $payment = $eventPayment
-            ? new Payment(
-                $eventPayment->paymentType->kind,
-                $eventPayment->sum,
-            )
-            : null;
-        $organization = $this->organizationSettingRepository->findByIIkoId(new StringId($eventData->organizationId));
+        if ($eventPayment->count()) {
+            $payments = $eventPayment
+                ->map(static fn (Payments $payment) => new Payment($payment->paymentType->kind, $payment->sum));
+        } else {
+            $payments = null;
+        }
+
+        $organization = $this
+            ->organizationSettingRepository
+            ->findByIIkoId(new StringId($eventData->organizationId));
 
         if (! $organization) {
             throw new OrganizationNotFoundException();
@@ -80,7 +83,7 @@ final readonly class CreateOrderFromWebhook
                     $eventData->toArray(),
                 );
 
-            throw new Exception("Заказ {$eventData->id} не поступил в обработку т.к. у заведения стоит блок с модуле связи");
+            throw new Exception("Заказ {$eventData->id} не поступил в обработку т.к. у заведения стоит блок в модуле связи");
         }
 
         if (! in_array($eventData->order->orderType->id, $organization->orderTypes) && ! $existedOrder) {
@@ -109,7 +112,7 @@ final readonly class CreateOrderFromWebhook
             new StringId($eventData->id),
             new IntegerId(),
             $eventData->order->comment,
-            $payment,
+            $payments,
             new Customer(
                 $eventData->order->customer->name,
                 CustomerType::NEW,
@@ -134,10 +137,12 @@ final readonly class CreateOrderFromWebhook
                 $item = new Item(
                     $iikoItem->id,
                     $items->cost,
-                    $items->cost - $items->price,
+                    $items->cost, ///- $items->price,
                     $items->amount,
                     $items->comment,
                     new ItemModifierCollection(),
+                    null,
+                    new StringId($items->positionId)
                 );
 
                 $items
@@ -157,6 +162,8 @@ final readonly class CreateOrderFromWebhook
                             new Modifier(
                                 $item->itemId,
                                 $modifier->id,
+                                new StringId($modifiers->positionId),
+                                null
                             ),
                         );
                     });
@@ -170,7 +177,7 @@ final readonly class CreateOrderFromWebhook
                 ->setId($existedOrder->id)
                 ->setWelcomeGroupExternalId($existedOrder->welcomeGroupExternalId);
 
-            $this->updateOrder->update($order->build()); // Сюда полагаю тоже сорскей бы
+            $this->updateOrder->update($order->build(), $eventData->order->sourceKey); // Сюда полагаю тоже сорскей бы
 
             return;
         }

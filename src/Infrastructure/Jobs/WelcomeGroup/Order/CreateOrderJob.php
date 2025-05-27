@@ -204,10 +204,14 @@ final class CreateOrderJob implements ShouldQueue
             );
         }
 
-        $sentOrder = OrderBuilder::fromExisted($order);
-        $sentOrder = $sentOrder->setWelcomeGroupExternalId(new IntegerId($response->id));
+        //        $sentOrder = OrderBuilder::fromExisted($order);
+        //        $sentOrder = $sentOrder->setWelcomeGroupExternalId(new IntegerId($response->id));
 
-        $orderRepository->update($sentOrder->build());
+        \Infrastructure\Persistence\Eloquent\Orders\Models\Order::query()
+            ->update([
+                'welcome_group_external_id' => $response->id,
+            ]);
+        //        $orderRepository->update($sentOrder->build());
     }
 
     /**

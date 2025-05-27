@@ -10,10 +10,13 @@ use Domain\Orders\Enums\OrderSource;
 use Domain\Orders\Enums\OrderStatus;
 use Domain\Orders\ValueObjects\Customer;
 use Domain\Orders\ValueObjects\ItemCollection;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Address;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\City;
@@ -25,8 +28,6 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
- *
  * @property int $id
  * @property int $organization_setting_id
  * @property string $source
@@ -34,28 +35,31 @@ use Shared\Domain\ValueObjects\StringId;
  * @property string|null $iiko_external_id
  * @property int|null $welcome_group_external_id
  * @property string|null $comment
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $complete_before
- * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderCustomer|null $customer
- * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress|null $endpointAddress
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem> $items
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $complete_before
+ * @property-read OrderCustomer|null $customer
+ * @property-read EndpointAddress|null $endpointAddress
+ * @property-read Collection<int, OrderItem> $items
  * @property-read int|null $items_count
  * @property-read OrganizationSetting $organizationSetting
- * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment|null $payment
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCompleteBefore($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereIikoExternalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrganizationSettingId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSource($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereWelcomeGroupExternalId($value)
+ * @property-read Collection<int, OrderPayment> $payments
+ * @property-read int|null $payments_count
+ *
+ * @method static Builder<static>|Order newModelQuery()
+ * @method static Builder<static>|Order newQuery()
+ * @method static Builder<static>|Order query()
+ * @method static Builder<static>|Order whereComment($value)
+ * @method static Builder<static>|Order whereCompleteBefore($value)
+ * @method static Builder<static>|Order whereCreatedAt($value)
+ * @method static Builder<static>|Order whereId($value)
+ * @method static Builder<static>|Order whereIikoExternalId($value)
+ * @method static Builder<static>|Order whereOrganizationSettingId($value)
+ * @method static Builder<static>|Order whereSource($value)
+ * @method static Builder<static>|Order whereStatus($value)
+ * @method static Builder<static>|Order whereUpdatedAt($value)
+ * @method static Builder<static>|Order whereWelcomeGroupExternalId($value)
+ *
  * @mixin \Eloquent
  */
 final class Order extends Model
@@ -75,34 +79,40 @@ final class Order extends Model
     ];
 
     /**
-     * @return HasOne<OrderPayment>
+     * @return HasMany<OrderPayment, $this>
      */
-    public function payment(): HasOne
+    public function payments(): HasMany
     {
-        return $this->hasOne(OrderPayment::class, 'order_id', 'id');
+        return $this->hasMany(OrderPayment::class, 'order_id', 'id');
     }
 
     /**
-     * @return HasOne<OrderCustomer>
+     * @return HasOne<OrderCustomer, $this>
      */
     public function customer(): HasOne
     {
         return $this->hasOne(OrderCustomer::class, 'order_id', 'id');
     }
 
+    /**
+     * @return HasOne<EndpointAddress, $this>
+     */
     public function endpointAddress(): HasOne
     {
         return $this->hasOne(EndpointAddress::class, 'order_id', 'id');
     }
 
     /**
-     * @return HasMany<OrderItem>
+     * @return HasMany<OrderItem, $this>
      */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class, 'order_id', 'id');
     }
 
+    /**
+     * @return BelongsTo<OrganizationSetting, $this>
+     */
     public function organizationSetting(): BelongsTo
     {
         return $this->belongsTo(OrganizationSetting::class);
@@ -139,40 +149,40 @@ final class Order extends Model
             new StringId($order->iiko_external_id),
             new IntegerId($order->welcome_group_external_id),
             $order->comment,
-            null,
+            $order->payments,
             new Customer(
-                $order->customer->name,
-                CustomerType::from($order->customer->type),
-                $order->customer->phone,
+                $order->customer?->name,
+                CustomerType::from($order->customer?->type),
+                (string) $order->customer?->phone,
             ),
             new ItemCollection(),
             new DeliveryPoint(
                 new Coordinates(
-                    (float) $order->endpointAddress->latitude,
-                    (float) $order->endpointAddress->longitude
+                    (float) $order->endpointAddress?->latitude,
+                    (float) $order->endpointAddress?->longitude
                 ),
                 new Address(
                     new Street(
                         null,
                         null,
-                        $order->endpointAddress->street,
+                        $order->endpointAddress?->street,
                         new City(
                             null,
-                            $order->endpointAddress->city,
+                            $order->endpointAddress?->city,
                         )
                     ),
-                    $order->endpointAddress->index,
-                    $order->endpointAddress->house,
-                    $order->endpointAddress->building,
-                    $order->endpointAddress->flat,
-                    $order->endpointAddress->entrance,
-                    $order->endpointAddress->floor,
-                    $order->endpointAddress->doorphone,
+                    $order->endpointAddress?->index,
+                    $order->endpointAddress?->house,
+                    $order->endpointAddress?->building,
+                    $order->endpointAddress?->flat,
+                    $order->endpointAddress?->entrance,
+                    $order->endpointAddress?->floor,
+                    $order->endpointAddress?->doorphone,
                     new Region(
                         null,
-                        $order->endpointAddress->region,
+                        $order->endpointAddress?->region,
                     ),
-                    $order->endpointAddress->line1,
+                    $order->endpointAddress?->line1,
                 ),
                 null,
                 null

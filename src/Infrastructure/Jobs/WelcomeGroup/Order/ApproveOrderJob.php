@@ -59,7 +59,7 @@ final class ApproveOrderJob implements ShouldQueue
             throw new \RuntimeException(
                 sprintf(
                     'При апруве заказа %s в Welcome Group произошла ошибка, ошибка: %s',
-                    $order->id->id,
+                    $order->id,
                     $e->getMessage(),
                 ),
             );

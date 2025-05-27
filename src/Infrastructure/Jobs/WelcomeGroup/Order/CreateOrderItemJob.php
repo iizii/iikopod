@@ -8,8 +8,6 @@ use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Orders\Entities\Order;
 use Domain\Orders\Exceptions\OrderNotFoundException;
 use Domain\Orders\Repositories\OrderRepositoryInterface;
-use Domain\Orders\ValueObjects\Item;
-use Domain\Orders\ValueObjects\Modifier;
 use Domain\WelcomeGroup\Exceptions\FoodModifierNotFoundException;
 use Domain\WelcomeGroup\Exceptions\FoodNotFoundException;
 use Domain\WelcomeGroup\Repositories\WelcomeGroupFoodModifierRepositoryInterface;
@@ -22,7 +20,10 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
+use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem;
+use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
 use Infrastructure\Queue\Queue;
+use Shared\Domain\ValueObjects\IntegerId;
 
 final class CreateOrderItemJob implements ShouldQueue
 {
@@ -32,7 +33,7 @@ final class CreateOrderItemJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private readonly Order $order, public readonly Item $item, public readonly string $sourceKey)
+    public function __construct(private readonly Order $order, public readonly OrderItem $item, public readonly string $sourceKey)
     {
         $this->queue = Queue::INTEGRATIONS->value;
     }
@@ -56,17 +57,17 @@ final class CreateOrderItemJob implements ShouldQueue
             throw new OrderNotFoundException();
         }
 
-        $food = $welcomeGroupFoodRepository->findByIikoId($item->itemId);
+        $food = $welcomeGroupFoodRepository->findByIikoId(new IntegerId($item->iiko_menu_item_id));
 
         if (! $food) {
             throw new FoodNotFoundException();
         }
 
         $modifierIds = new Collection();
-
+        $item->load('modifiers');
         $item->modifiers->each(
-            static function (Modifier $modifier) use ($modifierIds, $welcomeGroupModifierRepository, $welcomeGroupFoodModifierRepository, $food) {
-                $foundModifier = $welcomeGroupModifierRepository->findByIikoId($modifier->modifierId);
+            static function (OrderItemModifier $modifier) use ($modifierIds, $welcomeGroupModifierRepository, $welcomeGroupFoodModifierRepository, $food) {
+                $foundModifier = $welcomeGroupModifierRepository->findByIikoId(new IntegerId($modifier->iiko_menu_item_modifier_item_id));
 
                 if (! $foundModifier) {
                     throw new FoodModifierNotFoundException();
@@ -83,13 +84,18 @@ final class CreateOrderItemJob implements ShouldQueue
         );
 
         try {
-            $welcomeGroupConnector->createOrderItem(
+            $orderItem = $welcomeGroupConnector->createOrderItem(
                 new CreateOrderItemRequestData(
-                    $order->welcomeGroupExternalId->id,
-                    $food->externalId->id,
+                    (int) $order->welcomeGroupExternalId->id,
+                    (int) $food->externalId->id,
                     $modifierIds->toArray(),
                 ),
             );
+
+            $item->update([
+                'welcome_group_external_id' => $orderItem->id,
+                'welcome_group_external_food_id' => $orderItem->food,
+            ]);
         } catch (\Throwable $e) {
             throw new \RuntimeException(
                 sprintf(

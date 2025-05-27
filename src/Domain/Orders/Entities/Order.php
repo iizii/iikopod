@@ -11,6 +11,7 @@ use Domain\Orders\ValueObjects\Customer;
 use Domain\Orders\ValueObjects\Item;
 use Domain\Orders\ValueObjects\ItemCollection;
 use Domain\Orders\ValueObjects\Payment;
+use Illuminate\Support\Enumerable;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint;
 use Shared\Domain\DomainEntity;
 use Shared\Domain\ValueObjects\IntegerId;
@@ -26,7 +27,7 @@ final class Order extends DomainEntity
         public readonly StringId $iikoExternalId,
         public readonly IntegerId $welcomeGroupExternalId,
         public readonly ?string $comment,
-        public readonly ?Payment $payment,
+        public readonly ?Enumerable $payments,
         public readonly Customer $customer,
         public readonly ItemCollection $items,
         public readonly ?DeliveryPoint $deliveryPoint,

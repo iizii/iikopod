@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $order_id
  * @property int $iiko_menu_item_id
@@ -21,6 +23,9 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
  * @property string|null $comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $iiko_external_id
+ * @property int|null $welcome_group_external_food_id
+ * @property int|null $replaced_on
  * @property-read IikoMenuItem $iikoMenuItem
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier> $modifiers
  * @property-read int|null $modifiers_count
@@ -33,12 +38,14 @@ use Infrastructure\Persistence\Eloquent\IIko\Models\Menu\IikoMenuItem;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereIikoExternalId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereIikoMenuItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereReplacedOn($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereWelcomeGroupExternalFoodId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereWelcomeGroupExternalId($value)
- *
  * @mixin \Eloquent
  */
 final class OrderItem extends Model
@@ -51,6 +58,9 @@ final class OrderItem extends Model
         'discount',
         'amount',
         'comment',
+        'iiko_external_id',
+        'welcome_group_external_food_id',
+        'replaced_on'
     ];
 
     public function order(): BelongsTo
@@ -79,6 +89,8 @@ final class OrderItem extends Model
             'discount' => $item->discount,
             'amount' => $item->amount,
             'comment' => $item->comment,
+            'iiko_external_id' => $item->positionId?->id,
+            'welcome_group_external_food_id' => $item->welcomeGroupExternalId?->id,
         ]);
     }
 }

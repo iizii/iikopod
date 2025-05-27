@@ -17,12 +17,12 @@ final readonly class CancelOrderItemRequest implements RequestInterface, Respons
 
     public function method(): RequestMethod
     {
-        return RequestMethod::DELETE;
+        return RequestMethod::POST;
     }
 
     public function endpoint(): string
     {
-        return '/api/order_item/' . $this->orderItemId->id;
+        return '/api/order_item/operator/reject/'.$this->orderItemId->id;
     }
 
     public function headers(): array|Arrayable
@@ -32,11 +32,11 @@ final readonly class CancelOrderItemRequest implements RequestInterface, Respons
 
     public function data(): array
     {
-        return [];
+        return ['comment' => 'Отмена позиции модулем связи'];
     }
 
     public function createDtoFromResponse(Response $response): array
     {
         return $response->json();
     }
-} 
+}

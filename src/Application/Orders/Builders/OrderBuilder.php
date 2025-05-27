@@ -11,6 +11,7 @@ use Domain\Orders\Enums\OrderStatus;
 use Domain\Orders\ValueObjects\Customer;
 use Domain\Orders\ValueObjects\ItemCollection;
 use Domain\Orders\ValueObjects\Payment;
+use Illuminate\Support\Enumerable;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
@@ -25,7 +26,7 @@ final class OrderBuilder
         private StringId $iikoExternalId,
         private IntegerId $welcomeGroupExternalId,
         private ?string $comment,
-        private ?Payment $payment,
+        private ?Enumerable $payments,
         private Customer $customer,
         private ItemCollection $items,
         private DeliveryPoint $deliveryPoint,
@@ -42,7 +43,7 @@ final class OrderBuilder
             $order->iikoExternalId,
             $order->welcomeGroupExternalId,
             $order->comment,
-            $order->payment,
+            $order->payments,
             $order->customer,
             $order->items,
             $order->deliveryPoint,
@@ -109,7 +110,7 @@ final class OrderBuilder
     public function setPayment(?Payment $payment): OrderBuilder
     {
         $clone = clone $this;
-        $clone->payment = $payment;
+        $clone->payments = $payment;
 
         return $clone;
     }
@@ -140,7 +141,7 @@ final class OrderBuilder
             $this->iikoExternalId,
             $this->welcomeGroupExternalId,
             $this->comment,
-            $this->payment,
+            $this->payments,
             $this->customer,
             $this->items,
             $this->deliveryPoint,

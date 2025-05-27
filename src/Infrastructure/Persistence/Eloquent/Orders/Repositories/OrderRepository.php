@@ -77,6 +77,7 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
 
     public function update(DomainOrder $order): ?DomainOrder
     {
+        /** @var Order $persistenceOrder */
         $persistenceOrder = $this
             ->query()
             ->with(['items.modifiers', 'payments']) // важно подгрузить связанные модели

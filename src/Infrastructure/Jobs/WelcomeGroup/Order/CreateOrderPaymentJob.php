@@ -16,6 +16,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
+use Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment;
 use Infrastructure\Queue\Queue;
 
 final class CreateOrderPaymentJob implements ShouldQueue
@@ -48,14 +49,14 @@ final class CreateOrderPaymentJob implements ShouldQueue
         }
 
         try {
-            $welcomeGroupConnector->createPayment(
+            $order->payments->each(static fn (OrderPayment $payment) => $welcomeGroupConnector->createPayment(
                 new CreateOrderPaymentRequestData(
                     $order->welcomeGroupExternalId->id,
                     OrderPaymentStatus::FINISHED,
-                    OrderPaymentType::CARD,
-                    $this->order->payment->amount,
+                    OrderPaymentType::tryFrom($payment->type) ?? OrderPaymentType::CARD,
+                    $payment->amount,
                 ),
-            );
+            ));
         } catch (\Throwable $e) {
             throw new \RuntimeException(
                 sprintf(

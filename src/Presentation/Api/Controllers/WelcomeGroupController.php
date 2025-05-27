@@ -25,6 +25,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\Cr
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\ModifierType\EditModifierTypeRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\CreateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrdersByRestaurantRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
@@ -615,6 +616,16 @@ final readonly class WelcomeGroupController
                 $request->input('food_id'),
                 $request->input('food_modifier_ids'),
             )
+        );
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    #[Route(methods: 'POST', uri: '/wg/cancel_order_item', name: 'wg.cancel_order_item')]
+    public function cancelOrderItem(Request $request, WelcomeGroupConnectorInterface $welcomeGroupConnector): JsonResponse
+    {
+        $response = $welcomeGroupConnector->cancelOrderItem(
+            new IntegerId($request->input('order_item_id')),
         );
 
         return $this->responseFactory->json($response, 200);
