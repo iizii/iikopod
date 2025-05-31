@@ -29,7 +29,7 @@ final class OrderBuilder
         private ?Enumerable $payments,
         private Customer $customer,
         private ItemCollection $items,
-        private DeliveryPoint $deliveryPoint,
+        private ?DeliveryPoint $deliveryPoint,
         private CarbonImmutable $completeBefore
     ) {}
 

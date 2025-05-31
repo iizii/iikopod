@@ -24,7 +24,7 @@ final class Order extends ResponseData
         public readonly string $phone,
         public readonly string $orderTypeId,
         public readonly ?string $orderServiceType,
-        public readonly DeliveryPoint $deliveryPoint,
+        public readonly ?DeliveryPoint $deliveryPoint,
         public readonly ?string $comment,
         public readonly Customer $customer,
         //        public readonly Guests $guests,

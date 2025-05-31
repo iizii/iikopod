@@ -156,37 +156,38 @@ final class Order extends Model
                 (string) $order->customer?->phone,
             ),
             new ItemCollection(),
-            new DeliveryPoint(
-                new Coordinates(
-                    (float) $order->endpointAddress?->latitude,
-                    (float) $order->endpointAddress?->longitude
-                ),
-                new Address(
-                    new Street(
-                        null,
-                        null,
-                        $order->endpointAddress?->street,
-                        new City(
-                            null,
-                            $order->endpointAddress?->city,
-                        )
-                    ),
-                    $order->endpointAddress?->index,
-                    $order->endpointAddress?->house,
-                    $order->endpointAddress?->building,
-                    $order->endpointAddress?->flat,
-                    $order->endpointAddress?->entrance,
-                    $order->endpointAddress?->floor,
-                    $order->endpointAddress?->doorphone,
-                    new Region(
-                        null,
-                        $order->endpointAddress?->region,
-                    ),
-                    $order->endpointAddress?->line1,
-                ),
-                null,
-                null
-            ),
+            null,
+//            new DeliveryPoint( может это когда-то вернётся, но не сейчас
+//                new Coordinates(
+//                    (float) $order->endpointAddress?->latitude,
+//                    (float) $order->endpointAddress?->longitude
+//                ),
+//                new Address(
+//                    new Street(
+//                        null,
+//                        null,
+//                        $order->endpointAddress?->street,
+//                        new City(
+//                            null,
+//                            $order->endpointAddress?->city,
+//                        )
+//                    ),
+//                    $order->endpointAddress?->index,
+//                    $order->endpointAddress?->house,
+//                    $order->endpointAddress?->building,
+//                    $order->endpointAddress?->flat,
+//                    $order->endpointAddress?->entrance,
+//                    $order->endpointAddress?->floor,
+//                    $order->endpointAddress?->doorphone,
+//                    new Region(
+//                        null,
+//                        $order->endpointAddress?->region,
+//                    ),
+//                    $order->endpointAddress?->line1,
+//                ),
+//                null,
+//                null
+//            ),
             $order->complete_before->toImmutable()
         );
     }

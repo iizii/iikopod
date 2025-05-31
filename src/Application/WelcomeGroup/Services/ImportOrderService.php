@@ -49,6 +49,7 @@ use Infrastructure\Integrations\WelcomeGroup\Requests\Order\CreateOrderItemReque
 use Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
+use Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupFood;
 use Infrastructure\Persistence\Eloquent\WelcomeGroup\Models\WelcomeGroupModifier;
 use Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\City;
@@ -101,28 +102,23 @@ final readonly class ImportOrderService
         });
     }
 
-    protected function getPaymentTypeFromIikoByCode(\Infrastructure\Persistence\Eloquent\Orders\Models\Order $order): GetPaymentTypesResponseData
+    protected function getPaymentTypeFromIikoByCode(OrderPayment $payment, OrganizationSetting $organizationSetting): GetPaymentTypesResponseData
     {
-        // Извлечение типов оплат из коллекции payment_types
-        $paymentTypes = $order->organizationSetting->payment_types;
+        $paymentTypes = $organizationSetting->paymentTypes;
+        /** @var PaymentType $matchedPaymentCode */
+        $matchedPaymentCode = $paymentTypes->firstWhere('welcomeGroupPaymentCode', $payment->type);
 
-        // Поиск iiko_payment_code на основе welcome_group_payment_code
-        $matchedPaymentCode = $paymentTypes->firstWhere('welcome_group_payment_code', $order->payment->type);
-
-        if (! $matchedPaymentCode || ! isset($matchedPaymentCode['iiko_payment_code'])) {
-            throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти соответствие типа оплаты для кода: '.$order->payment->type);
+        if (! $matchedPaymentCode || ! isset($matchedPaymentCode->iikoPaymentCode)) {
+            throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти соответствие типа оплаты для кода: '.$payment->type);
         }
 
-        $iikoPaymentCode = $matchedPaymentCode['iiko_payment_code'];
+        $iikoPaymentCode = $matchedPaymentCode->iikoPaymentCode;
 
-        // Запрос типов оплат из iiko
         $iikoPaymentTypes = $this->iikoConnector->getPaymentTypes(
-            new StringId($order->organizationSetting->iiko_restaurant_id),
-            $this->authenticator->getAuthToken($order->organizationSetting->iiko_api_key)
+            $organizationSetting->iikoRestaurantId,
+            $this->authenticator->getAuthToken($organizationSetting->iikoApiKey)
         );
 
-        // Фильтрация по коду iiko
-        /** @var GetPaymentTypesResponseData $iikoPaymentType */
         $iikoPaymentType = $iikoPaymentTypes->first(static function (GetPaymentTypesResponseData $paymentType) use ($iikoPaymentCode) {
             return $paymentType->code === $iikoPaymentCode;
         });
@@ -131,7 +127,7 @@ final readonly class ImportOrderService
             throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти тип оплаты в iiko для кода: '.$iikoPaymentCode);
         }
 
-        return $iikoPaymentType; // Возвращаем ID типа оплаты из iiko
+        return $iikoPaymentType;
     }
 
     protected function formatPhoneNumber($phoneNumber): string
@@ -240,13 +236,19 @@ final readonly class ImportOrderService
         }
 
         try {
-            $payments = $this->welcomeGroupConnector->getOrderPayment(new GetOrderPaymentRequestData($order->id));
+            $payments = $this
+                ->welcomeGroupConnector
+                ->getOrderPayment(new GetOrderPaymentRequestData($order->id))
+                ->map(static fn (GetOrderPaymentResponseData $payment) => $payment->toDomainEntity());
 
-            $totalSum = $payments->sum(static fn (GetOrderPaymentResponseData $payment) => $payment->sum);
+            //            $totalSum = $payments->sum(static fn (GetOrderPaymentResponseData $payment) => $payment->sum);
 
             $client = $this->welcomeGroupConnector->getClient(new IntegerId($order->client));
             $phone = $this->welcomeGroupConnector->getPhone(new IntegerId($order->phone));
-            $address = $this->welcomeGroupConnector->getAddress(new IntegerId($order->address));
+            $address = null;
+            if ($order->address) {
+                $address = $this->welcomeGroupConnector->getAddress(new IntegerId($order->address));
+            }
 
             $items = $this->welcomeGroupConnector->getOrderItems(new IntegerId($order->id))->map(static function (GetOrderItemsResponseData $orderItem) {
                 $food = WelcomeGroupFood::query()->where('external_id', $orderItem->food)->firstOrFail();
@@ -272,11 +274,11 @@ final readonly class ImportOrderService
                 return $item;
             });
 
-            if (blank($payments)) {
-                $payment = null;
-            } else {
-                $payment = new Payment($payments->first()->type, (int) ($totalSum));
-            }
+            //            if (blank($payments)) {
+            //                $payment = null;
+            //            } else {
+            //                $payment = new Payment($payments->first()->type, (int) ($totalSum));
+            //            }
 
             $timeCooking = $order->timeCooking ?? 0; // Если null, то используем 0
             $timeWaitingCooking = $order->timeWaitingCooking ?? 0; // Если null, то используем 0
@@ -289,10 +291,10 @@ final readonly class ImportOrderService
                 $deliveryTime = $order->timePreorder;
             }
 
-            /** @var EndpointAddress $deliveryPoint */
-            $deliveryPoint = EndpointAddress::query()
-                ->where('order_id', $order->id)
-                ->first();
+            //            /** @var EndpointAddress $deliveryPoint */
+            //            $deliveryPoint = EndpointAddress::query()
+            //                ->where('order_id', $order->id)
+            //                ->first();
 
             $newOrder = new Order(
                 new IntegerId(),
@@ -302,56 +304,60 @@ final readonly class ImportOrderService
                 new StringId(),
                 new IntegerId($order->id),
                 $order->comment,
-                $payment,
+                $payments,
                 new \Domain\Orders\ValueObjects\Customer($client->name, CustomerType::NEW, $phone->number),
                 new ItemCollection($items),
-                new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint(
-                    new Coordinates(
-                        $address->latitude,
-                        $address->longitude
-                    ),
-                    new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Address(
-                        new Street(
-                            null,
-                            null,
-                            $address->street,
-                            new City(
+                isset($address)
+                    ? new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\DeliveryPoint(
+                        new Coordinates(
+                            $address->latitude,
+                            $address->longitude
+                        ),
+                        new \Presentation\Api\DataTransferObjects\DeliveryOrderUpdateData\Address(
+                            new Street(
+                                null,
+                                null,
+                                $address->street,
+                                new City(
+                                    null,
+                                    $address->city,
+                                ),
+                            ),
+                            null, //$deliveryPoint->index,
+                            $address->house,
+                            $address->building,
+                            $address->flat,
+                            $address->entry,
+                            $address->floor,
+                            null, //$address->doorphone,
+                            new Region(
                                 null,
                                 $address->city,
                             ),
-                        ),
-                        null, //$deliveryPoint->index,
-                        $address->house,
-                        $address->building,
-                        $address->flat,
-                        $address->entry,
-                        $address->floor,
-                        null, //$address->doorphone,
-                        new Region(
-                            null,
-                            $address->city,
-                        ),
-                        null, //$deliveryPoint->line1,
+                            null, //$deliveryPoint->line1,
 
-                    ),
-                    null,
-                    null,
-                ),
+                        ),
+                        null,
+                        null,
+                    ) : null,
                 $deliveryTime,
             );
 
-            if ($newOrder->payment) {
+            $newOrder->payments->each(static function (Payment $payment) use ($organizationSetting) {
                 $paymentTypes = $organizationSetting->paymentTypes;
 
                 // Поиск iiko_payment_code на основе welcome_group_payment_code
+                /** @var PaymentType $matchedPaymentCode */
                 $matchedPaymentCode = $paymentTypes->first(
-                    static fn (PaymentType $paymentType) => $paymentType->welcomeGroupPaymentCode === $newOrder->payment->type
+                    static fn (PaymentType $paymentType) => $paymentType->welcomeGroupPaymentCode === $payment->type
                 );
 
                 if (! $matchedPaymentCode || ! isset($matchedPaymentCode?->iikoPaymentCode)) {
-                    throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти соответствие типа оплаты для кода: '.$newOrder->payment->type);
+                    throw new WelcomeGroupNotFoundMatchForPaymentTypeException(
+                        'Не удалось найти соответствие типа оплаты для кода: '.$payment->type
+                    );
                 }
-            }
+            });
 
             $storedOrder = $this->orderRepository->store($newOrder);
 
@@ -634,16 +640,16 @@ final readonly class ImportOrderService
                         'activeWgItemIds' => $activeWgItemIds,
                         'itemsToRestoreIds' => $itemsToRestore->pluck('welcome_group_external_id')->toArray(),
                         'condition' => ! ($localItemsOfThisType == 0 && $newItem->status != 'cancelled') || $activePlusRestoredItems >= $localItemsOfThisType ? 'SKIP' : 'ADD',
-//                        'condition' => ($activePlusRestoredItems >= $localItemsOfThisType) ? 'SKIP' : 'ADD',
+                        //                        'condition' => ($activePlusRestoredItems >= $localItemsOfThisType) ? 'SKIP' : 'ADD',
                     ]);
 
                     // Если новая позиция просто заменяет удаленную того же типа, пропускаем
                     // Исправляем условие: если localItemsOfThisType = 0, то это новый тип блюда, которого еще нет в заказе
                     // и его нужно добавить в любом случае
-//                                        if ($localItemsOfThisType > 0 && $activePlusRestoredItems > 0 &&
-//                                            ($activePlusRestoredItems + $localItemsOfThisType) <= count($activeWgItemsGrouped[$foodId] ?? [])) {
+                    //                                        if ($localItemsOfThisType > 0 && $activePlusRestoredItems > 0 &&
+                    //                                            ($activePlusRestoredItems + $localItemsOfThisType) <= count($activeWgItemsGrouped[$foodId] ?? [])) {
                     //                    if ($localItemsOfThisType > 0 && $activePlusRestoredItems >= $localItemsOfThisType) {
-//                    if (! ($localItemsOfThisType == 0 && $newItem->status != 'cancelled') || $activePlusRestoredItems >= $localItemsOfThisType) {
+                    //                    if (! ($localItemsOfThisType == 0 && $newItem->status != 'cancelled') || $activePlusRestoredItems >= $localItemsOfThisType) {
 
                     $itemsToAdd = count($activeWgItemsGrouped[$foodId] ?? []) - $localItemsOfThisType; // Временное решение, надо перепроверить
 
@@ -787,7 +793,7 @@ final readonly class ImportOrderService
     /**
      * @throws WelcomeGroupImportOrdersGeneralException
      */
-    private function createOrderInIiko(Order $order, GetAddressResponseData $address, GetClientResponseData $client, GetPhoneResponseData $phone, OrganizationSetting $organizationSetting): void
+    private function createOrderInIiko(Order $order, ?GetAddressResponseData $address, GetClientResponseData $client, GetPhoneResponseData $phone, OrganizationSetting $organizationSetting): void
     {
         try {
             /** @var GetAvailableTerminalsResponseData $terminals */
@@ -827,22 +833,41 @@ final readonly class ImportOrderService
                     )
                 );
             });
+            //            $payments = null;
+            //
+            //            if ($order->payment) {
+            //                $paymentType = $this->getPaymentTypeFromIikoByCode($order);
+            //                $payments = [
+            //                    new Payments(
+            //                        $paymentType->paymentTypeKind,
+            //                        (float) number_format($order->payment->amount, 2, '.', ''),
+            //                        $paymentType->id,
+            //                        true,
+            //                        null,
+            //                        false,
+            //                        true
+            //                    ),
+            //                ];
+            //            }
+
             $payments = null;
 
-            if ($order->payment) {
-                $paymentType = $this->getPaymentTypeFromIikoByCode($order);
-                $payments = [
-                    new Payments(
+            if ($order->payments->isNotEmpty()) {
+                $payments = $order->payments->map(function (OrderPayment $payment) use ($organizationSetting) {
+                    $paymentType = $this->getPaymentTypeFromIikoByCode($payment, $organizationSetting);
+
+                    return new Payments(
                         $paymentType->paymentTypeKind,
-                        (float) number_format($order->payment->amount, 2, '.', ''),
+                        (float) number_format($payment->amount, 2, '.', ''),
                         $paymentType->id,
                         true,
                         null,
                         false,
                         true
-                    ),
-                ];
+                    );
+                })->toArray();
             }
+
             if ($order->items()->count() == 0) {
                 throw new WelcomeGroupOrderItemsNotFoundForOrderException("Не найдены товары в заказе $order->welcome_group_external_id . Из-за этого создание внутри ПОД отменено и необходимо обработать вручную данную ситуацию");
             }
@@ -858,29 +883,30 @@ final readonly class ImportOrderService
                         $this->formatPhoneNumber($order->customer->phone),
                         $order->organizationSetting->order_delivery_type_id, // Должно быть или pickup_type_id
                         null,
-                        new DeliveryPoint(
-                            new Coordinates(
-                                $address->latitude,
-                                $address->longitude
-                            ),
-                            new Address(
-                                $address->flat,
-                                $address->entry,
-                                $address->floor,
-                                new StreetTwo(
+                        $address
+                            ? new DeliveryPoint(
+                                new Coordinates(
+                                    $address->latitude,
+                                    $address->longitude
+                                ),
+                                new Address(
+                                    $address->flat,
+                                    $address->entry,
+                                    $address->floor,
+                                    new StreetTwo(
+                                        null,
+                                        null,
+                                        $address->street,
+                                        $address->city
+                                    ),
                                     null,
+                                    $address->house,
                                     null,
-                                    $address->street,
-                                    $address->city
+                                    $address->building
                                 ),
                                 null,
-                                $address->house,
-                                null,
-                                $address->building
-                            ),
-                            null,
-                            $address->comment,
-                        ),
+                                $address->comment,
+                            ) : null,
                         $order?->comment ?? '',
                         new Customer($client->name),
                         $orderItems,
