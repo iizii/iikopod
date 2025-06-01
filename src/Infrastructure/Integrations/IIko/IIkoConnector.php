@@ -9,9 +9,11 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\LazyCollection;
+use Infrastructure\Integrations\IIko\DataTransferObjects\AddOrderItemsRequest\AddOrderItemsRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\ChangePaymentsForOrder\ChangePaymentsForOrder;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetActiveOrganizationCouriersRequestData;
@@ -25,12 +27,13 @@ use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetStopListResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\UpdateOrderRequest\UpdateOrderRequestData;
-use Infrastructure\Integrations\IIko\DataTransferObjects\AddOrderItemsRequest\AddOrderItemsRequestData;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestFailedEvent;
 use Infrastructure\Integrations\IIko\Events\IIkoRequestSuccessesEvent;
 use Infrastructure\Integrations\IIko\Exceptions\IIkoIntegrationException;
+use Infrastructure\Integrations\IIko\Requests\AddOrderItemsRequest;
 use Infrastructure\Integrations\IIko\Requests\CancelDeliveryRequest;
 use Infrastructure\Integrations\IIko\Requests\ChangeDeliveryDriverForOrderRequest;
+use Infrastructure\Integrations\IIko\Requests\ChangeOrderPaymentsRequest;
 use Infrastructure\Integrations\IIko\Requests\CloseDeliveryRequest;
 use Infrastructure\Integrations\IIko\Requests\CreateOrderRequest;
 use Infrastructure\Integrations\IIko\Requests\GetActiveOrganizationCouriersRequest;
@@ -39,7 +42,6 @@ use Infrastructure\Integrations\IIko\Requests\GetMenuRequest;
 use Infrastructure\Integrations\IIko\Requests\GetPaymentTypesRequest;
 use Infrastructure\Integrations\IIko\Requests\GetStopListRequest;
 use Infrastructure\Integrations\IIko\Requests\UpdateDeliveryStatus;
-use Infrastructure\Integrations\IIko\Requests\AddOrderItemsRequest;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Infrastructure\Integrations\AbstractConnector;
 use Shared\Infrastructure\Integrations\RequestInterface;
@@ -156,6 +158,15 @@ final readonly class IIkoConnector extends AbstractConnector implements IikoConn
     public function addOrderItems(AddOrderItemsRequestData $data, string $token): void
     {
         $this->send(new AddOrderItemsRequest($data, $token));
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    public function changePaymentsForOrder(ChangePaymentsForOrder $data, string $token): void
+    {
+        $this->send(new ChangeOrderPaymentsRequest($data, $token));
     }
 
     /**

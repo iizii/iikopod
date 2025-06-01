@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Presentation\Api\Controllers;
 
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
+use Domain\WelcomeGroup\Enums\OrderPaymentStatus;
+use Domain\WelcomeGroup\Enums\OrderPaymentType;
 use Domain\WelcomeGroup\Enums\OrderStatus;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Client\ConnectionException;
@@ -28,6 +30,7 @@ use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\GetOrders
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderItemRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Order\UpdateOrderRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\OrderItem\CreateOrderItemRequestData;
+use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Payment\CreateOrderPaymentRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\Phone\CreatePhoneRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\CreateRestaurantFoodRequestData;
 use Infrastructure\Integrations\WelcomeGroup\DataTransferObjects\RestaurantFood\EditRestaurantFoodRequestData;
@@ -615,6 +618,25 @@ final readonly class WelcomeGroupController
                 $request->input('order_id'),
                 $request->input('food_id'),
                 $request->input('food_modifier_ids'),
+            )
+        );
+
+        return $this->responseFactory->json($response, 200);
+    }
+
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
+    #[Route(methods: 'POST', uri: '/wg/create_order_payment', name: 'wg.create_order_payment')]
+    public function createOrderPayment(Request $request, WelcomeGroupConnectorInterface $welcomeGroupConnector): JsonResponse
+    {
+        $response = $welcomeGroupConnector->createPayment(
+            new CreateOrderPaymentRequestData(
+                $request->input('order_id'),
+                OrderPaymentStatus::from($request->input('status')),
+                OrderPaymentType::from($request->input('type')),
+                $request->input('sum'),
             )
         );
 

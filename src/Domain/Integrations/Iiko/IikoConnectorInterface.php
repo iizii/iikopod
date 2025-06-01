@@ -11,6 +11,7 @@ use Illuminate\Support\LazyCollection;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CancelOrCloseRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\ChangeDeliveryDriverForOrderResponseData;
+use Infrastructure\Integrations\IIko\DataTransferObjects\ChangePaymentsForOrder\ChangePaymentsForOrder;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\CreateOrderRequestData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\ResponseData\CreateOrderResponseData;
 use Infrastructure\Integrations\IIko\DataTransferObjects\GetActiveOrganizationCouriersRequestData;
@@ -68,4 +69,6 @@ interface IikoConnectorInterface
     public function changeDeliveryDriverForOrder(ChangeDeliveryDriverForOrderRequestData $changeDeliveryDriverForOrderRequestData, string $authToken): ChangeDeliveryDriverForOrderResponseData;
 
     public function addOrderItems(AddOrderItemsRequestData $data, string $token): void;
+    public function changePaymentsForOrder(ChangePaymentsForOrder $data, string $token): void;
+
 }

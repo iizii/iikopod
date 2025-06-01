@@ -89,6 +89,17 @@ final readonly class ImportOrderService
                 );
 
                 $orders->each(function (GetOrdersByRestaurantResponseData $order) use ($timestamp, $organizationSetting): void {
+                    logger()
+                        ->channel('import_orders_from_wg_to_iiko')
+                        ->info("Начали обрабатывать заказ $order->id");
+                    if (count($order->orderItems) == 0) {
+                        logger()
+                            ->channel('import_orders_from_wg_to_iiko')
+                            ->info("Пропустили заказ $order->id, в нём нет товаров");
+
+                        return;
+                    }
+
                     $this->processOrder($order, $organizationSetting, $timestamp);
                 });
             } catch (Throwable $e) {
@@ -174,9 +185,12 @@ final readonly class ImportOrderService
             ]);
 
             // Проверяем изменения в позициях заказа
-            $this->handleOrderItemsChanges($internalOrder, $order, $organizationSetting);
+            //            $this->handleOrderItemsChanges($internalOrder, $order, $organizationSetting);
 
             if (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::FINISHED) {
+                logger()
+                    ->channel('import_orders_from_wg_to_iiko')
+                    ->info("Заказ $internalOrder->id попал в блок финишед для обработки");
                 $this
                     ->iikoConnector
                     ->closeOrder(
@@ -189,6 +203,10 @@ final readonly class ImportOrderService
                             ->getAuthToken($organizationSetting->iikoApiKey)
                     );
             } elseif (OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::REJECTED || OrderStatus::fromWelcomeGroupStatus($wgStatus) == OrderStatus::CANCELLED) {
+                logger()
+                    ->channel('import_orders_from_wg_to_iiko')
+                    ->info("Заказ $internalOrder->id попал в блок reject&cancelled для обработки");
+
                 $this
                     ->iikoConnector
                     ->rejectOrder(
@@ -201,6 +219,9 @@ final readonly class ImportOrderService
                             ->getAuthToken($organizationSetting->iikoApiKey)
                     );
             } elseif (OrderStatus::checkDeliveredStatus($internalOrder->status)) {
+                logger()
+                    ->channel('import_orders_from_wg_to_iiko')
+                    ->info("Заказ $internalOrder->id попал в блок доставочных заказов для обработки");
                 if (OrderStatus::toIikoStatus(OrderStatus::fromWelcomeGroupStatus($wgStatus)) === \Domain\Iiko\Enums\OrderStatus::ON_WAY) {
                     // указываем курьера к заказу которого выбрали в админке
                     $this
@@ -227,11 +248,18 @@ final readonly class ImportOrderService
                 );
             }
 
+            $payments = $this
+                ->welcomeGroupConnector
+                ->getOrderPayment(new GetOrderPaymentRequestData($order->id))
+                ->map(static fn (GetOrderPaymentResponseData $payment) => $payment->toDomainEntity());
+            //            dd($payments);
             $orderBuilder = OrderBuilder::fromExisted($internalOrder)
+                ->setPayments($payments)
                 ->setStatus(OrderStatus::fromWelcomeGroupStatus($wgStatus));
-
+            //            dd($orderBuilder->build()->payments->toArray());
             $this->orderRepository->update($orderBuilder->build());
 
+            //            $internalOrder->payments()
             return;
         }
 

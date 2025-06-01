@@ -107,7 +107,7 @@ final class OrderBuilder
         return $clone;
     }
 
-    public function setPayment(?Payment $payment): OrderBuilder
+    public function setPayments(?Enumerable $payment): OrderBuilder
     {
         $clone = clone $this;
         $clone->payments = $payment;

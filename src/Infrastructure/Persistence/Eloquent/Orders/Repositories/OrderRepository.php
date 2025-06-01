@@ -5,18 +5,28 @@ declare(strict_types=1);
 namespace Infrastructure\Persistence\Eloquent\Orders\Repositories;
 
 use Application\Orders\Builders\OrderBuilder;
+use Domain\Integrations\Iiko\IikoConnectorInterface;
 use Domain\Integrations\WelcomeGroup\WelcomeGroupConnectorInterface;
 use Domain\Orders\Entities\Order as DomainOrder;
 use Domain\Orders\Repositories\OrderRepositoryInterface;
 use Domain\Orders\ValueObjects\Item;
 use Domain\Orders\ValueObjects\Modifier;
 use Domain\Orders\ValueObjects\Payment;
+use Domain\Settings\ValueObjects\PaymentType;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Infrastructure\Integrations\IIko\DataTransferObjects\ChangePaymentsForOrder\ChangePaymentsForOrder;
+use Infrastructure\Integrations\IIko\DataTransferObjects\CreateOrderRequest\Payments;
+use Infrastructure\Integrations\IIko\DataTransferObjects\GetPaymentTypesResponse\GetPaymentTypesResponseData;
+use Infrastructure\Integrations\IIko\IikoAuthenticator;
+use Infrastructure\Integrations\IIko\IIkoConnector;
 use Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress;
 use Infrastructure\Persistence\Eloquent\Orders\Models\Order;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderCustomer;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderItemModifier;
 use Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment;
+use Shared\Domain\Exceptions\WelcomeGroupNotFoundMatchForPaymentTypeException;
 use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 use Shared\Persistence\Repositories\AbstractPersistenceRepository;
@@ -75,12 +85,16 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
         return $createdOrder->build();
     }
 
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
     public function update(DomainOrder $order): ?DomainOrder
     {
         /** @var Order $persistenceOrder */
         $persistenceOrder = $this
             ->query()
-            ->with(['items.modifiers', 'payments']) // важно подгрузить связанные модели
+            ->with(['items.modifiers', 'payments', 'organizationSetting']) // важно подгрузить связанные модели
             ->find($order->id->id);
 
         if (! $persistenceOrder) {
@@ -91,31 +105,37 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
         $processedPaymentIds = [];
 
         $welcomeGroupConnector = app(WelcomeGroupConnectorInterface::class);
-
+        /** @var IikoConnector $iikoConnector */
+        $iikoConnector = app(IikoConnectorInterface::class);
+        /** @var IikoAuthenticator $iikoAuth */
+        $iikoAuth = app(IikoAuthenticator::class);
         // 🔁 Синхронизация платежей
-        $order->payments->each(static function (Payment $payment) use ($currentPayments, $persistenceOrder, &$processedPaymentIds) {
-            /** @var OrderPayment|null $existingPayment */
-            $existingPayment = $currentPayments
-                ->whereNotIn('id', $processedPaymentIds)
-                ->first(static function (OrderPayment $current) use ($payment) {
-                    return $current->type === $payment->type
-                        && $current->amount === $payment->amount;
-                });
+        $order
+            ->payments
+            ?->each(static function (Payment $payment) use ($currentPayments, $persistenceOrder, &$processedPaymentIds) {
+                /** @var OrderPayment|null $existingPayment */
+                $existingPayment = $currentPayments
+                    ->whereNotIn('id', $processedPaymentIds)
+                    ->first(static function (OrderPayment $current) use ($payment) {
+                        return $current->type === $payment->type
+                            && $current->amount === $payment->amount;
+                    });
+                logger('existingPayments', [$existingPayment, $processedPaymentIds]);
 
-            if ($existingPayment) {
-                // 🔄 Обновляем существующий платёж (такое ощущение, что зачем его обрабатывать, если он сошёлся по типу и сумме)
-                //                $existingPayment->fromDomainEntity($payment);
-                //                $existingPayment->save();
+                if ($existingPayment) {
+                    // 🔄 Обновляем существующий платёж (такое ощущение, что зачем его обрабатывать, если он сошёлся по типу и сумме)
+                    //                $existingPayment->fromDomainEntity($payment);
+                    //                $existingPayment->save();
 
-                $processedPaymentIds[] = $existingPayment->id;
-            } else {
-                // ➕ Новый платёж
-                $newPayment = (new OrderPayment())->fromDomainEntity($payment);
-                $newPayment->order_id = $persistenceOrder->id;
-                $newPayment->save();
-                $processedPaymentIds[] = $newPayment->id;
-            }
-        });
+                    $processedPaymentIds[] = $existingPayment->id;
+                } else {
+                    // ➕ Новый платёж
+                    $newPayment = (new OrderPayment())->fromDomainEntity($payment);
+                    $newPayment->order_id = $persistenceOrder->id;
+                    $newPayment->save();
+                    $processedPaymentIds[] = $newPayment->id;
+                }
+            }) ?? '';
 
         // 🗑️ Удаление неактуальных платежей
         $currentPayments->each(static function (OrderPayment $currentPayment) use ($processedPaymentIds, $welcomeGroupConnector) {
@@ -127,6 +147,66 @@ final class OrderRepository extends AbstractPersistenceRepository implements Ord
                 $currentPayment->delete();
             }
         });
+
+        $organization = $persistenceOrder->organizationSetting->toDomainEntity();
+        //        $paymentsForChangeInIiko[] = new Payments(
+        //            $organization->paymentTypes->first(
+        //                static fn (PaymentType $paymentType) => $paymentType->welcomeGroupPaymentCode === $payment->type
+        //
+        //            )?->iikoPaymentCode ?? 'Card',
+        //            $payment->amount,
+        //
+        //        )
+
+        $iikoPaymentTypes = $iikoConnector->getPaymentTypes(
+            $organization->iikoRestaurantId,
+            $iikoAuth->getAuthToken($organization->iikoApiKey)
+        );
+
+        $paymentTypes = $organization->paymentTypes;
+
+        $paymentsForChangeInIiko = [];
+        OrderPayment::query()
+            ->whereIn('id', $processedPaymentIds)
+            ->each(static function (OrderPayment $payment) use (&$paymentsForChangeInIiko, $paymentTypes, $iikoPaymentTypes) {
+                /** @var PaymentType $matchedPaymentCode */
+                $matchedPaymentCode = $paymentTypes->firstWhere('welcomeGroupPaymentCode', $payment->type);
+
+                if (! $matchedPaymentCode || ! isset($matchedPaymentCode->iikoPaymentCode)) {
+                    logger()
+                        ->channel('import_orders_from_wg_to_iiko')
+                        ->info("Не найден тип оплаты $payment->type для заказа $payment->order_id. По умолчанию применился CARD");
+                }
+                $iikoPaymentCode = $matchedPaymentCode?->iikoPaymentCode ?? 'Card';
+
+                /** @var GetPaymentTypesResponseData $iikoPaymentType */
+                $iikoPaymentType = $iikoPaymentTypes->first(static function (GetPaymentTypesResponseData $paymentType) use ($iikoPaymentCode) {
+                    return $paymentType->code === $iikoPaymentCode;
+                });
+
+                if (! $iikoPaymentType) {
+                    throw new WelcomeGroupNotFoundMatchForPaymentTypeException('Не удалось найти тип оплаты в iiko для кода: '.$iikoPaymentCode);
+                }
+
+                $paymentsForChangeInIiko[] = new Payments(
+                    $iikoPaymentType->paymentTypeKind,
+                    (float) number_format($payment->amount /100, 2, '.', ''),
+                    $iikoPaymentType->id,
+                    false,
+                    null,
+                    false,
+                    false
+                );
+            });
+
+        $iikoConnector->changePaymentsForOrder(
+            new ChangePaymentsForOrder(
+                $organization->iikoRestaurantId->id,
+                $persistenceOrder->iiko_external_id,
+                $paymentsForChangeInIiko
+            ),
+            $iikoAuth->getAuthToken($organization->iikoApiKey)
+        );
 
         // 🔁 Синхронизация позиций заказа и их модификаторов
         $processedItemIds = [];
