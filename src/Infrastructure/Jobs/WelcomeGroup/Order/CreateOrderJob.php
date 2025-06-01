@@ -112,21 +112,22 @@ final class CreateOrderJob implements ShouldQueue
         try {
 
             $address = $order->deliveryPoint;
-
-            $deliveryAddress = $welcomeGroupConnector->createAddress(
-                new CreateAddressRequestData(
-                    $address->address->street->city->name,
-                    $address->address->street->name,
-                    $address->address->house,
-                    $address->address->building,
-                    $address->address->floor,
-                    $address->address->flat,
-                    $address->address->entrance,
-                    $address->coordinates->latitude,
-                    $address->coordinates->longitude,
-                    $address->comment,
-                ),
-            );
+            if ($address) {
+                $deliveryAddress = $welcomeGroupConnector->createAddress(
+                    new CreateAddressRequestData(
+                        $address->address->street->city->name,
+                        $address->address->street->name,
+                        $address->address->house,
+                        $address->address->building,
+                        $address->address->floor,
+                        $address->address->flat,
+                        $address->address->entrance,
+                        $address->coordinates->latitude,
+                        $address->coordinates->longitude,
+                        $address->comment,
+                    ),
+                );
+            }
         } catch (\Throwable $e) {
             throw new \RuntimeException(
                 sprintf(
@@ -183,7 +184,7 @@ final class CreateOrderJob implements ShouldQueue
                     $organizationSettings->welcomeGroupRestaurantId->id,
                     $client->id,
                     $phone->id,
-                    $deliveryAddress->id,
+                    $address ? $deliveryAddress->id : null,
                     [],
                     OrderStatus::toWelcomeGroupStatus($order->status),
                     100,

@@ -177,11 +177,11 @@ final readonly class CreateOrderFromWebhook
                 ->setId($existedOrder->id)
                 ->setWelcomeGroupExternalId($existedOrder->welcomeGroupExternalId);
 
-            $this->updateOrder->update($order->build(), $eventData->order->sourceKey); // Сюда полагаю тоже сорскей бы
+            $this->updateOrder->update($order->build(), $eventData->order->sourceKey ?? 'default'); // Сюда полагаю тоже сорскей бы
 
             return;
         }
 
-        $this->storeOrder->store($order, $eventData->order->sourceKey);
+        $this->storeOrder->store($order, $eventData->order->sourceKey ?? 'default');
     }
 }

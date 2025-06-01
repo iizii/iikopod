@@ -16,7 +16,7 @@ final class CreateOrderRequestData extends Data
         public readonly int $restaurant,
         public readonly int $client,
         public readonly int $phone,
-        public readonly int $address,
+        public readonly ?int $address,
         public readonly array $promotions,
         public readonly OrderStatus $status,
         public readonly int $duration,

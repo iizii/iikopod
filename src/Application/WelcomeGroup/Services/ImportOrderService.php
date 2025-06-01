@@ -853,10 +853,11 @@ final readonly class ImportOrderService
             $payments = null;
 
             if ($order->payments->isNotEmpty()) {
-                $payments = $order->payments->map(function (OrderPayment $payment) use ($organizationSetting) {
+                $payments = [];
+                $order->payments->each(function (OrderPayment $payment) use ($organizationSetting, &$payments) {
                     $paymentType = $this->getPaymentTypeFromIikoByCode($payment, $organizationSetting);
 
-                    return new Payments(
+                    $payments[] = new Payments(
                         $paymentType->paymentTypeKind,
                         (float) number_format($payment->amount, 2, '.', ''),
                         $paymentType->id,
@@ -865,7 +866,7 @@ final readonly class ImportOrderService
                         false,
                         true
                     );
-                })->toArray();
+                });
             }
 
             if ($order->items()->count() == 0) {
@@ -881,7 +882,9 @@ final readonly class ImportOrderService
                         (string) $order->id,
                         $order->complete_before->format('Y-m-d H:i:s.v'),
                         $this->formatPhoneNumber($order->customer->phone),
-                        $order->organizationSetting->order_delivery_type_id, // Должно быть или pickup_type_id
+                        $address
+                            ? $order->organizationSetting->order_delivery_type_id
+                            : $order->organizationSetting->order_pickup_type_id, // В зависимости от наличия адреса тип доставки самовывоз или доставка
                         null,
                         $address
                             ? new DeliveryPoint(

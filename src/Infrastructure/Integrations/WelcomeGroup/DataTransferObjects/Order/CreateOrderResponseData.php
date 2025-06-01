@@ -16,7 +16,7 @@ final class CreateOrderResponseData extends ResponseData
         public readonly int $restaurant,
         public readonly int $client,
         public readonly int $phone,
-        public readonly int $address,
+        public readonly ?int $address,
         public readonly array $promotions,
         public readonly string $status,
         public readonly int $duration,

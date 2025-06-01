@@ -12,7 +12,7 @@ final class Order extends ResponseData
 {
     /**
      * @param  Items[]  $items
-     * @param  Payments[]  $payments
+     * @param  array<array-key, Payments>  $payments
      * @param  Tips[]  $tips
      * @param  ExternalData[]  $externalData
      */
