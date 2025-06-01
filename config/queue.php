@@ -82,6 +82,14 @@ return [
             'block_for' => null,
             'after_commit' => true,
         ],
+        \Infrastructure\Queue\Queue::STOP_LIST->value => [
+            'driver' => 'redis',
+            'connection' => env('REDIS_QUEUE_CONNECTION', 'default'),
+            'queue' => \Infrastructure\Queue\Queue::STOP_LIST->value,
+            'retry_after' => (int) env('REDIS_QUEUE_RETRY_AFTER', 90),
+            'block_for' => null,
+            'after_commit' => true,
+        ],
     ],
 
     /*

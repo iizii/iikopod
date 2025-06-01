@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Str;
+use Infrastructure\Queue\Queue;
 
 return [
 
@@ -186,7 +187,8 @@ return [
             'connection' => 'redis',
             'queue' => [
                 'default',
-                \Infrastructure\Queue\Queue::INTEGRATIONS->value,
+                Queue::INTEGRATIONS->value,
+                Queue::STOP_LIST->value,
             ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',

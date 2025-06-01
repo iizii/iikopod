@@ -24,7 +24,7 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $iiko_menu_item_group_id
@@ -141,36 +141,5 @@ final class IikoMenuItem extends Model
     protected static function boot(): void
     {
         parent::boot();
-
-        self::saving(static function (self $item) {
-            // Проверяем, что запись НЕ новая и поле `is_hidden` изменилось
-            if (! $item->isNewRecord() && $item->isDirty('is_hidden')) {
-                $welcomeGroupFood = $item->load('food')->food;
-                //                $orgId = $item->itemGroup->iikoMenu->organization_setting_id;
-
-                /** @var WelcomeGroupRestaurantFoodRepositoryInterface $restaurantFoodRepository */
-                $restaurantFoodRepository = app(WelcomeGroupRestaurantFoodRepositoryInterface::class);
-
-                $restaurantFood = $restaurantFoodRepository->findByExternalFoodId(new IntegerId($welcomeGroupFood->external_id));
-                $restaurantFood = WelcomeGroupRestaurantFood::query()
-                    ->find($restaurantFood->id->id);
-
-                $restaurantFood->status = $item->is_hidden ? 'stopped' : 'active';
-                $restaurantFood->save();
-
-                /** @var WelcomeGroupConnectorInterface $welcomeGroupConnector */
-                $welcomeGroupConnector = app(WelcomeGroupConnectorInterface::class);
-
-                $welcomeGroupConnector
-                    ->updateRestaurantFood(
-                        new EditRestaurantFoodRequestData(
-                            $restaurantFood->restaurant_id,
-                            $restaurantFood->food_id,
-                            $restaurantFood->status
-                        ),
-                        new IntegerId($restaurantFood->external_id)
-                    );
-            }
-        });
     }
 }
