@@ -155,7 +155,9 @@ final readonly class CreateOrderFromWebhook
                         );
 
                         if (! $modifier) {
-                            throw new ItemNotFoundException(sprintf('Iiko modifier not found for %s', $modifier->name));
+                            throw new ItemNotFoundException(
+                                sprintf('Iiko modifier not found for %s', $modifiers->product->name)
+                            );
                         }
 
                         $item->addModifier(
