@@ -2,4 +2,4 @@ services:
   frankenphp:
     environment:
       TIME_ZONE: ${TIME_ZONE}
-      SERVER_NAME: pod.crewdev.ru
+      SERVER_NAME: dev-iikopod.w-g.su

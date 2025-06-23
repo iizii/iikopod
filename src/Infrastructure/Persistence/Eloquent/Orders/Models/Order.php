@@ -28,6 +28,8 @@ use Shared\Domain\ValueObjects\IntegerId;
 use Shared\Domain\ValueObjects\StringId;
 
 /**
+ * 
+ *
  * @property int $id
  * @property int $organization_setting_id
  * @property string $source
@@ -38,14 +40,13 @@ use Shared\Domain\ValueObjects\StringId;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $complete_before
- * @property-read OrderCustomer|null $customer
- * @property-read EndpointAddress|null $endpointAddress
- * @property-read Collection<int, OrderItem> $items
+ * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\OrderCustomer|null $customer
+ * @property-read \Infrastructure\Persistence\Eloquent\Orders\Models\EndpointAddress|null $endpointAddress
+ * @property-read Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderItem> $items
  * @property-read int|null $items_count
  * @property-read OrganizationSetting $organizationSetting
- * @property-read Collection<int, OrderPayment> $payments
+ * @property-read Collection<int, \Infrastructure\Persistence\Eloquent\Orders\Models\OrderPayment> $payments
  * @property-read int|null $payments_count
- *
  * @method static Builder<static>|Order newModelQuery()
  * @method static Builder<static>|Order newQuery()
  * @method static Builder<static>|Order query()
@@ -59,7 +60,6 @@ use Shared\Domain\ValueObjects\StringId;
  * @method static Builder<static>|Order whereStatus($value)
  * @method static Builder<static>|Order whereUpdatedAt($value)
  * @method static Builder<static>|Order whereWelcomeGroupExternalId($value)
- *
  * @mixin \Eloquent
  */
 final class Order extends Model

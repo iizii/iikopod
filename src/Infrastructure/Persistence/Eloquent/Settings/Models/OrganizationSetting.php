@@ -32,7 +32,7 @@ use Shared\Domain\ValueObjects\StringId;
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
  * @property bool $block_orders
- * @property array|null $order_types
+ * @property array<array-key, mixed>|null $order_types
  * @property string|null $iiko_courier_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganizationSetting newQuery()
