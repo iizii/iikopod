@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Application\Iiko\Factories;
 
 use Domain\Iiko\Enums\WebhookEventType;
-use Domain\Iiko\Exceptions\IikoEventTypeNotFountException;
+use Domain\Iiko\Exceptions\IikoEventTypeNotFoundException;
 use Exception;
 use Illuminate\Contracts\Events\Dispatcher;
 use Infrastructure\Persistence\Eloquent\Settings\Models\OrganizationSetting;
@@ -34,7 +34,7 @@ final readonly class WebhookEventFactory
         $eventMap = WebhookEventType::eventMap();
 
         if (! array_key_exists($request->eventType->value, $eventMap)) {
-            throw new IikoEventTypeNotFountException();
+            throw new IikoEventTypeNotFoundException();
         }
 
         $this->dispatcher->dispatch(

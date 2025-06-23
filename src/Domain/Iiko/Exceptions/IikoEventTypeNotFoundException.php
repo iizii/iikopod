@@ -6,4 +6,4 @@ namespace Domain\Iiko\Exceptions;
 
 use Illuminate\Contracts\Debug\ShouldntReport;
 
-final class IikoEventTypeNotFountException extends \DomainException implements ShouldntReport {}
+final class IikoEventTypeNotFoundException extends \DomainException implements ShouldntReport {}

@@ -6,7 +6,7 @@ ini_set('memory_limit', '-1');
 
 use function Pest\Stressless\stress;
 
-it('Webhook Order Stress Test', static function () {
+it('Webhook Order Stress Test', function () {
     $result = stress(route('api.v1.iiko.webhook'))
         ->post(['name' => 'Nuno'])
         ->concurrency(1)
