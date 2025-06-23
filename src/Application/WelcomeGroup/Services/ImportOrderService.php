@@ -104,7 +104,7 @@ final readonly class ImportOrderService
                 });
             } catch (Throwable $e) {
                 logger()->error('Ошибка при обработке заказов из Welcome Group', [
-                    'organizationId' => $organizationSetting->id,
+                    'organizationId' => $organizationSetting->id->id,
                     'error' => $e,
                 ]);
 
