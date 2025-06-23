@@ -108,7 +108,13 @@ final readonly class ImportOrderService
                     'error' => $e,
                 ]);
 
-                throw new WelcomeGroupImportOrdersGeneralException("Не удалось инициировать процесс сбора заказов из ПОД в IIKO. Заведение: {$organizationSetting->welcomeGroupRestaurantId->id}. Причина: {$e->getMessage()}");
+                throw new WelcomeGroupImportOrdersGeneralException(
+                    sprintf(
+                        'Не удалось инициировать процесс сбора заказов из ПОД в IIKO. Заведение: %d. Причина: %s',
+                        $organizationSetting->welcomeGroupRestaurantId->id,
+                        $e->getMessage(),
+                    ),
+                );
             }
         });
     }
